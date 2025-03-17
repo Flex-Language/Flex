@@ -1,0 +1,427 @@
+x=10
+intttt=6
+funnnn=7.6
+booll=5
+test_var=0
+z=5
+i=6
+for(i=4;i<10;i++){
+    print("i is {i}")
+    if (i==6){
+        break
+    }
+}
+fun xyz(int oo){
+    print("enter number")
+    test_var=9
+    x=scan()
+    print(oo)
+    return x
+}
+//int r="njn"
+int t=5.6
+//bool rf="kkmkm"
+print(t)
+xyz(5)
+
+
+for(z=0;z<8;z++){
+    print("z is {z}")
+}
+
+list xx =[6,2,3,4]
+print(xx)
+xx.push(23)
+xx.push("worddd")
+print(xx)
+xx.pop()
+print(xx)
+xx.remove(3)
+print(xx)
+list qq=[12,22,34]
+print("x0+q1={xx[0]+qq[1]}")
+print(xx[0]+qq[1])
+int no=xx[0]*xx[1]
+ew=xx[0]*xx[1]
+print(no-ew)
+print("no is {no}")
+if (xx[0]<xx[1]){
+    print("xo is smaller")
+}
+xx[0]=9*2
+for (i=0;i<xx[0];i++){
+    print("iiii is {i}")
+}
+print(no)
+xx[2] = "sdfsdf"
+xx[3]=scan()
+u = "sdfsdfsd"
+xx[0] = u
+print(xx)
+print(xx[2])
+
+
+
+print(intttt+funnnn+booll)
+print(x)
+x=(x+2)*5
+print(x)
+
+fun greet(int x,list arr) {
+    print(x)
+    test_var=333
+    for(i=0;i<4;i++){
+        print("list element {i} is {arr[i]}")
+    }
+    arr[0]=990
+    print("Hello, World!")
+    int varr=87
+    //return p1
+    print("enter vall")
+    int val=scan()
+    print("val is {val}")
+    x=5
+    if (x>8){
+        return 88
+    }
+    elif (1>2){
+        return 99
+    }
+    for(i=0;i<10;i++){
+        print(i)
+        if (i==7){
+            break
+        }
+    }
+    bhjb=varr+7
+    print(bhjb+8+9-8)
+    #x=334
+    y=5
+    return true
+    print("dedddd")
+}
+pv=9
+s=1
+t=2
+xx[0]=5
+//greet(test_var+qq[1])
+xx[3]=45
+greet(xx[3],xx)
+//int yyy=greet(xx[3])
+print(x)
+print(xx)
+
+x=10
+y=1
+
+fun add(int x, int y,int u) {
+    r=x
+    print(r)
+    '''for(r=0;r<20;i++){
+        return 44
+    }
+    if (r>50){
+        print("rrrrrrrrrr")
+    }'''
+    return x + y +u
+}
+fun min(int t, int b) {
+    return t + b 
+}
+
+fun tms(int q, int w) {
+   
+   if(w>3){
+     print("werwe")
+   }
+   return 6
+  
+}
+tms(4,6)
+for(i=0;i<23;i++){
+    print("i is {i}")
+    if (i==7){
+        break
+    }
+}
+q=0
+while(q<30){
+    if (q==10){
+        break
+    }
+    print("q is {q}")
+    q++
+}
+
+r = add(78,5,7.5)
+print(r)
+
+
+result = add(x,y,8)
+print(result)  # Output: 15
+result = add(1,5,x)
+print(result)
+
+
+
+tmp = min(4,9)
+print(tmp)
+result = add(x, y,0)
+print(result)
+v=add(1,2,3)
+print(v)
+
+
+
+
+
+
+
+
+
+'''
+
+
+print("z is {z}")
+x=10
+x=(x+2)*4
+print("x is {x}")
+
+
+q=4
+//fukval=greet()
+print(q)
+
+while(q<10){
+    print(q)
+    q++
+    if (q==8){
+        print("should leave")
+        break
+    }
+}
+//greet()
+//s=scan()
+er="jnnkn"
+er=8
+//x=scan()
+print("var is {er}")
+
+string x="ekmemf"
+print("str is {x}")
+//x=scan()
+varr=78
+//greet()
+print(varr)
+//greet()
+x=4
+y=5
+z=6
+if (x==4 and y==5 and not(z>1)){
+    print("kkmed")
+}
+print(x)
+y=50
+if (x==5 or not(y<6)){
+    print("qwwee")
+}
+x=2334
+x=x+1
+print(x)
+y=x
+x=89
+x=1+8
+x=x+1
+y=7
+//int x=6+y
+x=4
+y=78
+z=x+1
+print(z+7)
+x=1.2
+x=x+4
+x=y+1
+string werrr="scan_now"
+x="True"
+werrr=true
+print(werrr)
+print("dkmfk")
+float qwe=0/3
+x="sfgrg"
+if (x=="sfgrg"){print("suuui nigga")}
+
+
+y=8
+z=67
+z++
+print(z)
+//float x=89
+yer=78
+yer=8
+print("x is {x}")
+print(z)
+//bool z=true
+int lo=98
+//z=7
+print(z)
+wer=4.5
+print(x)
+print(y)
+int u =2*10
+yer=66
+u++
+//x=false
+print(u)
+print("enter value of c ")
+c=56
+print("c is {c}")
+if (0>1){
+    print("jmjm")
+}
+elif (2>u){
+    print("kemmdke")
+}
+elif (3>u){
+    print("still no")
+}
+elif (1>0){
+    print("yess")
+}
+elif(55>5){
+    print("kmkmkmkmkm")
+}
+else{print("uuuuuu")}
+c=4
+u=3*(-2-2)
+print(u)
+if (1>2){
+    print("never")
+}
+elif(55>3){
+    print("nooo")
+}
+elif(55>22){
+    print("nooo22")
+}
+elif(1>3){
+    print("nooo33")
+}
+else{
+    print("nnoo")
+}
+x=false
+var=22
+x=33
+if (7>0){
+    print("nnoonkn")
+}
+
+
+//greet()
+
+print(x)
+print("this is {x/0}")
+wer=true
+x=34
+print(x)
+
+y=-5
+etb3(y)
+print("this var is sdds")
+if (x<y){print("jnjnrnf")}
+#z=--2
+u=3/-4
+print("z is {z}")
+print("u is {u}")
+float y = 5.555
+bool t = false
+etb3("x = {x}")
+etb3("y = {y}")
+etb3("t is {t}")
+x = 10 -2 
+etb3("New x = {x}")
+
+//if (2<4){print("this is crazyy")}
+lw (9 < 7){
+      etb3("kokgdgoko")
+  etb3("helrgerglo")
+print("x")
+print("{x}")
+}
+if (1 <= 3) {
+    print("Hello and x = {x} and y = {y}")
+}
+lw (5 < 4) {
+    etb3("This should not print")
+}
+
+x = 1
+while(x) {
+    etb3("mah")
+    x = x + 1
+    if (x == 5) {
+        break
+    }
+}
+
+etb3("frfrfrfr") 
+x = x * 3 + 4 / 2 + 0 
+print("x ={x}")
+
+print("Rfrf {x}")
+int yo = 9
+if(yo==9){
+    etb3("frfr")
+}
+
+lw(x>yo){
+    print("ok")
+}
+print("rfr")
+int j = 8
+b =5*4/5*y
+print("{b}")
+//int 
+
+
+
+l =0
+x=u
+//e=iw
+print("{lfgd}")
+n=90
+x=5
+--x
+print(x)
+for (i = 1; i =< 9; i=i+1) {
+    etb3("i is {i}")
+    for (k = 0; k =< i; k=k+1) {
+    etb3("i is {k}")
+    if(k==90){
+        break
+    }
+}
+    if(i==90){
+        break
+    }
+}
+for (k = 0; k =< i; k=k+1) {
+    etb3("i is {k}")
+    if(k==90){
+        break
+    }
+    x=6
+    while(true){
+        print("ff")
+          x++
+          if(x==12){
+            break
+          }
+    }
+}
+
+for (i = 0; i > -5; i--) {
+    etb3("i is ")
+}
+
+'''

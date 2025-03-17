@@ -1,0 +1,15 @@
+fun test(string m,i,int u){
+    return m
+}
+
+
+int x,y=99,z
+print(y)
+z=34
+klma s="hello",u,t
+print(s)
+
+u=test("miji",8.9,8.5)
+print(u)
+
+

@@ -1,0 +1,78 @@
+fun smpint(float p, float r, float t){
+    z= (p*r*t)/100
+    
+    rg3 z
+}
+
+fun test5(float x){
+    etb3("message is {x}")
+}
+
+sando2 do_modulus (rakm b, rakm c) {
+    lw c == 0 { etb3("error: division by zero is not allowed")}
+
+    aba = absolute(b) 
+    abb = absolute(c)
+
+    lw aba < abb { rg3 b}
+
+
+    tlma aba >= abb {
+        aba =aba - abb
+    }
+    lw b < 0 {
+        x =aba * (-1)
+        rg3 x
+    }
+    gher{ rg3 aba}
+}
+
+kasr p=10672,r=12,t=1
+// kasr r=12
+// kasr t=1
+kasr si = smpint(p, r, t)
+
+out("simple interest = {si}")
+
+string x="qwert"
+list asd=[15,3,4,8]
+int y=length(x)
+if (length(x)<3){
+    print("ansndu")
+}
+elif (length(x)<6){
+    print("-d-d-d-d-")
+}
+else{
+    print("nooo")
+}
+
+for(i=0;i<7;i++){
+    print(i)
+}
+for(i=0;i<length(x);i++){
+    print(i)
+}
+j=0
+while (j<length(x)){
+    j++
+    print("j is {j}")
+}
+u=9
+karr op=0 l7d u{
+    print(op)
+}
+
+
+// talama u<test5(20){
+//     print(u)
+//     u++
+// }
+rakm q=10,c=23,o
+print(q)
+arr=(3+5)*2
+print(arr)
+varr="kk"
+print(varr)
+readdd=scan()
+print(readdd)
