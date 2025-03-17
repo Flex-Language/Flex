@@ -1,0 +1,49 @@
+x=5
+y=3
+z=0
+lw x<10 and y<1
+{
+    print(x)
+    print(y)
+}
+aw y<2
+{
+    print("y is {y}")
+}
+aw y<4
+{
+    print("x + y are {x+y}")
+}
+gher
+{
+    print("x is {x}")
+    etb3("dsfsdfdsf")
+}
+karr l7d 10{
+    print("fefrf")
+}
+
+karr d=7 l7d -7{
+    print(d)
+}
+karr x l7d 8
+{
+    print("mmmmm")
+}
+talama z<5{
+    print(z)
+    z++
+}
+talama y<5 and z<10
+{
+    print("y and z are {y} {z}")
+    y++
+    z++
+}
+i=1
+er=10
+karr x=1 l7d er{
+    print(i)
+    i++
+}
+

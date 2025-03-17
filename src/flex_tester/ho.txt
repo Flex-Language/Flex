@@ -1,0 +1,16 @@
+print("aaaaaaaaaa")
+
+print("aaaaaaaaaa")
+
+print("aaaaaaaaaa")
+
+sndo2 tmsss(rakm i, rakm j){
+   rg3 i+j
+}
+
+sndo2 meme(){
+   etb3("importtttt is doneee")
+
+}
+
+geep "flex_tester\test.txt"
