@@ -59,7 +59,7 @@ def parse_negative_number(tokens, AI, line_number, line_content):
 def parse_right_side(tokens, AI, line_number, line_content):
     """Processes the right side of an operator expression."""
     if current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LBRACKET':
-        return parse_list_access(tokens, AI)
+        return parse_list_access(tokens, AI,line_number, line_content)
     elif current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LPAREN':
         return parse_function_call_statement(tokens, AI, line_number, line_content)
     elif current_token(tokens)[0] == 'ID':

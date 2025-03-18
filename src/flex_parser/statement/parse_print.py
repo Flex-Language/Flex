@@ -11,7 +11,6 @@ def parse_print_statement(tokens, AI, line_number, line_content):
     expect(tokens, 'LPAREN', AI)
     if current_token(tokens)[0] == 'ID' and tokens[gv.pos + 1][0] == 'LBRACKET':
         message = parse_arithmetic_expr(tokens, AI)
-        print(f'message is {message}')
         # Handle list access, e.g., print(x[2])
     elif current_token(tokens)[0] == 'ID' and tokens[gv.pos + 1][0] == 'LPAREN':
         func_name = current_token(tokens)[1]
