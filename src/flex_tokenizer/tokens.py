@@ -10,7 +10,7 @@ TOKENS = [
     ('ELIF', r'(elif)'),  # Elif statement keyword
     ('AW', r'(\baw\b)'),  # Elif statement keyword in another language
     ('ELSE', r'(else|otherwise|gher)'),  # Else statement keywords
-    ('PRINT', r'(etb3|out|output|print|printf|cout)'),  # Print statement keywords
+    ('PRINT', r'\b(etb3|out|output|print|printf|cout)\b'),  # Print statement keywords
     ('WHILE', r'(while|loop)'),  # While loop keywords
     ('TALAMA', r'(talama|talma|tlma)'),  # While loop keyword in another language
     ('FOR', r'for'),  # For loop keyword

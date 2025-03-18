@@ -76,3 +76,6 @@ varr="kk"
 print(varr)
 readdd=scan()
 print(readdd)
+
+test_str="this is a strrr"
+printf("{test_str}")
