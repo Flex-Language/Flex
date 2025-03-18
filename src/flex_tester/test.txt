@@ -46,8 +46,18 @@ print(r)
 
 list b =[88,87]
 etb3(b)
-geeb "C:\Users\hp\Desktop\Grad\Flex\src\flex_tester\bo.lx"
+geeb "C:\Users\hp\Desktop\Github\Flex\Flex\src\flex_tester"
 fo()
 r = tmsss(3,9)
 etb3(r)
 
+temp= test("mijiwdw",8.9,8.5)
+etb3(temp)
+m = test_neg(34534)
+etb3(m)
+
+l= kokoo(8)
+print(l)
+
+print(do_modulus(10,3))
+print(s())

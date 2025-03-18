@@ -1,0 +1,8 @@
+sndo2 kokoo(rakm inputt) {
+    if (inputt > 0) {
+        rg3 inputt * 2  // Example computation
+    } else {
+        rg3 0  // Default return value
+    }
+}
+

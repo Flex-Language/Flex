@@ -4,4 +4,4 @@ sndo2 fo(){
 print("lolytaa")
 
 fo()
-geep "flex_tester\ho.txt"
+#geep "flex_tester\test.txt"

@@ -13,4 +13,4 @@ sndo2 meme(){
 
 }
 
-geep "flex_tester\test.txt"
+#geep "flex_tester\test.txt"

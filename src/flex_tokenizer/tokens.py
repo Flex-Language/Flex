@@ -14,14 +14,14 @@ TOKENS = [
     ('WHILE', r'(while|loop)'),  # While loop keywords
     ('TALAMA', r'(talama|talma|tlma)'),  # While loop keyword in another language
     ('FOR', r'for'),  # For loop keyword
-    ('REPEAT', r'(\bkarr\b)'),  # Repeat loop keyword
+    ('REPEAT', r'\b(krr|karr|karar)\b'),  # Repeat loop keyword
     ('UNTILL', r'(\bl7d\b)'),  # Until keyword
     ('SEMICOLON', r';'),  # Semicolon
-    ('RETURN', r'\b(?:return|rg3)\b'),  # Return statement keywords
-    ('BREAK', r'(break|stop|w2f)'),  # Break statement keywords
+    ('RETURN', r'\b(?:return|rg3|raga3)\b'),  # Return statement keywords
+    ('BREAK', r'(break|stop|w2f|wa2af)'),  # Break statement keywords
     ('NUMBER', r'\d+(\.\d+)?'),  # Numbers and floats
     ('STRING', r'\".*?\"'),  # Strings
-    ('LIST', r'\b(?:list|dorg)\b'),  # List keyword
+    ('LIST', r'\b(?:list|dorg|drg)\b'),  # List keyword
     ('LBRACKET', r'\['),  # Left square bracket
     ('RBRACKET', r'\]'),  # Right square bracket
     ('LPAREN', r'\('),  # Left parenthesis
@@ -38,12 +38,12 @@ TOKENS = [
     ('EQ', r'=='),  # Equal operator
     ('NEQ', r'!='),  # Not equal operator
     ('ASSIGN', r'='),  # Assignment operator
-    ('TRUE', r'true'),  # Boolean true
-    ('FALSE', r'false'),  # Boolean false
+    ('TRUE', r'(true|True|TRUE|sa7|s7|sah|saa7)'),  # Boolean true
+    ('FALSE', r'(false|False|FALSE|ghalt|ghlt|ghalat)'),  # Boolean false
     ('INT', r'\b(?:int|rakm)\b'),  # Integer type
-    ('FLOAT', r'\b(?:float|kasr)\b'),  # Float type
-    ('BOOL', r'\b(?:bool|so2al)\b'),  # Boolean type
-    ('STR', r'\b(?:string|klma)\b'),  # String type
+    ('FLOAT', r'\b(?:float|kasr|ksr)\b'),  # Float type
+    ('BOOL', r'\b(?:bool|so2al|s2al|so2l)\b'),  # Boolean type
+    ('STR', r'\b(?:string|klma|kalma)\b'),  # String type
     ('IMPORT', r'\b(geep|geeb|import)\b'),  # Import statement keywords
     ('ID', r'[a-zA-Z_][a-zA-Z_0-9]*'),  # Identifiers (variable names)
     ('SKIP', r'[ \t]+'),  # Skip spaces and tabs
