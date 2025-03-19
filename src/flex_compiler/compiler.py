@@ -40,5 +40,5 @@ def compile_and_run(file_path,AI):
         print(z)
     except StopIteration as stop:
         print()
-    except Exception as e:
-        print(f"An error occurred: {e}")  # Handle other exceptions gracefully without traceback
+    # except Exception as e:
+    #     print(f"An error occurred: {e}")  # Handle other exceptions gracefully without traceback

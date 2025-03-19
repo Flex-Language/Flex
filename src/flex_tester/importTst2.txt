@@ -1,0 +1,7 @@
+fun test(x){
+    print("1 paraeterer")
+}
+fun extra(){
+    print("extraaaa")
+}
+print("neverrrrrrr")

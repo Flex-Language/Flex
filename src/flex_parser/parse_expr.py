@@ -132,7 +132,7 @@ def parse_karr_expr(tokens, AI, line_number, line_content):
     elif current_token(tokens)[0] == 'ID':
         return expect(tokens, 'ID', AI)
     elif current_token(tokens)[0] == 'NUMBER':
-        return  expect(tokens, 'NUMBER', AI)
+        return expect(tokens, 'NUMBER', AI)
     elif current_token(tokens)[0] == 'MINUS':
         return parse_negative_number(tokens, AI, line_number, line_content)
     else:

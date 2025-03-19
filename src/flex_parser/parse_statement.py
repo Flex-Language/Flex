@@ -1,4 +1,5 @@
 import flex_parser.glopal_vars as gv
+from flex_parser.parse_expr import parse_negative_number
 from flex_parser.parser_utils import *
 from flex_parser.statement.parse_loops import parse_return_statement,parse_while_statement,parse_for_statement,parse_break_statement,parse_talama_statement,parse_repeat_statement
 from flex_parser.statement.parse_conditions import parse_if_statement, parse_elif_statement,parse_lw_statement,parse_else_statement,parse_aw_statement
@@ -11,7 +12,6 @@ from flex_parser.statement.parse_import import parse_import_statement
 
 
 def parse_statement(tokens,AI):
-   
    
     # Skip over newlines or empty tokens
     skip_newlines(tokens)
@@ -51,6 +51,12 @@ def parse_statement(tokens,AI):
         return parse_list_assignment_statement(tokens, AI, line_number, line_content)
     elif tok_type in ('INT', 'FLOAT', 'BOOL','STR'):                                            # Variable declaration
         return parse_variable_declaration_statement(tokens, AI, line_number, line_content)
+    elif tok_type == 'NUMBER' and gv.karrFlag:
+        number= expect(tokens, 'NUMBER', AI)
+        return ('NUMBER', number, line_number, line_content)
+    elif tok_type == 'MINUS' and gv.karrFlag:
+        numberNeg= parse_negative_number(tokens, AI, line_number, line_content)
+        return ('-VE_NUMBER', numberNeg, line_number, line_content)
     elif tok_type == 'FUN':                                                                     # fun declaration
         return parse_function_declaration_statement(tokens, AI, line_number, line_content)
     elif tok_type == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LPAREN':          # fun call

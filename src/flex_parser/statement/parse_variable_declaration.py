@@ -92,9 +92,11 @@ def parse_variable_declaration_statement(tokens, AI, line_number, line_content):
     
     # Step 3: Ensure the statement ends properly
     if current_token(tokens)[0] not in {'NEWLINE', 'EOF'}:
-        error_message = f"Unexpected token in variable declaration at {line_number}\nLine content: '{line_content.strip()}'"
-        handle_error(error_message, AI)
-    
+        if current_token(tokens)[0] == 'SEMICOLON' and gv.forLoopFlag:
+            pass
+        else:
+            error_message = f"Unexpected token in variable declaration at {line_number}\nLine content: '{line_content.strip()}'"
+            handle_error(error_message, AI)
     # Step 4: Return parsed variable declaration
     return ('VAR_DECL', var_type, variables, line_number, line_content)
 

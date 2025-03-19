@@ -89,5 +89,8 @@ test_return(3+44)
 list arr=[1,2,"awerqwe32e",23]
 print(length(arr))
 
+x= "hello world to print in many ways"
+output("{x}")
+printf("to print {x}")
 
 

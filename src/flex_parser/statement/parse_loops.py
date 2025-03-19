@@ -60,8 +60,8 @@ def parse_for_statement(tokens, AI, line_number, line_content):
 
 def parse_repeat_statement(tokens, AI, line_number, line_content):
     
-
     gv.forLoopFlag = True
+    gv.karrFlag=True
     next_token(tokens)  # Consume 'karr'
     # Parse initialization (e.g., i = 0)
     if (current_token(tokens)[0] != 'UNTILL'):
