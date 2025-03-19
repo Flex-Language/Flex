@@ -27,7 +27,6 @@ def compile_and_run(file_path,AI):
 
         # Combine the lists with 'IMPORT' first
         re_parsed_statements = import_stmt + other_stmts
-
         # Run the interpreter
         execution.run(re_parsed_statements,AI,import_list=import_list)
     
@@ -40,5 +39,5 @@ def compile_and_run(file_path,AI):
         print(z)
     except StopIteration as stop:
         print()
-    # except Exception as e:
-    #     print(f"An error occurred: {e}")  # Handle other exceptions gracefully without traceback
+    except Exception as e:
+        print(f"An error occurred: {e}")  # Handle other exceptions gracefully without traceback

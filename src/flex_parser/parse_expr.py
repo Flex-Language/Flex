@@ -117,6 +117,8 @@ def parse_expr(tokens, AI, line_number, line_content):
     elif current_token(tokens)[0] == 'MINUS':
         left = parse_negative_number(tokens, AI, line_number, line_content)
     else:
+        if gv.forLoopFlag:
+            return ('EMPTY_COND', line_number, line_content)
         tok = current_token(tokens)
         error_message = f"Expected ID, NUMBER, or BOOLEAN at {tok[2]}\nLine content: '{tok[3]}'"
         handle_error(error_message, AI)

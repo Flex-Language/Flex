@@ -20,6 +20,9 @@ def run(statements,AI,insideFunc=False,insideLoop=False,forLoopLocal=False,impor
     for statement in statements:
         
         # print(gv.variables)
+        # print(gv.functions)
+        if statement[0] == 'EMPTY':
+            continue
         if statement[0] == 'IF':
             non_if = False
             elif_finished = False

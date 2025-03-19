@@ -19,19 +19,33 @@ def execute_return(statement, insideFunc, AI, returned_value):
 def execute_function(statement, functions):
     """Handle function definition and modify the functions dictionary."""
     func_name, params, block, line_number, line_content = statement[1], statement[2], statement[3], statement[4], statement[5]
-    functions[func_name] = (params, block)  # Store function with params and block
+    param_count = len(params)
+    if func_name not in functions:
+        functions[func_name] = {}  # Store function with params and block
+    
+    functions[func_name][param_count] = (params, block)
     return functions, params, block
 
 def execute_function_call(statement, AI, functions):
     """Handle function call and modify variables or return value."""
     
     func_name, args, line_number, line_content = statement[1], statement[2], statement[3], statement[4]
+    arg_count = len(args)
     if func_name not in functions and func_name != "length":
         error_message = f"Function '{func_name}' is not defined.\n{line_number}: {line_content.strip()}"
         handle_error(error_message, AI)
     elif func_name == "length":
         return len(args)
-    params, block = functions[func_name]
+    try:
+        params, block = functions[func_name][arg_count]
+    except KeyError:
+        param_vals=list(functions[func_name].keys())
+        final_str=f"{param_vals[0]} "
+        for i in range (1,len(param_vals)):
+            final_str+='or '
+            final_str+=f"{param_vals[i]} "
+        error_message = f"Function '{func_name}' expects {final_str}argument(s) but got {len(args)}.\n{line_number}: {line_content.strip()}"
+        handle_error(error_message, AI)
     # Check argument length
     if len(args) != len(params):
         error_message = f"Expected {len(params)} arguments but got {len(args)}.\n{line_number}: {line_content.strip()}"

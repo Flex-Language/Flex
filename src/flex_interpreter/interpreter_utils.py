@@ -33,6 +33,8 @@ def checkType(value,type,line_number,line_content,AI):
 
 def eval_condition(condition, line_number, line_content,isFunc,AI):
     try:
+        if 'EMPTY_COND' in condition:
+            return True
         # Replace 'true' and 'false' with Python's 'True' and 'False'
         condition = condition.replace('true', 'True').replace('false', 'False')
         # Replace '=>' with '>=' and '=<' with '<=' to match Python's syntax

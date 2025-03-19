@@ -12,3 +12,7 @@ for(int i=0;i<=n;i++){
 x= "hello world to print in many ways"
 output("{x}")
 print("to print sfefrf {x}")
+
+fun test(q,w,e,r){
+    return q+w+e+r
+}

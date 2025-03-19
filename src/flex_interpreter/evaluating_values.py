@@ -62,6 +62,7 @@ def handle_uninitialized_variable_error(line_number, line_content, AI):
 def handle_function_call(value, line_number, line_content, AI,func):
     func_name = value[1]
     func_args = value[2] if len(value) > 2 else []
+    arg_len = len(func_args)
 
     if func_name == "length":
         if len(func_args) != 1:
@@ -79,7 +80,8 @@ def handle_function_call(value, line_number, line_content, AI,func):
     if func_name not in gv.functions:
         error_message = f"Function '{func_name}' is not defined.\n{line_number}: '{line_content.strip()}'"
         handle_error(error_message, AI)
-    func_params, func_block = gv.functions[func_name]
+    func_params, func_block = gv.functions[func_name][arg_len]
+
 
     if len(func_params) != len(func_args):
         error_message = f"Function '{func_name}' expects {len(func_params)} arguments but got {len(func_args)}.\n{line_number}: '{line_content.strip()}'"

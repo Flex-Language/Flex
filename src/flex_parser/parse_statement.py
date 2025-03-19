@@ -72,7 +72,10 @@ def parse_statement(tokens,AI):
     elif tok_type == 'EOF':
         next_token(tokens)  # finished parsing the file
     else:
-        error_message = f"Unexpected token: {tok_value} at {line_number}\nLine content: '{line_content.strip()}'"
-        handle_error(error_message, AI)
+        if gv.forLoopFlag:
+            return ('EMPTY', line_number, line_content)
+        else:
+            error_message = f"Unexpected token: {tok_value} at {line_number}\nLine content: '{line_content.strip()}'"
+            handle_error(error_message, AI)
 
     
