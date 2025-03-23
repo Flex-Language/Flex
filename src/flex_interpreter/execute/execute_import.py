@@ -55,7 +55,7 @@ def execute_import(statement, AI, statements, import_list):
 
     # Execute all statements after importing
     # print(all_statements)
-    execution.run(all_statements, AI, insideFunc=False)
+    execution.run(all_statements, AI, gv.web, insideFunc=False)
     sys.exit()  # Exit to prevent re-execution
 
 

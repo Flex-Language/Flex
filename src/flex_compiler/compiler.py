@@ -4,7 +4,7 @@ from flex_tokenizer.check_brace_matching import *
 from flex_parser.parse import *
 from flex_interpreter import execution
 
-def compile_and_run(file_path,AI):
+def compile_and_run(file_path,AI,WEB):
     import_list =[]
     try:
         with open(file_path, 'r') as file:
@@ -28,7 +28,7 @@ def compile_and_run(file_path,AI):
         # Combine the lists with 'IMPORT' first
         re_parsed_statements = import_stmt + other_stmts
         # Run the interpreter
-        execution.run(re_parsed_statements,AI,import_list=import_list)
+        execution.run(re_parsed_statements,AI,WEB,import_list=import_list)
     
     except NameError as e:
         print(e)  # Only print the error message, no traceback

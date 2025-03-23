@@ -10,8 +10,9 @@ if __name__ == "__main__":
     
     source_file = sys.argv[1]
     AI = False
+    WEB = False
     try:
-        compile_and_run(source_file,AI)
+        compile_and_run(source_file,AI,WEB)
     except SyntaxError as e:
         # Catch the SyntaxError and print only the error message without the full traceback
         print(e)

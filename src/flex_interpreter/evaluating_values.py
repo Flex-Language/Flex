@@ -121,6 +121,9 @@ def handle_numeric_value(value):
     return int(value) if '.' not in value else float(value)
 
 def handle_scan_now(var_type, line_number, line_content, AI):
+    if gv.web:
+      print("Enter value:")
+    
     value = input()
     try:
         # if var_type == "string" or var_type is None:
