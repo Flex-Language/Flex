@@ -41,7 +41,6 @@ def eval_value(value, line_number, line_content, AI, var_type=None, func=False):
     elif isinstance(value, tuple) and value[0] == 'LIST_ELEMENT':
         return handle_list_element(value, line_number, line_content, AI, func)
     elif value.isdigit() or '.' in value:
-        print(value)
         return handle_numeric_value(value)
     elif value == "scan_now":
         return handle_scan_now(var_type, line_number, line_content, AI)
