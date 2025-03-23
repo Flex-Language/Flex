@@ -30,8 +30,8 @@ def compile_and_run(file_path,AI,WEB):
         # Run the interpreter
         execution.run(re_parsed_statements,AI,WEB,import_list=import_list)
     
-    except NameError as e:
-        print(e)  # Only print the error message, no traceback
+    # except NameError as e:
+    #     print(e)  # Only print the error message, no traceback
     except SyntaxError as s:
         # Catch the SyntaxError and print only the error message without the full traceback
         print(s)
@@ -39,5 +39,5 @@ def compile_and_run(file_path,AI,WEB):
         print(z)
     except StopIteration as stop:
         print()
-    except Exception as e:
-        print(f"An error occurred: {e}")  # Handle other exceptions gracefully without traceback
+    # except Exception as e:
+    #     print(f"An error occurred: {e}")  # Handle other exceptions gracefully without traceback

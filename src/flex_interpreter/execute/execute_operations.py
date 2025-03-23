@@ -58,6 +58,7 @@ def execute_assign(statement, AI, insideFunc, variables, variablesFunc):
     non_if = True  # Update the non_if flag
 
     if insideFunc:
+        
         if len(statement) == 5:  # When all elements are present
             var_name, value, line_number, line_content = statement[1], statement[2], statement[3], statement[4]
             if var_name in variablesFunc:
@@ -75,7 +76,7 @@ def execute_assign(statement, AI, insideFunc, variables, variablesFunc):
     else:
         if len(statement) == 5:  # When all elements are present
             var_name, value, line_number, line_content = statement[1], statement[2], statement[3], statement[4]
-            if var_name in variables:
+            if var_name in variables: 
                 variables[var_name][0] = eval_value(value, line_number, line_content, AI, variables[var_name][1])
             else:
                 variables[var_name] = [eval_value(value, line_number, line_content, AI), None, True]
@@ -87,5 +88,4 @@ def execute_assign(statement, AI, insideFunc, variables, variablesFunc):
             variables[var_name][0], variables[var_name][1], line_number, line_content, AI
         )
         
-
     return non_if,variables,variablesFunc  # Return updated non_if flag

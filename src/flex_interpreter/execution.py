@@ -24,7 +24,7 @@ def run(statements,AI,WEB,insideFunc=False,insideLoop=False,forLoopLocal=False,i
     for statement in statements:
         
         # print(gv.variables)
-        # print(gv.functions)
+        # print(gv.variablesFunc)
         if statement[0] == 'EMPTY':
             continue
         if statement[0] == 'IF':
