@@ -62,40 +62,34 @@ jobs:
         xcopy src\flex_tester installer\examples\ /E /I
         copy README.md installer\
         
-        # Create NSIS script
-        echo '!include "MUI2.nsh"' > installer.nsi
-        echo 'Name "Flex Programming Language"' >> installer.nsi
-        echo 'OutFile "flex-windows-installer.exe"' >> installer.nsi
-        echo 'InstallDir "$PROGRAMFILES\Flex"' >> installer.nsi
-        echo 'RequestExecutionLevel admin' >> installer.nsi
-        echo '!insertmacro MUI_PAGE_WELCOME' >> installer.nsi
-        echo '!insertmacro MUI_PAGE_DIRECTORY' >> installer.nsi
-        echo '!insertmacro MUI_PAGE_INSTFILES' >> installer.nsi
-        echo '!insertmacro MUI_PAGE_FINISH' >> installer.nsi
-        echo '!insertmacro MUI_LANGUAGE "English"' >> installer.nsi
-        echo 'Section' >> installer.nsi
-        echo '  SetOutPath "$INSTDIR"' >> installer.nsi
-        echo '  File /r "installer\*.*"' >> installer.nsi
-        echo '  WriteUninstaller "$INSTDIR\uninstall.exe"' >> installer.nsi
-        echo '  CreateDirectory "$SMPROGRAMS\Flex"' >> installer.nsi
-        echo '  CreateShortcut "$SMPROGRAMS\Flex\Flex.lnk" "$INSTDIR\flex.exe"' >> installer.nsi
-        echo '  CreateShortcut "$SMPROGRAMS\Flex\Uninstall.lnk" "$INSTDIR\uninstall.exe"' >> installer.nsi
-        echo '  # Add to PATH' >> installer.nsi
-        echo '  EnvVarUpdate $0 "PATH" "A" "HKLM" "$INSTDIR"' >> installer.nsi
-        echo 'SectionEnd' >> installer.nsi
-        echo 'Section "Uninstall"' >> installer.nsi
-        echo '  Delete "$INSTDIR\uninstall.exe"' >> installer.nsi
-        echo '  RMDir /r "$INSTDIR"' >> installer.nsi
-        echo '  RMDir /r "$SMPROGRAMS\Flex"' >> installer.nsi
-        echo '  # Remove from PATH' >> installer.nsi
-        echo '  EnvVarUpdate $0 "PATH" "R" "HKLM" "$INSTDIR"' >> installer.nsi
-        echo 'SectionEnd' >> installer.nsi
+        # Create a simple NSIS script file
+        (
+        echo !include "MUI2.nsh"
+        echo Name "Flex Programming Language"
+        echo OutFile "flex-windows-installer.exe"
+        echo InstallDir "$PROGRAMFILES\Flex"
+        echo RequestExecutionLevel admin
+        echo !insertmacro MUI_PAGE_WELCOME
+        echo !insertmacro MUI_PAGE_DIRECTORY
+        echo !insertmacro MUI_PAGE_INSTFILES
+        echo !insertmacro MUI_PAGE_FINISH
+        echo !insertmacro MUI_LANGUAGE "English"
+        echo Section
+        echo   SetOutPath "$INSTDIR"
+        echo   File /r "installer\*.*"
+        echo   WriteUninstaller "$INSTDIR\uninstall.exe"
+        echo   CreateDirectory "$SMPROGRAMS\Flex"
+        echo   CreateShortcut "$SMPROGRAMS\Flex\Flex.lnk" "$INSTDIR\flex.exe"
+        echo   CreateShortcut "$SMPROGRAMS\Flex\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+        echo SectionEnd
+        echo Section "Uninstall"
+        echo   Delete "$INSTDIR\uninstall.exe"
+        echo   RMDir /r "$INSTDIR"
+        echo   RMDir /r "$SMPROGRAMS\Flex"
+        echo SectionEnd
+        ) > installer.nsi
         
-        # Download EnvVarUpdate.nsh
-        powershell -Command "Invoke-WebRequest -Uri 'https://nsis.sourceforge.io/mediawiki/images/7/7f/EnvVarUpdate.7z' -OutFile 'EnvVarUpdate.7z'"
-        7z e EnvVarUpdate.7z -o"C:\Program Files (x86)\NSIS\Include" -y
-        
-        # Compile installer
+        # Compile the installer without PATH manipulation (which requires EnvVarUpdate.nsh)
         makensis installer.nsi
       shell: cmd
     
