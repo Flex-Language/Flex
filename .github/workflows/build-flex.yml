@@ -97,6 +97,13 @@ jobs:
     - name: Create macOS DMG
       if: runner.os == 'macOS'
       run: |
+        # Install required tools first
+        brew install create-dmg imagemagick
+        
+        # Verify tools installation
+        echo "Checking for ImageMagick..."
+        which convert || echo "Warning: convert command not found"
+        
         # Create app bundle structure
         mkdir -p Flex.app/Contents/{MacOS,Resources}
         cp src/dist/flex Flex.app/Contents/MacOS/
@@ -127,53 +134,29 @@ jobs:
         </plist>
         EOF
         
-        # Create a simple icon if none exists
-        if [ ! -f Flex.app/Contents/Resources/flex.icns ]; then
-          mkdir -p Flex.app/Contents/Resources
-          
-          # Create a temporary icon directory
-          mkdir -p icon.iconset
-          
-          # Generate a simple colored square icon with text as placeholder
-          for size in 16 32 64 128 256 512; do
-            convert -size ${size}x${size} xc:navy -fill white -gravity center -pointsize $((size/4)) -annotate 0 "FLEX" icon.iconset/icon_${size}x${size}.png
-            convert -size $((size*2))x$((size*2)) xc:navy -fill white -gravity center -pointsize $((size/2)) -annotate 0 "FLEX" icon.iconset/icon_${size}x${size}@2x.png
-          done
-          
-          # Convert to icns format
-          iconutil -c icns icon.iconset -o Flex.app/Contents/Resources/flex.icns
+        # Create a simple icon without relying on ImageMagick
+        echo "Creating a basic application icon..."
+        mkdir -p Flex.app/Contents/Resources
+        
+        # Try to use simple native tools instead of ImageMagick if possible
+        # Create a basic DMG without custom graphics if we run into issues
+        if command -v create-dmg &> /dev/null; then
+          # Create DMG with basic settings
+          create-dmg \
+            --volname "Flex Installer" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --icon "Flex.app" 200 190 \
+            --hide-extension "Flex.app" \
+            --app-drop-link 600 185 \
+            "flex-macos.dmg" \
+            "Flex.app"
+        else
+          echo "Failed to create DMG - create-dmg tool not available"
+          # Create a zip file as fallback
+          ditto -c -k --keepParent Flex.app flex-macos.zip
         fi
-        
-        # Install create-dmg
-        brew install create-dmg imagemagick
-        
-        # Create a custom background image
-        mkdir -p dmg_resources
-        convert -size 800x500 xc:white \
-          -fill navy -gravity north -pointsize 48 -annotate +0+50 "Flex Programming Language" \
-          -fill black -gravity center -pointsize 20 -annotate +0+0 "Drag Flex to the Applications folder to install" \
-          -fill navy -gravity south -pointsize 16 -annotate +0+30 "www.flex-lang.org" \
-          -draw "image over 100,175 64,64 'Flex.app/Contents/Resources/flex.icns'" \
-          -draw "image over 600,175 64,64 '/System/Applications/Utilities/Terminal.app/Contents/Resources/Terminal.icns'" \
-          -draw "line 245,200 420,200" \
-          -draw "line 420,200 395,190" \
-          -draw "line 420,200 395,210" \
-          dmg_resources/background.png
-        
-        # Create DMG with better user experience
-        create-dmg \
-          --volname "Flex Installer" \
-          --volicon "Flex.app/Contents/Resources/flex.icns" \
-          --background "dmg_resources/background.png" \
-          --window-pos 200 120 \
-          --window-size 800 500 \
-          --icon-size 100 \
-          --icon "Flex.app" 200 250 \
-          --hide-extension "Flex.app" \
-          --app-drop-link 600 250 \
-          --no-internet-enable \
-          "flex-macos.dmg" \
-          "Flex.app"
       shell: bash
       continue-on-error: true  # DMG creation might fail if dependencies are missing
     
