@@ -127,23 +127,55 @@ jobs:
         </plist>
         EOF
         
-        # Install create-dmg
-        brew install create-dmg
+        # Create a simple icon if none exists
+        if [ ! -f Flex.app/Contents/Resources/flex.icns ]; then
+          mkdir -p Flex.app/Contents/Resources
+          
+          # Create a temporary icon directory
+          mkdir -p icon.iconset
+          
+          # Generate a simple colored square icon with text as placeholder
+          for size in 16 32 64 128 256 512; do
+            convert -size ${size}x${size} xc:navy -fill white -gravity center -pointsize $((size/4)) -annotate 0 "FLEX" icon.iconset/icon_${size}x${size}.png
+            convert -size $((size*2))x$((size*2)) xc:navy -fill white -gravity center -pointsize $((size/2)) -annotate 0 "FLEX" icon.iconset/icon_${size}x${size}@2x.png
+          done
+          
+          # Convert to icns format
+          iconutil -c icns icon.iconset -o Flex.app/Contents/Resources/flex.icns
+        fi
         
-        # Create DMG
+        # Install create-dmg
+        brew install create-dmg imagemagick
+        
+        # Create a custom background image
+        mkdir -p dmg_resources
+        convert -size 800x500 xc:white \
+          -fill navy -gravity north -pointsize 48 -annotate +0+50 "Flex Programming Language" \
+          -fill black -gravity center -pointsize 20 -annotate +0+0 "Drag Flex to the Applications folder to install" \
+          -fill navy -gravity south -pointsize 16 -annotate +0+30 "www.flex-lang.org" \
+          -draw "image over 100,175 64,64 'Flex.app/Contents/Resources/flex.icns'" \
+          -draw "image over 600,175 64,64 '/System/Applications/Utilities/Terminal.app/Contents/Resources/Terminal.icns'" \
+          -draw "line 245,200 420,200" \
+          -draw "line 420,200 395,190" \
+          -draw "line 420,200 395,210" \
+          dmg_resources/background.png
+        
+        # Create DMG with better user experience
         create-dmg \
           --volname "Flex Installer" \
           --volicon "Flex.app/Contents/Resources/flex.icns" \
+          --background "dmg_resources/background.png" \
           --window-pos 200 120 \
-          --window-size 800 400 \
+          --window-size 800 500 \
           --icon-size 100 \
-          --icon "Flex.app" 200 190 \
+          --icon "Flex.app" 200 250 \
           --hide-extension "Flex.app" \
-          --app-drop-link 600 185 \
+          --app-drop-link 600 250 \
+          --no-internet-enable \
           "flex-macos.dmg" \
           "Flex.app"
       shell: bash
-      continue-on-error: true  # DMG creation might fail if icon is missing
+      continue-on-error: true  # DMG creation might fail if dependencies are missing
     
     # Linux AppImage
     - name: Create Linux AppImage
@@ -253,7 +285,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     
     steps:
     - name: Download all artifacts
@@ -295,12 +327,13 @@ jobs:
       id: create_release
       uses: softprops/action-gh-release@v1
       with:
-        name: Flex ${{ github.ref_name }}
+        name: ${{ startsWith(github.ref, 'refs/tags/') && format('Flex {0}', github.ref_name) || 'Flex Latest Build' }}
+        tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'latest' }}
         draft: false
-        prerelease: false
+        prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
         files: release_assets/*
         body: |
-          # Flex Programming Language ${{ github.ref_name }}
+          # Flex Programming Language ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'Latest Build' }}
           
           Cross-platform executable releases of the Flex programming language.
           
@@ -321,80 +354,5 @@ jobs:
           ## Examples
           
           Example code is included in the examples directory.
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # Create a nightly release for testing when pushing to main but not tagging
-  nightly:
-    name: Create Nightly Build
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    
-    steps:
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
-    
-    - name: Prepare nightly assets
-      run: |
-        mkdir -p release_assets
-        
-        # Find and copy all relevant files to release_assets directory
-        echo "=== Copying artifacts to release directory ==="
-        find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" -o -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage" \) -exec cp {} release_assets/ \; || true
-        
-        # For standalone executables that might be in specific directories
-        find artifacts -type f \( -name "flex" -o -name "flex.exe" \) -exec cp {} release_assets/ \; || true
-        
-        echo "=== Files in release_assets ==="
-        ls -la release_assets/
-      shell: bash
-    
-    - name: List downloaded files
-      run: |
-        echo "=== Root directory ==="
-        find . -type f | sort
-        
-        echo "=== All flex files ==="
-        find . -name "flex*" | sort
-        
-        echo "=== All artifacts directories ==="
-        find artifacts -type d | sort
-        
-        echo "=== All artifact files ==="
-        find artifacts -type f | sort
-      shell: bash
-        
-    - name: Create or Update Nightly Release
-      uses: softprops/action-gh-release@v1
-      with:
-        name: Flex Nightly Build
-        tag_name: nightly
-        draft: false
-        prerelease: true
-        files: release_assets/*
-        body: |
-          # Flex Programming Language (Nightly Build)
-          
-          Latest development build of the Flex programming language.
-          This build is automatically updated with each push to the main branch.
-          
-          ## Download
-          
-          ### Windows
-          - Option 1: `flex-windows-installer.exe` (recommended)
-          - Option 2: `flex-windows.zip`
-          
-          ### macOS
-          - Option 1: `flex-macos.dmg` (recommended)
-          - Option 2: `flex-macos.tar.gz`
-          
-          ### Linux
-          - Option 1: `flex-linux.AppImage` (recommended)
-          - Option 2: `flex-linux.tar.gz`
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
