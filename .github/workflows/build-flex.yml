@@ -101,16 +101,21 @@ jobs:
         echo SectionEnd
         ) > installer.nsi
         
-        # Compile the installer without PATH manipulation (which requires EnvVarUpdate.nsh)
+        REM Compile the installer
         makensis installer.nsi
         
-        # Create latest.yml for auto-updater compatibility
-        echo "version: ${{ env.VERSION }}" > latest-win.yml
-        echo "files:" >> latest-win.yml
-        echo "  - url: flex-${{ env.VERSION }}-win.exe" >> latest-win.yml
-        echo "    sha512: $(powershell -Command "(Get-FileHash -Algorithm SHA512 flex-${{ env.VERSION }}-win.exe).Hash.ToLower()")" >> latest-win.yml
-        echo "path: flex-${{ env.VERSION }}-win.exe" >> latest-win.yml
-        echo "sha512: $(powershell -Command "(Get-FileHash -Algorithm SHA512 flex-${{ env.VERSION }}-win.exe).Hash.ToLower()")" >> latest-win.yml
+        REM Create latest.yml for auto-updater compatibility
+        echo version: ${{ env.VERSION }} > latest-win.yml
+        echo files: >> latest-win.yml
+        echo   - url: flex-${{ env.VERSION }}-win.exe >> latest-win.yml
+        
+        FOR /F "tokens=*" %%a IN ('powershell -Command "(Get-FileHash -Algorithm SHA512 flex-${{ env.VERSION }}-win.exe).Hash.ToLower()"') DO SET FILEHASH=%%a
+        echo     sha512: %FILEHASH% >> latest-win.yml
+        
+        echo path: flex-${{ env.VERSION }}-win.exe >> latest-win.yml
+        
+        FOR /F "tokens=*" %%a IN ('powershell -Command "(Get-FileHash -Algorithm SHA512 flex-${{ env.VERSION }}-win.exe).Hash.ToLower()"') DO SET FILEHASH=%%a  
+        echo sha512: %FILEHASH% >> latest-win.yml
       shell: cmd
     
     # macOS DMG Package
