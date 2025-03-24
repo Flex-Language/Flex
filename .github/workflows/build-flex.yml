@@ -1,0 +1,54 @@
+name: Build Flex Executable
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        
+    - name: Run tests
+      run: |
+        cd src
+        python -m unittest discover -s flex_tester
+        
+    - name: Build executable with PyInstaller
+      run: |
+        cd src
+        pyinstaller --onefile main.py -n flex
+        
+    - name: Create distribution package
+      run: |
+        mkdir -p dist/flex
+        cp src/dist/flex dist/flex/
+        cp -r src/flex_tester dist/flex/examples
+        cp README.md dist/flex/
+        
+    - name: Upload executable artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: flex-executable
+        path: src/dist/flex
+        
+    - name: Upload distribution package
+      uses: actions/upload-artifact@v3
+      with:
+        name: flex-distribution
+        path: dist/flex/

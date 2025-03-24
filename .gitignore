@@ -22,3 +22,7 @@ ENV/
 
 # Logs
 *.log
+# Ignore Flex Language Structure documentation
+docs/
+# Ignore Flex Grammar file
+Flex_Grammar.txt
