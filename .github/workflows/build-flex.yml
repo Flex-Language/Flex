@@ -1,15 +1,30 @@
-name: Build Flex Executable
+name: Build and Release Flex
 
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    tags:
+      - 'v*' # Run when tag is pushed (for versioned releases)
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    
+    name: Build Flex for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            output_name: flex
+            asset_name: flex-linux
+          - os: windows-latest
+            output_name: flex.exe
+            asset_name: flex-windows
+          - os: macos-latest
+            output_name: flex
+            asset_name: flex-macos
+
     steps:
     - uses: actions/checkout@v3
     
@@ -23,32 +38,121 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyinstaller
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      shell: bash
         
     - name: Run tests
       run: |
         cd src
         python -m unittest discover -s flex_tester
+      shell: bash
         
     - name: Build executable with PyInstaller
       run: |
         cd src
         pyinstaller --onefile main.py -n flex
+      shell: bash
         
-    - name: Create distribution package
+    - name: Package distribution (Unix)
+      if: runner.os != 'Windows'
       run: |
         mkdir -p dist/flex
         cp src/dist/flex dist/flex/
         cp -r src/flex_tester dist/flex/examples
         cp README.md dist/flex/
-        
-    - name: Upload executable artifact
+        tar -czf flex-${{ matrix.asset_name }}.tar.gz -C dist flex
+      shell: bash
+
+    - name: Package distribution (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        mkdir -p dist\flex
+        copy src\dist\flex.exe dist\flex\
+        xcopy src\flex_tester dist\flex\examples\ /E /I
+        copy README.md dist\flex\
+        powershell Compress-Archive -Path dist\flex -DestinationPath flex-${{ matrix.asset_name }}.zip
+      shell: cmd
+      
+    - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: flex-executable
-        path: src/dist/flex
-        
-    - name: Upload distribution package
-      uses: actions/upload-artifact@v2
+        name: flex-${{ matrix.asset_name }}
+        path: |
+          flex-${{ matrix.asset_name }}.tar.gz
+          flex-${{ matrix.asset_name }}.zip
+        if-no-files-found: ignore
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v2
+      
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
       with:
-        name: flex-distribution
-        path: dist/flex/
+        name: Flex ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+        files: |
+          flex-linux/*.tar.gz
+          flex-windows/*.zip
+          flex-macos/*.tar.gz
+        body: |
+          # Flex Programming Language ${{ github.ref_name }}
+          
+          Cross-platform executable releases of the Flex programming language.
+          
+          ## Installation
+          
+          Download the appropriate package for your platform:
+          
+          - **Windows**: Download and extract `flex-windows.zip`, then run `flex.exe`
+          - **MacOS**: Download and extract `flex-macos.tar.gz`, then run `flex`
+          - **Linux**: Download and extract `flex-linux.tar.gz`, then run `flex`
+          
+          ## Examples
+          
+          Example code is included in the examples directory.
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Create a nightly release for testing when pushing to main but not tagging
+  nightly:
+    name: Create Nightly Build
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v2
+      
+    - name: Create or Update Nightly Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Flex Nightly Build
+        tag_name: nightly
+        draft: false
+        prerelease: true
+        files: |
+          flex-linux/*.tar.gz
+          flex-windows/*.zip
+          flex-macos/*.tar.gz
+        body: |
+          # Flex Programming Language (Nightly Build)
+          
+          Latest development build of the Flex programming language.
+          This build is automatically updated with each push to the main branch.
+          
+          ## Download
+          
+          - **Windows**: `flex-windows.zip`
+          - **MacOS**: `flex-macos.tar.gz`
+          - **Linux**: `flex-linux.tar.gz`
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
