@@ -42,13 +42,13 @@ jobs:
         cp README.md dist/flex/
         
     - name: Upload executable artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: flex-executable
         path: src/dist/flex
         
     - name: Upload distribution package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: flex-distribution
         path: dist/flex/
