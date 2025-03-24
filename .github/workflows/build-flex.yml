@@ -33,6 +33,18 @@ jobs:
       with:
         python-version: '3.10'
         
+    - name: Get version information
+      id: version
+      run: |
+        if [[ $GITHUB_REF == refs/tags/v* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/v}
+        else
+          VERSION="dev-$(date +'%Y%m%d')-${GITHUB_SHA::7}"
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+      shell: bash
+        
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -66,7 +78,7 @@ jobs:
         (
         echo !include "MUI2.nsh"
         echo Name "Flex Programming Language"
-        echo OutFile "flex-windows-installer.exe"
+        echo OutFile "flex-${{ env.VERSION }}-win.exe"
         echo InstallDir "$PROGRAMFILES\Flex"
         echo RequestExecutionLevel admin
         echo !insertmacro MUI_PAGE_WELCOME
@@ -91,18 +103,22 @@ jobs:
         
         # Compile the installer without PATH manipulation (which requires EnvVarUpdate.nsh)
         makensis installer.nsi
+        
+        # Create latest.yml for auto-updater compatibility
+        echo "version: ${{ env.VERSION }}" > latest-win.yml
+        echo "files:" >> latest-win.yml
+        echo "  - url: flex-${{ env.VERSION }}-win.exe" >> latest-win.yml
+        echo "    sha512: $(powershell -Command "(Get-FileHash -Algorithm SHA512 flex-${{ env.VERSION }}-win.exe).Hash.ToLower()")" >> latest-win.yml
+        echo "path: flex-${{ env.VERSION }}-win.exe" >> latest-win.yml
+        echo "sha512: $(powershell -Command "(Get-FileHash -Algorithm SHA512 flex-${{ env.VERSION }}-win.exe).Hash.ToLower()")" >> latest-win.yml
       shell: cmd
     
     # macOS DMG Package
     - name: Create macOS DMG
       if: runner.os == 'macOS'
       run: |
-        # Install required tools first
-        brew install create-dmg imagemagick
-        
-        # Verify tools installation
-        echo "Checking for ImageMagick..."
-        which convert || echo "Warning: convert command not found"
+        # Install create-dmg
+        brew install create-dmg
         
         # Create app bundle structure
         mkdir -p Flex.app/Contents/{MacOS,Resources}
@@ -127,47 +143,45 @@ jobs:
             <key>CFBundlePackageType</key>
             <string>APPL</string>
             <key>CFBundleVersion</key>
-            <string>1.0</string>
+            <string>${VERSION}</string>
             <key>NSHighResolutionCapable</key>
             <true/>
         </dict>
         </plist>
         EOF
         
-        # Create a simple icon without relying on ImageMagick
-        echo "Creating a basic application icon..."
-        mkdir -p Flex.app/Contents/Resources
-        
-        # Try to use simple native tools instead of ImageMagick if possible
-        # Create a basic DMG without custom graphics if we run into issues
-        if command -v create-dmg &> /dev/null; then
-          # Create DMG with basic settings
-          create-dmg \
-            --volname "Flex Installer" \
-            --window-pos 200 120 \
-            --window-size 800 400 \
-            --icon-size 100 \
-            --icon "Flex.app" 200 190 \
-            --hide-extension "Flex.app" \
-            --app-drop-link 600 185 \
-            "flex-macos.dmg" \
-            "Flex.app"
-        else
-          echo "Failed to create DMG - create-dmg tool not available"
-          # Create a zip file as fallback
-          ditto -c -k --keepParent Flex.app flex-macos.zip
-        fi
+        # Create DMG with basic settings
+        create-dmg \
+          --volname "Flex Installer" \
+          --window-pos 200 120 \
+          --window-size 800 400 \
+          --icon-size 100 \
+          --icon "Flex.app" 200 190 \
+          --hide-extension "Flex.app" \
+          --app-drop-link 600 185 \
+          "flex-${VERSION}-mac.dmg" \
+          "Flex.app"
+          
+        # Create latest-mac.yml for auto-updater compatibility
+        echo "version: ${VERSION}" > latest-mac.yml
+        echo "files:" >> latest-mac.yml
+        echo "  - url: flex-${VERSION}-mac.dmg" >> latest-mac.yml
+        echo "    sha512: $(shasum -a 512 flex-${VERSION}-mac.dmg | awk '{print $1}')" >> latest-mac.yml
+        echo "    size: $(stat -f%z flex-${VERSION}-mac.dmg)" >> latest-mac.yml
+        echo "path: flex-${VERSION}-mac.dmg" >> latest-mac.yml
+        echo "sha512: $(shasum -a 512 flex-${VERSION}-mac.dmg | awk '{print $1}')" >> latest-mac.yml
+        echo "size: $(stat -f%z flex-${VERSION}-mac.dmg)" >> latest-mac.yml
       shell: bash
       continue-on-error: true  # DMG creation might fail if dependencies are missing
     
     # Linux AppImage
-    - name: Create Linux AppImage
+    - name: Create Linux AppImage and Deb
       if: runner.os == 'Linux'
       run: |
         # Install required tools
         sudo apt-get update
-        sudo apt-get install -y wget fuse libfuse2
-        
+        sudo apt-get install -y wget fuse libfuse2 dpkg-dev
+
         # Download AppImage tools
         wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
         chmod +x appimagetool
@@ -204,11 +218,44 @@ jobs:
         chmod +x AppDir/AppRun
         
         # Create AppImage
-        ARCH=x86_64 ./appimagetool AppDir flex-linux.AppImage
+        ARCH=x86_64 ./appimagetool AppDir flex-${VERSION}-linux.AppImage
+        
+        # Create Debian package
+        mkdir -p flex-deb/DEBIAN
+        mkdir -p flex-deb/usr/bin
+        mkdir -p flex-deb/usr/share/flex/examples
+        mkdir -p flex-deb/usr/share/applications
+        
+        cp src/dist/flex flex-deb/usr/bin/
+        cp -r src/flex_tester/* flex-deb/usr/share/flex/examples/
+        cp AppDir/usr/share/applications/flex.desktop flex-deb/usr/share/applications/
+        
+        cat > flex-deb/DEBIAN/control << EOF
+        Package: flex
+        Version: ${VERSION}
+        Section: development
+        Priority: optional
+        Architecture: amd64
+        Maintainer: Flex Language Team <info@flex-lang.org>
+        Description: Flex Programming Language
+         A modern and flexible programming language.
+        EOF
+        
+        dpkg-deb --build flex-deb flex-${VERSION}-linux.deb
+        
+        # Create latest-linux.yml for auto-updater compatibility
+        echo "version: ${VERSION}" > latest-linux.yml
+        echo "files:" >> latest-linux.yml
+        echo "  - url: flex-${VERSION}-linux.AppImage" >> latest-linux.yml
+        echo "    sha512: $(sha512sum flex-${VERSION}-linux.AppImage | awk '{print $1}')" >> latest-linux.yml
+        echo "    size: $(stat -c%s flex-${VERSION}-linux.AppImage)" >> latest-linux.yml
+        echo "path: flex-${VERSION}-linux.AppImage" >> latest-linux.yml
+        echo "sha512: $(sha512sum flex-${VERSION}-linux.AppImage | awk '{print $1}')" >> latest-linux.yml
+        echo "size: $(stat -c%s flex-${VERSION}-linux.AppImage)" >> latest-linux.yml
       shell: bash
       continue-on-error: true  # Some parts might fail if dependencies are missing
         
-    # Package distribution (Unix) - keep this as backup for Linux
+    # Package distribution (Unix) - keep this as backup for Linux/macOS
     - name: Package distribution (Unix)
       if: runner.os != 'Windows'
       run: |
@@ -216,7 +263,7 @@ jobs:
         cp src/dist/flex dist/flex/
         cp -r src/flex_tester dist/flex/examples
         cp README.md dist/flex/
-        tar -czf flex-${{ matrix.asset_name }}.tar.gz -C dist flex
+        tar -czf flex-${VERSION}-${{ matrix.asset_name }}.tar.gz -C dist flex
       shell: bash
 
     # Package distribution (Windows) - keep this as backup for Windows
@@ -227,7 +274,7 @@ jobs:
         copy src\dist\flex.exe dist\flex\
         xcopy src\flex_tester dist\flex\examples\ /E /I
         copy README.md dist\flex\
-        powershell Compress-Archive -Path dist\flex -DestinationPath flex-${{ matrix.asset_name }}.zip
+        powershell Compress-Archive -Path dist\flex -DestinationPath flex-%VERSION%-${{ matrix.asset_name }}.zip
       shell: cmd
       
     - name: Debug - List files before upload
@@ -254,12 +301,14 @@ jobs:
       with:
         name: flex-${{ matrix.asset_name }}
         path: |
-          flex-${{ matrix.asset_name }}.tar.gz
-          flex-${{ matrix.asset_name }}.zip
-          flex-windows-installer.exe
-          flex-macos.dmg
-          flex-linux.AppImage
-          src/dist/*
+          flex-*-${{ matrix.asset_name }}.tar.gz
+          flex-*-${{ matrix.asset_name }}.zip
+          flex-*-win.exe
+          flex-*-mac.dmg
+          flex-*-linux.AppImage
+          flex-*-linux.deb
+          latest-*.yml
+          src/dist/flex*
         if-no-files-found: warn
 
   release:
@@ -271,6 +320,29 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     
     steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up version information
+      id: version
+      run: |
+        if [[ $GITHUB_REF == refs/tags/v* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/v}
+          IS_PRERELEASE=false
+          RELEASE_NAME="Flex ${GITHUB_REF#refs/tags/v}"
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+        else
+          VERSION="dev-$(date +'%Y%m%d')-${GITHUB_SHA::7}"
+          IS_PRERELEASE=true
+          RELEASE_NAME="Flex Latest Build"
+          TAG_NAME="latest"
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "IS_PRERELEASE=$IS_PRERELEASE" >> $GITHUB_ENV
+        echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
+        echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+      shell: bash
+    
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
@@ -280,12 +352,31 @@ jobs:
       run: |
         mkdir -p release_assets
         
+        # Create a source code archive
+        zip -r flex-${VERSION}-source.zip . -x "artifacts/*" ".git/*"
+        tar -czf flex-${VERSION}-source.tar.gz --exclude="artifacts" --exclude=".git" .
+        
+        cp flex-${VERSION}-source.zip release_assets/
+        cp flex-${VERSION}-source.tar.gz release_assets/
+        
         # Find and copy all relevant files to release_assets directory
         echo "=== Copying artifacts to release directory ==="
-        find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" -o -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage" \) -exec cp {} release_assets/ \; || true
+        find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" -o -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.yml" \) -exec cp {} release_assets/ \; || true
         
         # For standalone executables that might be in specific directories
         find artifacts -type f \( -name "flex" -o -name "flex.exe" \) -exec cp {} release_assets/ \; || true
+        
+        # Rename the release assets if needed to match proper versioning pattern
+        if [ ! -f "release_assets/latest-win.yml" ]; then
+          # Copy one of the platform YMLs as the main latest.yml
+          if [ -f "release_assets/latest-mac.yml" ]; then
+            cp release_assets/latest-mac.yml release_assets/latest.yml
+          elif [ -f "release_assets/latest-linux.yml" ]; then
+            cp release_assets/latest-linux.yml release_assets/latest.yml
+          fi
+        else
+          cp release_assets/latest-win.yml release_assets/latest.yml
+        fi
         
         echo "=== Files in release_assets ==="
         ls -la release_assets/
@@ -294,48 +385,56 @@ jobs:
     - name: List downloaded files
       run: |
         echo "=== Root directory ==="
-        find . -type f | sort
+        find . -type f -maxdepth 1 | sort
         
         echo "=== All flex files ==="
-        find . -name "flex*" | sort
+        find . -name "flex*" -type f | sort
         
         echo "=== All artifacts directories ==="
         find artifacts -type d | sort
         
         echo "=== All artifact files ==="
         find artifacts -type f | sort
+        
+        echo "=== All release_assets files ==="
+        find release_assets -type f | sort
       shell: bash
       
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v1
       with:
-        name: ${{ startsWith(github.ref, 'refs/tags/') && format('Flex {0}', github.ref_name) || 'Flex Latest Build' }}
-        tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'latest' }}
+        name: ${{ env.RELEASE_NAME }}
+        tag_name: ${{ env.TAG_NAME }}
         draft: false
-        prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        prerelease: ${{ env.IS_PRERELEASE }}
         files: release_assets/*
         body: |
-          # Flex Programming Language ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'Latest Build' }}
+          # ${{ env.RELEASE_NAME }}
           
           Cross-platform executable releases of the Flex programming language.
           
           ## Installation
           
           ### Windows
-          - Option 1: Download and run `flex-windows-installer.exe` for a full installer with start menu shortcuts
-          - Option 2: Download and extract `flex-windows.zip`, then run `flex.exe`
+          - Option 1: Download and run `flex-${{ env.VERSION }}-win.exe` for a full installer with start menu shortcuts
+          - Option 2: Download and extract `flex-${{ env.VERSION }}-windows.zip`, then run `flex.exe`
           
           ### macOS
-          - Option 1: Download `flex-macos.dmg`, open and drag to Applications folder
-          - Option 2: Download and extract `flex-macos.tar.gz`, then run `flex`
+          - Option 1: Download `flex-${{ env.VERSION }}-mac.dmg`, open and drag to Applications folder
+          - Option 2: Download and extract `flex-${{ env.VERSION }}-macos.tar.gz`, then run `flex`
           
           ### Linux
-          - Option 1: Download `flex-linux.AppImage`, make executable with `chmod +x flex-linux.AppImage` and run
-          - Option 2: Download and extract `flex-linux.tar.gz`, then run `flex`
+          - Option 1: Download `flex-${{ env.VERSION }}-linux.AppImage`, make executable with `chmod +x flex-${{ env.VERSION }}-linux.AppImage` and run
+          - Option 2: Download `flex-${{ env.VERSION }}-linux.deb` and install with `sudo dpkg -i flex-${{ env.VERSION }}-linux.deb`
+          - Option 3: Download and extract `flex-${{ env.VERSION }}-linux.tar.gz`, then run `flex`
           
           ## Examples
           
           Example code is included in the examples directory.
+          
+          ## Source Code
+          
+          Source code is available as ZIP or TAR.GZ archive.
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
