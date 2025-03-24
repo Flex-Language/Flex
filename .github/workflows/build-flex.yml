@@ -250,12 +250,11 @@ jobs:
         draft: false
         prerelease: false
         files: |
-          flex-linux*/*.tar.gz
-          flex-linux*/flex-linux.AppImage
-          flex-windows*/flex-windows-installer.exe
-          flex-windows*/*.zip
-          flex-macos*/flex-macos.dmg
-          flex-macos*/*.tar.gz
+          **/flex-*.tar.gz
+          **/flex-*.zip
+          **/flex-windows-installer.exe
+          **/flex-macos.dmg
+          **/flex-linux.AppImage
         body: |
           # Flex Programming Language ${{ github.ref_name }}
           
@@ -305,12 +304,11 @@ jobs:
         draft: false
         prerelease: true
         files: |
-          flex-linux*/*.tar.gz
-          flex-linux*/flex-linux.AppImage
-          flex-windows*/flex-windows-installer.exe
-          flex-windows*/*.zip
-          flex-macos*/flex-macos.dmg
-          flex-macos*/*.tar.gz
+          **/flex-*.tar.gz
+          **/flex-*.zip
+          **/flex-windows-installer.exe
+          **/flex-macos.dmg
+          **/flex-linux.AppImage
         body: |
           # Flex Programming Language (Nightly Build)
           
