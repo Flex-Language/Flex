@@ -24,7 +24,7 @@ jobs:
           - os: macos-latest
             output_name: flex
             asset_name: flex-macos
-
+    
     steps:
     - uses: actions/checkout@v3
     
@@ -357,19 +357,36 @@ jobs:
       run: |
         mkdir -p release_assets
         
-        # Create a source code archive
-        zip -r flex-${VERSION}-source.zip . -x "artifacts/*" ".git/*"
-        tar -czf flex-${VERSION}-source.tar.gz --exclude="artifacts" --exclude=".git" .
+        # Create a source code archive with better error handling
+        echo "Creating source code archives..."
+        # First, create a clean copy of the source
+        mkdir -p temp_source
+        cp -r . temp_source/
+        rm -rf temp_source/artifacts temp_source/.git temp_source/release_assets temp_source/temp_source
         
-        cp flex-${VERSION}-source.zip release_assets/
-        cp flex-${VERSION}-source.tar.gz release_assets/
+        # Create archives from the clean copy
+        (cd temp_source && zip -r ../release_assets/flex-${VERSION}-source.zip .)
+        (cd temp_source && tar --exclude='.DS_Store' -czf ../release_assets/flex-${VERSION}-source.tar.gz .)
+        
+        # Clean up temporary directory
+        rm -rf temp_source
         
         # Find and copy all relevant files to release_assets directory
         echo "=== Copying artifacts to release directory ==="
-        find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" -o -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.yml" \) -exec cp {} release_assets/ \; || true
-        
-        # For standalone executables that might be in specific directories
-        find artifacts -type f \( -name "flex" -o -name "flex.exe" \) -exec cp {} release_assets/ \; || true
+        for artifact_dir in artifacts/*/; do
+          echo "Processing ${artifact_dir}..."
+          find "${artifact_dir}" -type f \( \
+            -name "*.tar.gz" -o \
+            -name "*.zip" -o \
+            -name "*.exe" -o \
+            -name "*.dmg" -o \
+            -name "*.AppImage" -o \
+            -name "*.deb" -o \
+            -name "*.yml" -o \
+            -name "flex" -o \
+            -name "flex.exe" \
+          \) -exec cp {} release_assets/ \; || true
+        done
         
         # Rename the release assets if needed to match proper versioning pattern
         if [ ! -f "release_assets/latest-win.yml" ]; then
