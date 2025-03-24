@@ -258,20 +258,37 @@ jobs:
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+    
+    - name: Prepare release assets
+      run: |
+        mkdir -p release_assets
+        
+        # Find and copy all relevant files to release_assets directory
+        echo "=== Copying artifacts to release directory ==="
+        find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" -o -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage" \) -exec cp {} release_assets/ \; || true
+        
+        # For standalone executables that might be in specific directories
+        find artifacts -type f \( -name "flex" -o -name "flex.exe" \) -exec cp {} release_assets/ \; || true
+        
+        echo "=== Files in release_assets ==="
+        ls -la release_assets/
+      shell: bash
     
     - name: List downloaded files
       run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          echo "=== Root directory ==="
-          dir /s /b
-          echo "=== All flex files ==="
-          dir /s /b flex* 2>nul || echo "No files found"
-        else
-          echo "=== Root directory ==="
-          find . -type f | sort
-          echo "=== All flex files ==="
-          find . -name "flex*" | sort
-        fi
+        echo "=== Root directory ==="
+        find . -type f | sort
+        
+        echo "=== All flex files ==="
+        find . -name "flex*" | sort
+        
+        echo "=== All artifacts directories ==="
+        find artifacts -type d | sort
+        
+        echo "=== All artifact files ==="
+        find artifacts -type f | sort
       shell: bash
       
     - name: Create Release
@@ -281,17 +298,7 @@ jobs:
         name: Flex ${{ github.ref_name }}
         draft: false
         prerelease: false
-        files: |
-          **/flex-*.tar.gz
-          **/flex-*.zip
-          **/flex*.exe
-          **/flex*.dmg
-          **/flex*.AppImage
-          **/*.tar.gz
-          **/*.zip
-          **/*.exe
-          **/*.dmg
-          **/*.AppImage
+        files: release_assets/*
         body: |
           # Flex Programming Language ${{ github.ref_name }}
           
@@ -329,20 +336,37 @@ jobs:
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+    
+    - name: Prepare nightly assets
+      run: |
+        mkdir -p release_assets
+        
+        # Find and copy all relevant files to release_assets directory
+        echo "=== Copying artifacts to release directory ==="
+        find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" -o -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage" \) -exec cp {} release_assets/ \; || true
+        
+        # For standalone executables that might be in specific directories
+        find artifacts -type f \( -name "flex" -o -name "flex.exe" \) -exec cp {} release_assets/ \; || true
+        
+        echo "=== Files in release_assets ==="
+        ls -la release_assets/
+      shell: bash
     
     - name: List downloaded files
       run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          echo "=== Root directory ==="
-          dir /s /b
-          echo "=== All flex files ==="
-          dir /s /b flex* 2>nul || echo "No files found"
-        else
-          echo "=== Root directory ==="
-          find . -type f | sort
-          echo "=== All flex files ==="
-          find . -name "flex*" | sort
-        fi
+        echo "=== Root directory ==="
+        find . -type f | sort
+        
+        echo "=== All flex files ==="
+        find . -name "flex*" | sort
+        
+        echo "=== All artifacts directories ==="
+        find artifacts -type d | sort
+        
+        echo "=== All artifact files ==="
+        find artifacts -type f | sort
       shell: bash
         
     - name: Create or Update Nightly Release
@@ -352,17 +376,7 @@ jobs:
         tag_name: nightly
         draft: false
         prerelease: true
-        files: |
-          **/flex-*.tar.gz
-          **/flex-*.zip
-          **/flex*.exe
-          **/flex*.dmg
-          **/flex*.AppImage
-          **/*.tar.gz
-          **/*.zip
-          **/*.exe
-          **/*.dmg
-          **/*.AppImage
+        files: release_assets/*
         body: |
           # Flex Programming Language (Nightly Build)
           
