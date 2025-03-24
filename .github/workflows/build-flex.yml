@@ -217,13 +217,23 @@ jobs:
       
     - name: Debug - List files before upload
       run: |
-        echo "=== Current directory files ==="
-        ls -la
-        echo "=== src/dist directory files ==="
-        ls -la src/dist || true
-        echo "=== Current directory - find all flex files ==="
-        find . -name "flex*" -type f || true
-      
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          echo "=== Current directory files ==="
+          dir
+          echo "=== src/dist directory files ==="
+          dir src\dist || echo "Directory not found"
+          echo "=== Current directory - find all flex files ==="
+          dir /s /b flex* 2>nul || echo "No files found"
+        else
+          echo "=== Current directory files ==="
+          ls -la
+          echo "=== src/dist directory files ==="
+          ls -la src/dist || true
+          echo "=== Current directory - find all flex files ==="
+          find . -name "flex*" -type f || true
+        fi
+      shell: bash
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -251,10 +261,18 @@ jobs:
     
     - name: List downloaded files
       run: |
-        echo "=== Root directory ==="
-        find . -type f | sort
-        echo "=== All flex files ==="
-        find . -name "flex*" | sort
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          echo "=== Root directory ==="
+          dir /s /b
+          echo "=== All flex files ==="
+          dir /s /b flex* 2>nul || echo "No files found"
+        else
+          echo "=== Root directory ==="
+          find . -type f | sort
+          echo "=== All flex files ==="
+          find . -name "flex*" | sort
+        fi
+      shell: bash
       
     - name: Create Release
       id: create_release
@@ -314,10 +332,18 @@ jobs:
     
     - name: List downloaded files
       run: |
-        echo "=== Root directory ==="
-        find . -type f | sort
-        echo "=== All flex files ==="
-        find . -name "flex*" | sort
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          echo "=== Root directory ==="
+          dir /s /b
+          echo "=== All flex files ==="
+          dir /s /b flex* 2>nul || echo "No files found"
+        else
+          echo "=== Root directory ==="
+          find . -type f | sort
+          echo "=== All flex files ==="
+          find . -name "flex*" | sort
+        fi
+      shell: bash
         
     - name: Create or Update Nightly Release
       uses: softprops/action-gh-release@v1
