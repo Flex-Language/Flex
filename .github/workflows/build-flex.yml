@@ -355,14 +355,16 @@ jobs:
     
     - name: Prepare release assets
       run: |
-        mkdir -p release_assets
+        mkdir -p release_assets temp_source
         
-        # Create a source code archive with better error handling
+        # Create a clean source copy using a more selective approach
         echo "Creating source code archives..."
-        # First, create a clean copy of the source
-        mkdir -p temp_source
-        cp -r . temp_source/
-        rm -rf temp_source/artifacts temp_source/.git temp_source/release_assets temp_source/temp_source
+        git ls-files | while read file; do
+          # Create the target directory structure
+          mkdir -p "temp_source/$(dirname "$file")"
+          # Copy each file
+          cp "$file" "temp_source/$file"
+        done
         
         # Create archives from the clean copy
         (cd temp_source && zip -r ../release_assets/flex-${VERSION}-source.zip .)
