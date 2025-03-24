@@ -52,6 +52,154 @@ jobs:
         pyinstaller --onefile main.py -n flex
       shell: bash
         
+    # Windows NSIS Installer
+    - name: Create Windows Installer
+      if: runner.os == 'Windows'
+      run: |
+        choco install nsis -y
+        mkdir -p installer
+        copy src\dist\flex.exe installer\
+        xcopy src\flex_tester installer\examples\ /E /I
+        copy README.md installer\
+        
+        # Create NSIS script
+        echo '!include "MUI2.nsh"' > installer.nsi
+        echo 'Name "Flex Programming Language"' >> installer.nsi
+        echo 'OutFile "flex-windows-installer.exe"' >> installer.nsi
+        echo 'InstallDir "$PROGRAMFILES\Flex"' >> installer.nsi
+        echo 'RequestExecutionLevel admin' >> installer.nsi
+        echo '!insertmacro MUI_PAGE_WELCOME' >> installer.nsi
+        echo '!insertmacro MUI_PAGE_DIRECTORY' >> installer.nsi
+        echo '!insertmacro MUI_PAGE_INSTFILES' >> installer.nsi
+        echo '!insertmacro MUI_PAGE_FINISH' >> installer.nsi
+        echo '!insertmacro MUI_LANGUAGE "English"' >> installer.nsi
+        echo 'Section' >> installer.nsi
+        echo '  SetOutPath "$INSTDIR"' >> installer.nsi
+        echo '  File /r "installer\*.*"' >> installer.nsi
+        echo '  WriteUninstaller "$INSTDIR\uninstall.exe"' >> installer.nsi
+        echo '  CreateDirectory "$SMPROGRAMS\Flex"' >> installer.nsi
+        echo '  CreateShortcut "$SMPROGRAMS\Flex\Flex.lnk" "$INSTDIR\flex.exe"' >> installer.nsi
+        echo '  CreateShortcut "$SMPROGRAMS\Flex\Uninstall.lnk" "$INSTDIR\uninstall.exe"' >> installer.nsi
+        echo '  # Add to PATH' >> installer.nsi
+        echo '  EnvVarUpdate $0 "PATH" "A" "HKLM" "$INSTDIR"' >> installer.nsi
+        echo 'SectionEnd' >> installer.nsi
+        echo 'Section "Uninstall"' >> installer.nsi
+        echo '  Delete "$INSTDIR\uninstall.exe"' >> installer.nsi
+        echo '  RMDir /r "$INSTDIR"' >> installer.nsi
+        echo '  RMDir /r "$SMPROGRAMS\Flex"' >> installer.nsi
+        echo '  # Remove from PATH' >> installer.nsi
+        echo '  EnvVarUpdate $0 "PATH" "R" "HKLM" "$INSTDIR"' >> installer.nsi
+        echo 'SectionEnd' >> installer.nsi
+        
+        # Download EnvVarUpdate.nsh
+        powershell -Command "Invoke-WebRequest -Uri 'https://nsis.sourceforge.io/mediawiki/images/7/7f/EnvVarUpdate.7z' -OutFile 'EnvVarUpdate.7z'"
+        7z e EnvVarUpdate.7z -o"C:\Program Files (x86)\NSIS\Include" -y
+        
+        # Compile installer
+        makensis installer.nsi
+      shell: cmd
+    
+    # macOS DMG Package
+    - name: Create macOS DMG
+      if: runner.os == 'macOS'
+      run: |
+        # Create app bundle structure
+        mkdir -p Flex.app/Contents/{MacOS,Resources}
+        cp src/dist/flex Flex.app/Contents/MacOS/
+        cp -r src/flex_tester Flex.app/Contents/Resources/examples
+        cp README.md Flex.app/Contents/Resources/
+        
+        # Create Info.plist
+        cat > Flex.app/Contents/Info.plist << EOF
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>CFBundleExecutable</key>
+            <string>flex</string>
+            <key>CFBundleIconFile</key>
+            <string>flex.icns</string>
+            <key>CFBundleIdentifier</key>
+            <string>org.flex-lang.flex</string>
+            <key>CFBundleName</key>
+            <string>Flex</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleVersion</key>
+            <string>1.0</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+        </dict>
+        </plist>
+        EOF
+        
+        # Install create-dmg
+        brew install create-dmg
+        
+        # Create DMG
+        create-dmg \
+          --volname "Flex Installer" \
+          --volicon "Flex.app/Contents/Resources/flex.icns" \
+          --window-pos 200 120 \
+          --window-size 800 400 \
+          --icon-size 100 \
+          --icon "Flex.app" 200 190 \
+          --hide-extension "Flex.app" \
+          --app-drop-link 600 185 \
+          "flex-macos.dmg" \
+          "Flex.app"
+      shell: bash
+      continue-on-error: true  # DMG creation might fail if icon is missing
+    
+    # Linux AppImage
+    - name: Create Linux AppImage
+      if: runner.os == 'Linux'
+      run: |
+        # Install required tools
+        sudo apt-get update
+        sudo apt-get install -y wget fuse libfuse2
+        
+        # Download AppImage tools
+        wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+        chmod +x appimagetool
+        
+        # Create AppDir structure
+        mkdir -p AppDir/usr/{bin,share/applications,share/icons/hicolor/256x256/apps,share/flex/examples}
+        cp src/dist/flex AppDir/usr/bin/
+        cp -r src/flex_tester/* AppDir/usr/share/flex/examples/
+        cp README.md AppDir/usr/share/flex/
+        
+        # Create desktop file
+        cat > AppDir/usr/share/applications/flex.desktop << EOF
+        [Desktop Entry]
+        Name=Flex
+        Comment=Flex Programming Language
+        Exec=flex
+        Icon=flex
+        Type=Application
+        Categories=Development;
+        Terminal=true
+        EOF
+        
+        # Copy desktop file to root (required by AppImage)
+        cp AppDir/usr/share/applications/flex.desktop AppDir/
+        
+        # Create AppRun script
+        cat > AppDir/AppRun << EOF
+        #!/bin/sh
+        SELF=\$(readlink -f "\$0")
+        HERE=\${SELF%/*}
+        export PATH="\${HERE}/usr/bin:\${PATH}"
+        exec "\${HERE}/usr/bin/flex" "\$@"
+        EOF
+        chmod +x AppDir/AppRun
+        
+        # Create AppImage
+        ARCH=x86_64 ./appimagetool AppDir flex-linux.AppImage
+      shell: bash
+      continue-on-error: true  # Some parts might fail if dependencies are missing
+        
+    # Package distribution (Unix) - keep this as backup for Linux
     - name: Package distribution (Unix)
       if: runner.os != 'Windows'
       run: |
@@ -62,6 +210,7 @@ jobs:
         tar -czf flex-${{ matrix.asset_name }}.tar.gz -C dist flex
       shell: bash
 
+    # Package distribution (Windows) - keep this as backup for Windows
     - name: Package distribution (Windows)
       if: runner.os == 'Windows'
       run: |
@@ -79,6 +228,9 @@ jobs:
         path: |
           flex-${{ matrix.asset_name }}.tar.gz
           flex-${{ matrix.asset_name }}.zip
+          flex-windows-installer.exe
+          flex-macos.dmg
+          flex-linux.AppImage
         if-no-files-found: ignore
 
   release:
@@ -105,7 +257,10 @@ jobs:
         prerelease: false
         files: |
           flex-linux*/*.tar.gz
+          flex-linux*/flex-linux.AppImage
+          flex-windows*/flex-windows-installer.exe
           flex-windows*/*.zip
+          flex-macos*/flex-macos.dmg
           flex-macos*/*.tar.gz
         body: |
           # Flex Programming Language ${{ github.ref_name }}
@@ -114,11 +269,17 @@ jobs:
           
           ## Installation
           
-          Download the appropriate package for your platform:
+          ### Windows
+          - Option 1: Download and run `flex-windows-installer.exe` for a full installer with start menu shortcuts
+          - Option 2: Download and extract `flex-windows.zip`, then run `flex.exe`
           
-          - **Windows**: Download and extract `flex-windows.zip`, then run `flex.exe`
-          - **MacOS**: Download and extract `flex-macos.tar.gz`, then run `flex`
-          - **Linux**: Download and extract `flex-linux.tar.gz`, then run `flex`
+          ### macOS
+          - Option 1: Download `flex-macos.dmg`, open and drag to Applications folder
+          - Option 2: Download and extract `flex-macos.tar.gz`, then run `flex`
+          
+          ### Linux
+          - Option 1: Download `flex-linux.AppImage`, make executable with `chmod +x flex-linux.AppImage` and run
+          - Option 2: Download and extract `flex-linux.tar.gz`, then run `flex`
           
           ## Examples
           
@@ -151,7 +312,10 @@ jobs:
         prerelease: true
         files: |
           flex-linux*/*.tar.gz
+          flex-linux*/flex-linux.AppImage
+          flex-windows*/flex-windows-installer.exe
           flex-windows*/*.zip
+          flex-macos*/flex-macos.dmg
           flex-macos*/*.tar.gz
         body: |
           # Flex Programming Language (Nightly Build)
@@ -161,8 +325,16 @@ jobs:
           
           ## Download
           
-          - **Windows**: `flex-windows.zip`
-          - **MacOS**: `flex-macos.tar.gz`
-          - **Linux**: `flex-linux.tar.gz`
+          ### Windows
+          - Option 1: `flex-windows-installer.exe` (recommended)
+          - Option 2: `flex-windows.zip`
+          
+          ### macOS
+          - Option 1: `flex-macos.dmg` (recommended)
+          - Option 2: `flex-macos.tar.gz`
+          
+          ### Linux
+          - Option 1: `flex-linux.AppImage` (recommended)
+          - Option 2: `flex-linux.tar.gz`
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
