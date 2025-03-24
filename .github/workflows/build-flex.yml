@@ -215,6 +215,15 @@ jobs:
         powershell Compress-Archive -Path dist\flex -DestinationPath flex-${{ matrix.asset_name }}.zip
       shell: cmd
       
+    - name: Debug - List files before upload
+      run: |
+        echo "=== Current directory files ==="
+        ls -la
+        echo "=== src/dist directory files ==="
+        ls -la src/dist || true
+        echo "=== Current directory - find all flex files ==="
+        find . -name "flex*" -type f || true
+      
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -225,7 +234,8 @@ jobs:
           flex-windows-installer.exe
           flex-macos.dmg
           flex-linux.AppImage
-        if-no-files-found: ignore
+          src/dist/*
+        if-no-files-found: warn
 
   release:
     name: Create Release
@@ -240,7 +250,11 @@ jobs:
       uses: actions/download-artifact@v4
     
     - name: List downloaded files
-      run: find . -type f | sort
+      run: |
+        echo "=== Root directory ==="
+        find . -type f | sort
+        echo "=== All flex files ==="
+        find . -name "flex*" | sort
       
     - name: Create Release
       id: create_release
@@ -252,9 +266,14 @@ jobs:
         files: |
           **/flex-*.tar.gz
           **/flex-*.zip
-          **/flex-windows-installer.exe
-          **/flex-macos.dmg
-          **/flex-linux.AppImage
+          **/flex*.exe
+          **/flex*.dmg
+          **/flex*.AppImage
+          **/*.tar.gz
+          **/*.zip
+          **/*.exe
+          **/*.dmg
+          **/*.AppImage
         body: |
           # Flex Programming Language ${{ github.ref_name }}
           
@@ -294,8 +313,12 @@ jobs:
       uses: actions/download-artifact@v4
     
     - name: List downloaded files
-      run: find . -type f | sort
-      
+      run: |
+        echo "=== Root directory ==="
+        find . -type f | sort
+        echo "=== All flex files ==="
+        find . -name "flex*" | sort
+        
     - name: Create or Update Nightly Release
       uses: softprops/action-gh-release@v1
       with:
@@ -306,9 +329,14 @@ jobs:
         files: |
           **/flex-*.tar.gz
           **/flex-*.zip
-          **/flex-windows-installer.exe
-          **/flex-macos.dmg
-          **/flex-linux.AppImage
+          **/flex*.exe
+          **/flex*.dmg
+          **/flex*.AppImage
+          **/*.tar.gz
+          **/*.zip
+          **/*.exe
+          **/*.dmg
+          **/*.AppImage
         body: |
           # Flex Programming Language (Nightly Build)
           
