@@ -74,10 +74,186 @@ jobs:
         xcopy src\flex_tester installer\examples\ /E /I
         copy README.md installer\
         
+        REM Create EnvVarUpdate.nsh file locally instead of downloading it
+        (
+        echo !ifndef _AddToPath_nsh
+        echo !define _AddToPath_nsh
+        echo 
+        echo !verbose push
+        echo !verbose 3
+        echo !include "LogicLib.nsh"
+        echo !include "WinMessages.NSH"
+        echo !verbose pop
+        echo 
+        echo !define HKLM_ENVIRON 'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
+        echo 
+        echo !macro AddToPath dir
+        echo   Push "${dir}"
+        echo   Call AddToPath
+        echo !macroend
+        echo 
+        echo Function AddToPath
+        echo   Exch $0
+        echo   Push $1
+        echo   Push $2
+        echo   Push $3
+        echo   Push $4
+        echo   
+        echo   ; Prevent adding empty string to PATH
+        echo   ${If} $0 == ""
+        echo     Goto exit
+        echo   ${EndIf}
+        echo   
+        echo   ; Don't add if it's already in PATH
+        echo   ReadRegStr $1 ${HKLM_ENVIRON} "PATH"
+        echo   Push "$1;"
+        echo   Push "$0;"
+        echo   Call StrStr
+        echo   Pop $2
+        echo   StrCmp $2 "" 0 exit
+        echo   
+        echo   ; Append to PATH
+        echo   DetailPrint "Adding to PATH: $0"
+        echo   ReadRegStr $1 ${HKLM_ENVIRON} "PATH"
+        echo   StrCpy $2 "$1;$0"
+        echo   WriteRegExpandStr ${HKLM_ENVIRON} "PATH" $2
+        echo   SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+        echo   
+        echo   exit:
+        echo   Pop $4
+        echo   Pop $3
+        echo   Pop $2
+        echo   Pop $1
+        echo   Pop $0
+        echo FunctionEnd
+        echo 
+        echo !macro RemoveFromPath dir
+        echo   Push "${dir}"
+        echo   Call RemoveFromPath
+        echo !macroend
+        echo 
+        echo Function RemoveFromPath
+        echo   Exch $0
+        echo   Push $1
+        echo   Push $2
+        echo   Push $3
+        echo   Push $4
+        echo   Push $5
+        echo   Push $6
+        echo   
+        echo   ReadRegStr $1 ${HKLM_ENVIRON} "PATH"
+        echo   StrCpy $5 $1 1 -1  ; Get last character
+        echo   ${If} $5 != ";" ; If last character is not a semicolon
+        echo     StrCpy $1 "$1;" ; Append a semicolon
+        echo   ${EndIf}
+        echo   
+        echo   ${If} $0 == ""
+        echo     Goto exit
+        echo   ${EndIf}
+        echo   
+        echo   ; Make sure it's a full path ending with a backslash
+        echo   Push $0
+        echo   Call GetFullPath
+        echo   Pop $0
+        echo   
+        echo   ; Check if it's already in the PATH
+        echo   Push "$1;"
+        echo   Push "$0;"
+        echo   Call StrStr
+        echo   Pop $2
+        echo   StrCmp $2 "" exit
+        echo   
+        echo   ; Remove from PATH
+        echo   DetailPrint "Removing from PATH: $0"
+        echo   StrCpy $5 $1 ; Save PATH
+        echo   StrLen $2 $0
+        echo   StrLen $3 $2
+        echo   StrCpy $4 0
+        echo   
+        echo   loop:
+        echo     StrCpy $6 $5 $3 $4 ; $6 = string of length $3 at position $4
+        echo     StrCmp $6 $2 found continue
+        echo     StrCmp $6 "" exit
+        echo     StrLen $6 $5
+        echo     IntOp $4 $4 + 1
+        echo     StrCmp $4 $6 exit loop
+        echo   
+        echo   found:
+        echo     StrCpy $6 $5 $4
+        echo     IntOp $4 $4 + $3
+        echo     StrCpy $7 $5 "" $4
+        echo     StrCpy $5 $6$7
+        echo     Goto loop
+        echo   
+        echo   exit:
+        echo     WriteRegExpandStr ${HKLM_ENVIRON} "PATH" $5
+        echo     SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+        echo   
+        echo   Pop $6
+        echo   Pop $5
+        echo   Pop $4
+        echo   Pop $3
+        echo   Pop $2
+        echo   Pop $1
+        echo   Pop $0
+        echo FunctionEnd
+        echo 
+        echo ; Helper functions
+        echo Function GetFullPath
+        echo   Exch $0
+        echo   Push $1
+        echo   Push $2
+        echo   
+        echo   StrCpy $1 $0 1 -1
+        echo   StrCmp $1 "\" Append
+        echo   StrCmp $1 "/" Append
+        echo   Goto NoAppend
+        echo 
+        echo   Append:
+        echo     Goto Exit
+        echo 
+        echo   NoAppend:
+        echo     StrCpy $0 "$0\"
+        echo 
+        echo   Exit:
+        echo     Pop $2
+        echo     Pop $1
+        echo     Exch $0
+        echo FunctionEnd
+        echo 
+        echo Function StrStr
+        echo   Exch $R1 ; string to search in
+        echo   Exch
+        echo   Exch $R2 ; string to find
+        echo   Push $R3
+        echo   Push $R4
+        echo   Push $R5
+        echo   StrLen $R3 $R2
+        echo   StrCpy $R4 0
+        echo   
+        echo   loop:
+        echo     StrCpy $R5 $R1 $R3 $R4
+        echo     StrCmp $R5 $R2 done
+        echo     StrCmp $R5 "" done
+        echo     IntOp $R4 $R4 + 1
+        echo     Goto loop
+        echo   
+        echo   done:
+        echo     StrCpy $R1 $R4
+        echo     Pop $R5
+        echo     Pop $R4
+        echo     Pop $R3
+        echo     Pop $R2
+        echo     Exch $R1
+        echo FunctionEnd
+        echo 
+        echo !endif
+        ) > AddToPath.nsh
+        
         REM Create a simple NSIS script file with PATH environment variable addition
         (
         echo !include "MUI2.nsh"
-        echo !include "EnvVarUpdate.nsh"
+        echo !include "AddToPath.nsh"
         echo Name "Flex Programming Language"
         echo OutFile "flex-${{ env.VERSION }}-setup.exe"
         echo InstallDir "$PROGRAMFILES\Flex"
@@ -94,34 +270,44 @@ jobs:
         echo   CreateDirectory "$SMPROGRAMS\Flex"
         echo   CreateShortcut "$SMPROGRAMS\Flex\Flex.lnk" "$INSTDIR\flex.exe"
         echo   CreateShortcut "$SMPROGRAMS\Flex\Uninstall.lnk" "$INSTDIR\uninstall.exe"
-        echo   ${EnvVarUpdate} $0 "PATH" "A" "HKLM" "$INSTDIR"
+        echo   !insertmacro AddToPath "$INSTDIR"
         echo SectionEnd
         echo Section "Uninstall"
         echo   Delete "$INSTDIR\uninstall.exe"
-        echo   ${EnvVarUpdate} $0 "PATH" "R" "HKLM" "$INSTDIR"
+        echo   !insertmacro RemoveFromPath "$INSTDIR"
         echo   RMDir /r "$INSTDIR"
         echo   RMDir /r "$SMPROGRAMS\Flex"
         echo SectionEnd
         ) > installer.nsi
         
-        REM Download EnvVarUpdate.nsh
-        powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/NSIS-Dev/EnvVarUpdate/master/EnvVarUpdate.nsh' -OutFile 'EnvVarUpdate.nsh'"
-        
         REM Compile the installer
         makensis installer.nsi
         
-        REM Create latest.yml for auto-updater compatibility
-        echo version: ${{ env.VERSION }} > latest-win.yml
-        echo files: >> latest-win.yml
-        echo   - url: flex-${{ env.VERSION }}-setup.exe >> latest-win.yml
-        
-        FOR /F "tokens=*" %%a IN ('powershell -Command "(Get-FileHash -Algorithm SHA512 flex-${{ env.VERSION }}-setup.exe).Hash.ToLower()"') DO SET FILEHASH=%%a
-        echo     sha512: %FILEHASH% >> latest-win.yml
-        
-        echo path: flex-${{ env.VERSION }}-setup.exe >> latest-win.yml
-        
-        FOR /F "tokens=*" %%a IN ('powershell -Command "(Get-FileHash -Algorithm SHA512 flex-${{ env.VERSION }}-setup.exe).Hash.ToLower()"') DO SET FILEHASH=%%a  
-        echo sha512: %FILEHASH% >> latest-win.yml
+        REM Check if installer was created
+        if not exist flex-${{ env.VERSION }}-setup.exe (
+          echo "WARNING: Installer creation failed. Creating a simple ZIP package instead."
+          mkdir -p dist\flex
+          copy src\dist\flex.exe dist\flex\
+          xcopy src\flex_tester dist\flex\examples\ /E /I
+          copy README.md dist\flex\
+          powershell Compress-Archive -Path dist\flex -DestinationPath flex-${{ env.VERSION }}-win.zip
+          
+          REM Create latest.yml for auto-updater compatibility (fallback)
+          echo version: ${{ env.VERSION }} > latest-win.yml
+          echo files: >> latest-win.yml
+          echo   - url: flex-${{ env.VERSION }}-win.zip >> latest-win.yml
+          FOR /F "tokens=*" %%a IN ('powershell -Command "(Get-FileHash -Algorithm SHA512 flex-${{ env.VERSION }}-win.zip).Hash.ToLower()"') DO SET FILEHASH=%%a
+          echo     sha512: %FILEHASH% >> latest-win.yml
+          echo path: flex-${{ env.VERSION }}-win.zip >> latest-win.yml
+        ) else (
+          REM Create latest.yml for auto-updater compatibility
+          echo version: ${{ env.VERSION }} > latest-win.yml
+          echo files: >> latest-win.yml
+          echo   - url: flex-${{ env.VERSION }}-setup.exe >> latest-win.yml
+          FOR /F "tokens=*" %%a IN ('powershell -Command "(Get-FileHash -Algorithm SHA512 flex-${{ env.VERSION }}-setup.exe).Hash.ToLower()"') DO SET FILEHASH=%%a
+          echo     sha512: %FILEHASH% >> latest-win.yml
+          echo path: flex-${{ env.VERSION }}-setup.exe >> latest-win.yml
+        )
       shell: cmd
     
     # macOS DMG Package with code signing
