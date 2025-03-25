@@ -5,7 +5,7 @@ from flex_compiler.compiler import *
 if __name__ == "__main__":
 
     if len(sys.argv) != 2:
-        print("Usage: python compiler.py <source_file>")
+        print("Usage: flex <source_file .lx,.flex>")
         sys.exit(1)
     
     source_file = sys.argv[1]
