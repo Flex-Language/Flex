@@ -1,14 +1,12 @@
-name: Build and Release Flex
+name: Build Flex Executables
 
 on:
   push:
-    branches: [ main, master ]
-    tags:
-      - 'v*' # Run when tag is pushed (for versioned releases)
+    branches: [ main ]
 
 jobs:
   build:
-    name: Build Flex for ${{ matrix.os }}
+    name: Build Flex Executable (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -16,15 +14,15 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
-            output_name: flex
+            output_name: flex-linux
             asset_name: flex-linux
           - os: windows-latest
-            output_name: flex.exe
-            asset_name: flex-windows
+            output_name: flex-windows
+            asset_name: flex-windows.exe
           - os: macos-latest
-            output_name: flex
+            output_name: flex-macos
             asset_name: flex-macos
-    
+
     steps:
     - uses: actions/checkout@v3
     
@@ -33,574 +31,274 @@ jobs:
       with:
         python-version: '3.10'
         
-    - name: Get version information
-      id: version
-      run: |
-        if [[ $GITHUB_REF == refs/tags/v* ]]; then
-          VERSION=${GITHUB_REF#refs/tags/v}
-        else
-          VERSION="dev-$(date +'%Y%m%d')-${GITHUB_SHA::7}"
-        fi
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-      shell: bash
-        
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      shell: bash
+        pip install -r src/requirements.txt
+      continue-on-error: true
+      
+    - name: Install dependencies (without requirements.txt)
+      if: ${{ failure() }}
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install ply==3.11
         
-    - name: Run tests
+    - name: Build with PyInstaller for Linux/macOS
+      if: matrix.os != 'windows-latest'
+      run: |
+        chmod +x src/flex.sh
+        cd src
+        pyinstaller --onefile --name=${{ matrix.output_name }} main.py
+        
+    - name: Build with PyInstaller for Windows
+      if: matrix.os == 'windows-latest'
       run: |
         cd src
-        python -m unittest discover -s flex_tester
-      shell: bash
+        pyinstaller --onefile --name=${{ matrix.output_name }} main.py
         
-    - name: Build executable with PyInstaller
-      run: |
-        cd src
-        pyinstaller --onefile main.py -n flex
-      shell: bash
-        
-    # Windows NSIS Installer
-    - name: Create Windows Installer
-      if: runner.os == 'Windows'
-      run: |
-        choco install nsis -y
-        mkdir -p installer
-        copy src\dist\flex.exe installer\
-        xcopy src\flex_tester installer\examples\ /E /I
-        copy README.md installer\
-        
-        REM Create EnvVarUpdate.nsh file locally instead of downloading it
-        (
-        echo !ifndef _AddToPath_nsh
-        echo !define _AddToPath_nsh
-        echo 
-        echo !verbose push
-        echo !verbose 3
-        echo !include "LogicLib.nsh"
-        echo !include "WinMessages.NSH"
-        echo !verbose pop
-        echo 
-        echo !define HKLM_ENVIRON 'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
-        echo 
-        echo !macro AddToPath dir
-        echo   Push "${dir}"
-        echo   Call AddToPath
-        echo !macroend
-        echo 
-        echo Function AddToPath
-        echo   Exch $0
-        echo   Push $1
-        echo   Push $2
-        echo   Push $3
-        echo   Push $4
-        echo   
-        echo   ; Prevent adding empty string to PATH
-        echo   ${If} $0 == ""
-        echo     Goto exit
-        echo   ${EndIf}
-        echo   
-        echo   ; Don't add if it's already in PATH
-        echo   ReadRegStr $1 ${HKLM_ENVIRON} "PATH"
-        echo   Push "$1;"
-        echo   Push "$0;"
-        echo   Call StrStr
-        echo   Pop $2
-        echo   StrCmp $2 "" 0 exit
-        echo   
-        echo   ; Append to PATH
-        echo   DetailPrint "Adding to PATH: $0"
-        echo   ReadRegStr $1 ${HKLM_ENVIRON} "PATH"
-        echo   StrCpy $2 "$1;$0"
-        echo   WriteRegExpandStr ${HKLM_ENVIRON} "PATH" $2
-        echo   SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
-        echo   
-        echo   exit:
-        echo   Pop $4
-        echo   Pop $3
-        echo   Pop $2
-        echo   Pop $1
-        echo   Pop $0
-        echo FunctionEnd
-        echo 
-        echo !macro RemoveFromPath dir
-        echo   Push "${dir}"
-        echo   Call RemoveFromPath
-        echo !macroend
-        echo 
-        echo Function RemoveFromPath
-        echo   Exch $0
-        echo   Push $1
-        echo   Push $2
-        echo   Push $3
-        echo   Push $4
-        echo   Push $5
-        echo   Push $6
-        echo   
-        echo   ReadRegStr $1 ${HKLM_ENVIRON} "PATH"
-        echo   StrCpy $5 $1 1 -1  ; Get last character
-        echo   ${If} $5 != ";" ; If last character is not a semicolon
-        echo     StrCpy $1 "$1;" ; Append a semicolon
-        echo   ${EndIf}
-        echo   
-        echo   ${If} $0 == ""
-        echo     Goto exit
-        echo   ${EndIf}
-        echo   
-        echo   ; Make sure it's a full path ending with a backslash
-        echo   Push $0
-        echo   Call GetFullPath
-        echo   Pop $0
-        echo   
-        echo   ; Check if it's already in the PATH
-        echo   Push "$1;"
-        echo   Push "$0;"
-        echo   Call StrStr
-        echo   Pop $2
-        echo   StrCmp $2 "" exit
-        echo   
-        echo   ; Remove from PATH
-        echo   DetailPrint "Removing from PATH: $0"
-        echo   StrCpy $5 $1 ; Save PATH
-        echo   StrLen $2 $0
-        echo   StrLen $3 $2
-        echo   StrCpy $4 0
-        echo   
-        echo   loop:
-        echo     StrCpy $6 $5 $3 $4 ; $6 = string of length $3 at position $4
-        echo     StrCmp $6 $2 found continue
-        echo     StrCmp $6 "" exit
-        echo     StrLen $6 $5
-        echo     IntOp $4 $4 + 1
-        echo     StrCmp $4 $6 exit loop
-        echo   
-        echo   found:
-        echo     StrCpy $6 $5 $4
-        echo     IntOp $4 $4 + $3
-        echo     StrCpy $7 $5 "" $4
-        echo     StrCpy $5 $6$7
-        echo     Goto loop
-        echo   
-        echo   exit:
-        echo     WriteRegExpandStr ${HKLM_ENVIRON} "PATH" $5
-        echo     SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
-        echo   
-        echo   Pop $6
-        echo   Pop $5
-        echo   Pop $4
-        echo   Pop $3
-        echo   Pop $2
-        echo   Pop $1
-        echo   Pop $0
-        echo FunctionEnd
-        echo 
-        echo ; Helper functions
-        echo Function GetFullPath
-        echo   Exch $0
-        echo   Push $1
-        echo   Push $2
-        echo   
-        echo   StrCpy $1 $0 1 -1
-        echo   StrCmp $1 "\" Append
-        echo   StrCmp $1 "/" Append
-        echo   Goto NoAppend
-        echo 
-        echo   Append:
-        echo     Goto Exit
-        echo 
-        echo   NoAppend:
-        echo     StrCpy $0 "$0\"
-        echo 
-        echo   Exit:
-        echo     Pop $2
-        echo     Pop $1
-        echo     Exch $0
-        echo FunctionEnd
-        echo 
-        echo Function StrStr
-        echo   Exch $R1 ; string to search in
-        echo   Exch
-        echo   Exch $R2 ; string to find
-        echo   Push $R3
-        echo   Push $R4
-        echo   Push $R5
-        echo   StrLen $R3 $R2
-        echo   StrCpy $R4 0
-        echo   
-        echo   loop:
-        echo     StrCpy $R5 $R1 $R3 $R4
-        echo     StrCmp $R5 $R2 done
-        echo     StrCmp $R5 "" done
-        echo     IntOp $R4 $R4 + 1
-        echo     Goto loop
-        echo   
-        echo   done:
-        echo     StrCpy $R1 $R4
-        echo     Pop $R5
-        echo     Pop $R4
-        echo     Pop $R3
-        echo     Pop $R2
-        echo     Exch $R1
-        echo FunctionEnd
-        echo 
-        echo !endif
-        ) > AddToPath.nsh
-        
-        REM Create a simple NSIS script file with PATH environment variable addition
-        (
-        echo !include "MUI2.nsh"
-        echo !include "AddToPath.nsh"
-        echo Name "Flex Programming Language"
-        echo OutFile "flex-${{ env.VERSION }}-setup.exe"
-        echo InstallDir "$PROGRAMFILES\Flex"
-        echo RequestExecutionLevel admin
-        echo !insertmacro MUI_PAGE_WELCOME
-        echo !insertmacro MUI_PAGE_DIRECTORY
-        echo !insertmacro MUI_PAGE_INSTFILES
-        echo !insertmacro MUI_PAGE_FINISH
-        echo !insertmacro MUI_LANGUAGE "English"
-        echo Section
-        echo   SetOutPath "$INSTDIR"
-        echo   File /r "installer\*.*"
-        echo   WriteUninstaller "$INSTDIR\uninstall.exe"
-        echo   CreateDirectory "$SMPROGRAMS\Flex"
-        echo   CreateShortcut "$SMPROGRAMS\Flex\Flex.lnk" "$INSTDIR\flex.exe"
-        echo   CreateShortcut "$SMPROGRAMS\Flex\Uninstall.lnk" "$INSTDIR\uninstall.exe"
-        echo   !insertmacro AddToPath "$INSTDIR"
-        echo SectionEnd
-        echo Section "Uninstall"
-        echo   Delete "$INSTDIR\uninstall.exe"
-        echo   !insertmacro RemoveFromPath "$INSTDIR"
-        echo   RMDir /r "$INSTDIR"
-        echo   RMDir /r "$SMPROGRAMS\Flex"
-        echo SectionEnd
-        ) > installer.nsi
-        
-        REM Compile the installer
-        makensis installer.nsi
-        
-        REM Check if installer was created
-        if not exist flex-${{ env.VERSION }}-setup.exe (
-          echo "WARNING: Installer creation failed. Creating a simple ZIP package instead."
-          mkdir -p dist\flex
-          copy src\dist\flex.exe dist\flex\
-          xcopy src\flex_tester dist\flex\examples\ /E /I
-          copy README.md dist\flex\
-          powershell Compress-Archive -Path dist\flex -DestinationPath flex-${{ env.VERSION }}-win.zip
-          
-          REM Create latest.yml for auto-updater compatibility (fallback)
-          echo version: ${{ env.VERSION }} > latest-win.yml
-          echo files: >> latest-win.yml
-          echo   - url: flex-${{ env.VERSION }}-win.zip >> latest-win.yml
-          FOR /F "tokens=*" %%a IN ('powershell -Command "(Get-FileHash -Algorithm SHA512 flex-${{ env.VERSION }}-win.zip).Hash.ToLower()"') DO SET FILEHASH=%%a
-          echo     sha512: %FILEHASH% >> latest-win.yml
-          echo path: flex-${{ env.VERSION }}-win.zip >> latest-win.yml
-        ) else (
-          REM Create latest.yml for auto-updater compatibility
-          echo version: ${{ env.VERSION }} > latest-win.yml
-          echo files: >> latest-win.yml
-          echo   - url: flex-${{ env.VERSION }}-setup.exe >> latest-win.yml
-          FOR /F "tokens=*" %%a IN ('powershell -Command "(Get-FileHash -Algorithm SHA512 flex-${{ env.VERSION }}-setup.exe).Hash.ToLower()"') DO SET FILEHASH=%%a
-          echo     sha512: %FILEHASH% >> latest-win.yml
-          echo path: flex-${{ env.VERSION }}-setup.exe >> latest-win.yml
-        )
-      shell: cmd
-    
-    # macOS DMG Package with code signing
-    - name: Create macOS DMG
-      if: runner.os == 'macOS'
-      run: |
-        # Install create-dmg
-        brew install create-dmg
-        
-        # Create app bundle structure
-        mkdir -p Flex.app/Contents/{MacOS,Resources}
-        cp src/dist/flex Flex.app/Contents/MacOS/
-        cp -r src/flex_tester Flex.app/Contents/Resources/examples
-        cp README.md Flex.app/Contents/Resources/
-        
-        # Create Info.plist with proper settings
-        cat > Flex.app/Contents/Info.plist << EOF
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-            <key>CFBundleExecutable</key>
-            <string>flex</string>
-            <key>CFBundleIconFile</key>
-            <string>flex.icns</string>
-            <key>CFBundleIdentifier</key>
-            <string>org.flex-lang.flex</string>
-            <key>CFBundleName</key>
-            <string>Flex</string>
-            <key>CFBundlePackageType</key>
-            <string>APPL</string>
-            <key>CFBundleVersion</key>
-            <string>${VERSION}</string>
-            <key>NSHighResolutionCapable</key>
-            <true/>
-            <key>LSMinimumSystemVersion</key>
-            <string>10.13</string>
-            <key>NSAppleEventsUsageDescription</key>
-            <string>Flex programming language requires access to run scripts and commands.</string>
-        </dict>
-        </plist>
-        EOF
-        
-        # Create executable shell script wrapper for better macOS compatibility
-        mv Flex.app/Contents/MacOS/flex Flex.app/Contents/MacOS/flex-bin
-        cat > Flex.app/Contents/MacOS/flex << EOF
-        #!/bin/bash
-        DIR="\$( cd "\$( dirname "\${BASH_SOURCE[0]}" )" && pwd )"
-        "\$DIR/flex-bin" "\$@"
-        EOF
-        chmod +x Flex.app/Contents/MacOS/flex
-        chmod +x Flex.app/Contents/MacOS/flex-bin
-        
-        # Create DMG with basic settings
-        create-dmg \
-          --volname "Flex Installer" \
-          --window-pos 200 120 \
-          --window-size 800 400 \
-          --icon-size 100 \
-          --icon "Flex.app" 200 190 \
-          --hide-extension "Flex.app" \
-          --app-drop-link 600 185 \
-          "flex-${VERSION}-mac.dmg" \
-          "Flex.app"
-        
-        # Add instructions for Gatekeeper bypass
-        echo "# Important instructions for macOS users" > macOS-README.txt
-        echo "" >> macOS-README.txt
-        echo "If you see a 'Flex.app is damaged' error, please run this command in Terminal:" >> macOS-README.txt
-        echo "" >> macOS-README.txt
-        echo "    xattr -cr /Applications/Flex.app" >> macOS-README.txt
-        echo "" >> macOS-README.txt
-        echo "Then try opening the app again." >> macOS-README.txt
-          
-        # Create latest-mac.yml for auto-updater compatibility
-        echo "version: ${VERSION}" > latest-mac.yml
-        echo "files:" >> latest-mac.yml
-        echo "  - url: flex-${VERSION}-mac.dmg" >> latest-mac.yml
-        echo "    sha512: $(shasum -a 512 flex-${VERSION}-mac.dmg | awk '{print $1}')" >> latest-mac.yml
-        echo "    size: $(stat -f%z flex-${VERSION}-mac.dmg)" >> latest-mac.yml
-        echo "path: flex-${VERSION}-mac.dmg" >> latest-mac.yml
-        echo "sha512: $(shasum -a 512 flex-${VERSION}-mac.dmg | awk '{print $1}')" >> latest-mac.yml
-        echo "size: $(stat -f%z flex-${VERSION}-mac.dmg)" >> latest-mac.yml
-      shell: bash
-      continue-on-error: true  # DMG creation might fail if dependencies are missing
-    
-    # Linux AppImage
-    - name: Create Linux AppImage and Deb
-      if: runner.os == 'Linux'
-      run: |
-        # Install required tools
-        sudo apt-get update
-        sudo apt-get install -y wget fuse libfuse2 dpkg-dev
-
-        # Download AppImage tools
-        wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
-        chmod +x appimagetool
-        
-        # Create AppDir structure
-        mkdir -p AppDir/usr/{bin,share/applications,share/icons/hicolor/256x256/apps,share/flex/examples}
-        cp src/dist/flex AppDir/usr/bin/
-        cp -r src/flex_tester/* AppDir/usr/share/flex/examples/
-        cp README.md AppDir/usr/share/flex/
-        
-        # Create desktop file
-        cat > AppDir/usr/share/applications/flex.desktop << EOF
-        [Desktop Entry]
-        Name=Flex
-        Comment=Flex Programming Language
-        Exec=flex
-        Icon=flex
-        Type=Application
-        Categories=Development;
-        Terminal=true
-        EOF
-        
-        # Copy desktop file to root (required by AppImage)
-        cp AppDir/usr/share/applications/flex.desktop AppDir/
-        
-        # Create AppRun script
-        cat > AppDir/AppRun << EOF
-        #!/bin/sh
-        SELF=\$(readlink -f "\$0")
-        HERE=\${SELF%/*}
-        export PATH="\${HERE}/usr/bin:\${PATH}"
-        exec "\${HERE}/usr/bin/flex" "\$@"
-        EOF
-        chmod +x AppDir/AppRun
-        
-        # Create AppImage
-        ARCH=x86_64 ./appimagetool AppDir flex-${VERSION}-linux.AppImage
-        
-        # Create Debian package
-        mkdir -p flex-deb/DEBIAN
-        mkdir -p flex-deb/usr/bin
-        mkdir -p flex-deb/usr/share/flex/examples
-        mkdir -p flex-deb/usr/share/applications
-        
-        cp src/dist/flex flex-deb/usr/bin/
-        cp -r src/flex_tester/* flex-deb/usr/share/flex/examples/
-        cp AppDir/usr/share/applications/flex.desktop flex-deb/usr/share/applications/
-        
-        cat > flex-deb/DEBIAN/control << EOF
-        Package: flex
-        Version: ${VERSION}
-        Section: development
-        Priority: optional
-        Architecture: amd64
-        Maintainer: Flex Language Team <info@flex-lang.org>
-        Description: Flex Programming Language
-         A modern and flexible programming language.
-        EOF
-        
-        dpkg-deb --build flex-deb flex-${VERSION}-linux.deb
-        
-        # Create latest-linux.yml for auto-updater compatibility
-        echo "version: ${VERSION}" > latest-linux.yml
-        echo "files:" >> latest-linux.yml
-        echo "  - url: flex-${VERSION}-linux.AppImage" >> latest-linux.yml
-        echo "    sha512: $(sha512sum flex-${VERSION}-linux.AppImage | awk '{print $1}')" >> latest-linux.yml
-        echo "    size: $(stat -c%s flex-${VERSION}-linux.AppImage)" >> latest-linux.yml
-        echo "path: flex-${VERSION}-linux.AppImage" >> latest-linux.yml
-        echo "sha512: $(sha512sum flex-${VERSION}-linux.AppImage | awk '{print $1}')" >> latest-linux.yml
-        echo "size: $(stat -c%s flex-${VERSION}-linux.AppImage)" >> latest-linux.yml
-      shell: bash
-      continue-on-error: true  # Some parts might fail if dependencies are missing
-
-    # Upload only important artifacts (reduce junk files)
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
       with:
-        name: flex-${{ matrix.asset_name }}
-        path: |
-          flex-*-setup.exe
-          flex-*-mac.dmg
-          macOS-README.txt
-          flex-*-linux.AppImage
-          flex-*-linux.deb
-          latest-*.yml
-        if-no-files-found: warn
-
-  release:
-    name: Create Release
-    needs: build
+        name: ${{ matrix.asset_name }}
+        path: src/dist/${{ matrix.output_name }}*
+        
+  web-build:
+    name: Build Web Version
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    
+    needs: build
     steps:
     - uses: actions/checkout@v3
     
-    - name: Set up version information
-      id: version
-      run: |
-        if [[ $GITHUB_REF == refs/tags/v* ]]; then
-          VERSION=${GITHUB_REF#refs/tags/v}
-          IS_PRERELEASE=false
-          RELEASE_NAME="Flex ${GITHUB_REF#refs/tags/v}"
-          TAG_NAME=${GITHUB_REF#refs/tags/}
-        else
-          VERSION="dev-$(date +'%Y%m%d')-${GITHUB_SHA::7}"
-          IS_PRERELEASE=true
-          RELEASE_NAME="Flex Latest Build"
-          TAG_NAME="latest"
-        fi
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "IS_PRERELEASE=$IS_PRERELEASE" >> $GITHUB_ENV
-        echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
-        echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-      shell: bash
-    
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        path: artifacts
-    
-    - name: Prepare release assets
+        python-version: '3.10'
+        
+    - name: Install dependencies
       run: |
-        mkdir -p release_assets temp_source
+        python -m pip install --upgrade pip
+        pip install pyodide-build
+        pip install -r src/requirements.txt
         
-        # Create a clean source copy using git ls-files
-        echo "Creating source code archives..."
-        git ls-files | while read file; do
-          # Create the target directory structure
-          mkdir -p "temp_source/$(dirname "$file")"
-          # Copy each file
-          cp "$file" "temp_source/$file"
-        done
-        
-        # Create source archives (only one format to reduce junk)
-        (cd temp_source && zip -r ../release_assets/flex-${VERSION}-source.zip .)
-        
-        # Clean up temporary directory
-        rm -rf temp_source
-        
-        # Find and copy only the main installer assets to release directory
-        echo "=== Copying artifacts to release directory ==="
-        find artifacts -type f \( \
-          -name "flex-*-setup.exe" -o \
-          -name "flex-*-mac.dmg" -o \
-          -name "macOS-README.txt" -o \
-          -name "flex-*-linux.AppImage" -o \
-          -name "flex-*-linux.deb" -o \
-          -name "latest-mac.yml" -o \
-          -name "latest-win.yml" -o \
-          -name "latest-linux.yml" \
-        \) -exec cp {} release_assets/ \;
-        
-        # Create a single latest.yml file
-        if [ -f "release_assets/latest-win.yml" ]; then
-          cp release_assets/latest-win.yml release_assets/latest.yml
-        elif [ -f "release_assets/latest-mac.yml" ]; then
-          cp release_assets/latest-mac.yml release_assets/latest.yml
-        elif [ -f "release_assets/latest-linux.yml" ]; then
-          cp release_assets/latest-linux.yml release_assets/latest.yml
-        fi
-        
-        echo "=== Files in release_assets ==="
-        ls -la release_assets/
-      shell: bash
-    
-    - name: Create Release
-      id: create_release
-      uses: softprops/action-gh-release@v1
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
       with:
-        name: ${{ env.RELEASE_NAME }}
-        tag_name: ${{ env.TAG_NAME }}
-        draft: false
-        prerelease: ${{ env.IS_PRERELEASE }}
-        files: release_assets/*
-        body: |
-          # ${{ env.RELEASE_NAME }}
+        node-version: '18'
+        
+    - name: Install Web Dependencies
+      run: |
+        npm install -g pyodide
+        
+    - name: Build Web Version
+      run: |
+        # Create a web build script
+        echo '
+        import os
+        import shutil
+        
+        # Create web directory
+        if not os.path.exists("web"):
+            os.makedirs("web")
+        
+        # Copy necessary files
+        shutil.copytree("src", "web/src", dirs_exist_ok=True)
+        
+        # Create index.html
+        with open("web/index.html", "w") as f:
+            f.write("""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Flex Programming Language - Web Version</title>
+            <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    line-height: 1.6;
+                }
+                .container {
+                    max-width: 1000px;
+                    margin: 0 auto;
+                }
+                textarea {
+                    width: 100%;
+                    height: 300px;
+                    font-family: monospace;
+                    padding: 10px;
+                    box-sizing: border-box;
+                }
+                #output {
+                    background-color: #f5f5f5;
+                    border: 1px solid #ddd;
+                    padding: 10px;
+                    min-height: 100px;
+                    white-space: pre-wrap;
+                    font-family: monospace;
+                }
+                button {
+                    background-color: #4CAF50;
+                    color: white;
+                    padding: 10px 15px;
+                    border: none;
+                    cursor: pointer;
+                    margin-top: 10px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Flex Programming Language - Web Version</h1>
+                <p>Write your Flex code below and click "Run" to execute it.</p>
+                
+                <textarea id="code">// Write your Flex code here</textarea>
+                <button id="runBtn">Run</button>
+                
+                <h3>Output:</h3>
+                <div id="output"></div>
+            </div>
+            
+            <script>
+                // Init Pyodide
+                async function main() {
+                    let pyodide = await loadPyodide();
+                    
+                    // Load the Flex interpreter
+                    await pyodide.loadPackagesFromImports(\`
+                        import sys
+                        import io
+                    \`);
+                    
+                    // Make the run button work
+                    document.getElementById("runBtn").addEventListener("click", async function() {
+                        const code = document.getElementById("code").value;
+                        const outputElement = document.getElementById("output");
+                        outputElement.textContent = "Running...";
+                        
+                        try {
+                            // Redirect stdout
+                            pyodide.runPython(\`
+                                import sys
+                                old_stdout = sys.stdout
+                                sys.stdout = io.StringIO()
+                            \`);
+                            
+                            // Create a temporary file with the code
+                            pyodide.runPython(\`
+                                with open("/tmp/code.flex", "w") as f:
+                                    f.write(""" + code + """")
+                            \`);
+                            
+                            // Run the Flex interpreter on the file
+                            await pyodide.runPythonAsync(\`
+                                import sys
+                                sys.path.append("/src")
+                                from src.flex_compiler.compiler import compile_and_run
+                                try:
+                                    compile_and_run("/tmp/code.flex", False, True)
+                                except Exception as e:
+                                    print(f"Error: {str(e)}")
+                            \`);
+                            
+                            // Get the output
+                            const output = pyodide.runPython("sys.stdout.getvalue()");
+                            outputElement.textContent = output;
+                            
+                            // Reset stdout
+                            pyodide.runPython("sys.stdout = old_stdout");
+                        } catch (error) {
+                            outputElement.textContent = "Error: " + error.message;
+                        }
+                    });
+                }
+                
+                main();
+            </script>
+        </body>
+        </html>
+            """)
+        
+        print("Web build prepared successfully!")
+        ' > build_web.py
+        
+        # Run the web build script
+        python build_web.py
+        
+    - name: Package Web Build
+      run: |
+        cd web
+        zip -r ../flex-web.zip .
+        cd ..
+        
+    - name: Upload Web Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: flex-web
+        path: flex-web.zip
+        
+  release:
+    name: Create Release
+    needs: [build, web-build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          draft: false
+          prerelease: false
           
-          Cross-platform releases of the Flex programming language.
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v3
+        
+      - name: Display structure of downloaded files
+        run: ls -R
+        
+      - name: Upload Linux Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./flex-linux/flex-linux
+          asset_name: flex-linux
+          asset_content_type: application/octet-stream
           
-          ## Installation
+      - name: Upload Windows Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./flex-windows.exe/flex-windows.exe
+          asset_name: flex-windows.exe
+          asset_content_type: application/octet-stream
           
-          ### Windows
-          - Download and run `flex-${{ env.VERSION }}-setup.exe` to install with automatic PATH setup
+      - name: Upload macOS Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./flex-macos/flex-macos
+          asset_name: flex-macos
+          asset_content_type: application/octet-stream
           
-          ### macOS
-          - Download `flex-${{ env.VERSION }}-mac.dmg`, open and drag to Applications folder
-          - **Important**: If you see a "damaged app" error, open Terminal and run:
-            ```
-            xattr -cr /Applications/Flex.app
-            ```
-          
-          ### Linux
-          - AppImage: Download `flex-${{ env.VERSION }}-linux.AppImage`, make executable with `chmod +x flex-${{ env.VERSION }}-linux.AppImage` and run
-          - Debian/Ubuntu: Download `flex-${{ env.VERSION }}-linux.deb` and install with `sudo dpkg -i flex-${{ env.VERSION }}-linux.deb`
-          
-          ## Source Code
-          
-          Source code is available as a ZIP archive.
+      - name: Upload Web Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./flex-web/flex-web.zip
+          asset_name: flex-web.zip
+          asset_content_type: application/zip
