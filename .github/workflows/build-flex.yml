@@ -83,7 +83,7 @@ jobs:
         path: |
           ${{ runner.os == 'Windows' && 'src/dist/flex.exe' || 'src/dist/flex' }}
           ${{ runner.os == 'macOS' && 'macOS-README.txt' }}
-        if-no-files-found: warn
+        if-no-files-found: error
 
   release:
     name: Create Release
@@ -122,16 +122,46 @@ jobs:
       with:
         path: artifacts
     
+    - name: List downloaded artifacts
+      run: |
+        echo "=== Downloaded artifacts structure ==="
+        find artifacts -type f | sort
+      shell: bash
+    
     - name: Prepare release assets
       run: |
         mkdir -p release_assets
         
-        # Copy flex.exe from Windows build
-        cp artifacts/flex-windows/flex.exe release_assets/flex.exe
+        # Check if Windows build exists
+        if [ -f "artifacts/flex-windows/flex.exe" ]; then
+          cp artifacts/flex-windows/flex.exe release_assets/flex.exe
+        else
+          echo "Warning: Windows executable not found"
+          ls -la artifacts/flex-windows/ || echo "Windows artifacts directory not found or empty"
+        fi
         
-        # Copy flex and macOS-README.txt from macOS build
-        cp artifacts/flex-macos/flex release_assets/flex
-        cp artifacts/flex-macos/macOS-README.txt release_assets/macOS-README.txt
+        # Check if macOS build exists
+        if [ -f "artifacts/flex-macos/flex" ]; then
+          cp artifacts/flex-macos/flex release_assets/flex-macos
+        else
+          echo "Warning: macOS executable not found"
+          ls -la artifacts/flex-macos/ || echo "macOS artifacts directory not found or empty"
+        fi
+        
+        # Check if macOS README exists
+        if [ -f "artifacts/flex-macos/macOS-README.txt" ]; then
+          cp artifacts/flex-macos/macOS-README.txt release_assets/macOS-README.txt
+        else
+          echo "Warning: macOS README not found"
+        fi
+        
+        # Check if Linux build exists
+        if [ -f "artifacts/flex-linux/flex" ]; then
+          cp artifacts/flex-linux/flex release_assets/flex-linux
+        else
+          echo "Warning: Linux executable not found"
+          ls -la artifacts/flex-linux/ || echo "Linux artifacts directory not found or empty"
+        fi
         
         echo "=== Files in release_assets ==="
         ls -la release_assets/
@@ -151,5 +181,6 @@ jobs:
           
           This release includes the standalone executables for Flex:
           - `flex.exe` for Windows
-          - `flex` for macOS
+          - `flex-macos` for macOS
+          - `flex-linux` for Linux
           - `macOS-README.txt` with important instructions for macOS users
