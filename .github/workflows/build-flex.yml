@@ -155,8 +155,24 @@ jobs:
 
       # Use the official GitHub Release API instead of the JavaScript approach
       - name: Create Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v1
         with:
+          tag_name: v${{ steps.calc_version.outputs.next_version }}
+          name: Release v${{ steps.calc_version.outputs.next_version }}
+          body: |
+            ## Flex Language Interpreter v${{ steps.calc_version.outputs.next_version }}
+            
+            This release contains pre-built executables for all major platforms:
+            
+            - **Linux**: Download `flex-linux`
+            - **Windows**: Download `flex-windows.exe`
+            - **macOS**: Download `flex-macos`
+            
+            ### Installation
+            
+            1. Download the appropriate executable for your platform
+            2. Make it executable (Linux/macOS): `chmod +x flex-*`
+            3. Run it: `./flex-linux yourfile.flex` (or appropriate executable name)
           files: |
             release/flex-linux
             release/flex-windows.exe
