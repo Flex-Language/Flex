@@ -98,13 +98,13 @@ jobs:
           File "src\dist\flex.exe"
           
           # Create batch file to invoke the executable
-          FileOpen $0 "$INSTDIR\flex.bat" "w"
+          FileOpen $0 "$INSTDIR\flex.bat" w
           FileWrite $0 "@echo off$\r$\n"
           FileWrite $0 "$INSTDIR\flex.exe %*$\r$\n"
           FileClose $0
           
-          # Add to PATH - using System.Environment instead of EnVar plugin
-          System::Call 'Kernel32::SetEnvironmentVariable(t "PATH", t "$INSTDIR;$PATH")'
+          # Add to PATH - using System::Call for better compatibility
+          System::Call "Kernel32::SetEnvironmentVariable(t, t) i('PATH', '$INSTDIR;$PATH')"
           
           # Create uninstaller
           WriteUninstaller "$INSTDIR\uninstall.exe"
