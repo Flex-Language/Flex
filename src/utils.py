@@ -1,7 +1,11 @@
 import subprocess
 import asyncio
+import sys
+import os
 
-# Promisify exec for async/await usage
+def get_version():
+    return "Flex Language 1.0.0"
+
 async def execAsync(command, timeout=None):
     """
     Execute a command asynchronously.
@@ -11,7 +15,7 @@ async def execAsync(command, timeout=None):
         timeout (int, optional): Timeout in seconds
         
     Returns:
-        tuple: (stdout, stderr)
+        dict: Command execution results
     """
     process = await asyncio.create_subprocess_shell(
         command,

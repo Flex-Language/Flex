@@ -35,28 +35,48 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
-        pip install -r src/requirements.txt
-      continue-on-error: true
-      
-    - name: Install dependencies (without requirements.txt)
-      if: ${{ failure() }}
-      run: |
-        python -m pip install --upgrade pip
-        pip install pyinstaller
         pip install ply==3.11
         
     - name: Build with PyInstaller for Linux/macOS
       if: matrix.os != 'windows-latest'
       run: |
-        chmod +x src/flex.sh
         cd src
-        pyinstaller --onefile --name=${{ matrix.output_name }} main.py
+        pyinstaller --onefile --clean --name=${{ matrix.output_name }} \
+          --add-data "flex_compiler:flex_compiler" \
+          --add-data "flex_interpreter:flex_interpreter" \
+          --add-data "flex_parser:flex_parser" \
+          --add-data "flex_tokenizer:flex_tokenizer" \
+          main.py
         
     - name: Build with PyInstaller for Windows
       if: matrix.os == 'windows-latest'
       run: |
         cd src
-        pyinstaller --onefile --name=${{ matrix.output_name }} main.py
+        pyinstaller --onefile --clean --name=${{ matrix.output_name }} ^
+          --add-data "flex_compiler;flex_compiler" ^
+          --add-data "flex_interpreter;flex_interpreter" ^
+          --add-data "flex_parser;flex_parser" ^
+          --add-data "flex_tokenizer;flex_tokenizer" ^
+          main.py
+        
+    - name: Set Executable Permissions (Linux/macOS)
+      if: matrix.os != 'windows-latest'
+      run: |
+        cd src/dist
+        chmod +x ${{ matrix.output_name }}
+        ls -la ${{ matrix.output_name }}
+        
+    - name: Test Executable (Linux/macOS)
+      if: matrix.os != 'windows-latest'
+      run: |
+        cd src/dist
+        ./${{ matrix.output_name }} --version
+        
+    - name: Test Executable (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd src\dist
+        .\${{ matrix.output_name }}.exe --version
         
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
@@ -77,6 +97,12 @@ jobs:
       
       - name: Display structure of downloaded files
         run: ls -R
+        
+      - name: Set Permissions for Downloaded Artifacts
+      run: |
+        chmod +x ./flex-linux/flex-linux || true
+        chmod +x ./flex-macos/flex-macos || true
+        ls -la ./flex-linux/flex-linux ./flex-macos/flex-macos || true
         
       - name: Create Release
         uses: softprops/action-gh-release@v1

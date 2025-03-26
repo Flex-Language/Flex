@@ -1,16 +1,9 @@
 import sys
 import asyncio
 from flex_compiler.compiler import *
-from utils import checkFlexInstalled
+from utils import get_version
 
-async def main():
-    # Check if Flex is installed
-    flex_installed = await checkFlexInstalled()
-    
-    if not flex_installed:
-        print("Warning: Flex interpreter not installed or not in PATH.")
-        # Continue execution - this is just a warning
-    
+def main():
     # Handle special command line arguments
     if len(sys.argv) == 1:
         # No arguments provided, show usage
@@ -18,7 +11,7 @@ async def main():
         sys.exit(1)
     elif len(sys.argv) == 2:
         if sys.argv[1] == "--version":
-            # Version was already displayed by checkFlexInstalled
+            print(get_version())
             sys.exit(0)
         
         # Process normal source file
@@ -46,4 +39,4 @@ async def main():
 
 # Usage example
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
