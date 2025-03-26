@@ -97,24 +97,23 @@ jobs:
         uses: actions/download-artifact@v4
       
       - name: Display structure of downloaded files
-        run: ls -R
-      
-      - name: Set Permissions for Downloaded Artifacts
         run: |
-          chmod +x ./flex-linux/flex-linux || true
-          chmod +x ./flex-macos/flex-macos || true
-          ls -la ./flex-linux/flex-linux ./flex-macos/flex-macos || true
+          mkdir -p release
+          find . -type f -name "flex-*" -exec ls -la {} \;
       
       - name: Prepare release artifacts
         run: |
-          mkdir -p release
-          # Copy with platform-specific names for clarity
-          cp ./flex-linux/flex-linux release/flex-linux || true
-          cp ./flex-windows.exe/flex-windows.exe release/flex-windows.exe || true
-          cp ./flex-macos/flex-macos release/flex-macos || true
-          # Make sure executables have correct permissions
-          chmod +x release/* || true
-          ls -la release/
+          # Copy executables directly from artifact folders to release directory
+          cp ./flex-linux/flex-linux ./release/flex-linux 2>/dev/null || echo "Linux executable not found"
+          cp ./flex-windows.exe/flex-windows.exe ./release/flex-windows.exe 2>/dev/null || echo "Windows executable not found"
+          cp ./flex-macos/flex-macos ./release/flex-macos 2>/dev/null || echo "macOS executable not found"
+          
+          # Set permissions
+          chmod +x ./release/* 2>/dev/null || true
+          
+          # List contents of release directory to verify
+          echo "Contents of release directory:"
+          ls -la ./release/
       
       - name: Checkout repository for tag information
         uses: actions/checkout@v4
@@ -158,7 +157,9 @@ jobs:
           generate_release_notes: false
           draft: false
           prerelease: false
-          files: |
-            release/flex-linux
-            release/flex-windows.exe
-            release/flex-macos 
+          files_from_path: true
+          fail_on_unmatched_files: false
+          files: >-
+            ./release/flex-linux
+            ./release/flex-windows.exe
+            ./release/flex-macos 
