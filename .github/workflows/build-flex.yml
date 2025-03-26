@@ -105,24 +105,25 @@ jobs:
           chmod +x ./flex-macos/flex-macos || true
           ls -la ./flex-linux/flex-linux ./flex-macos/flex-macos || true
       
-      - name: Get latest release tag
-        id: get_latest_release
-        uses: pozetroninc/github-action-get-latest-release@master
+      - name: Checkout repository for tag information
+        uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}
-          excludes: prerelease, draft
-          
-      - name: Calculate next version
+          fetch-depth: 0
+      
+      - name: Get next version number
         id: calc_version
         run: |
-          latest_tag="${{ steps.get_latest_release.outputs.release }}"
-          if [[ $latest_tag == v* ]]; then
-            version_number=${latest_tag#v}
-            next_version=$((version_number + 1))
-            echo "next_version=$next_version" >> $GITHUB_OUTPUT
+          # Check if there are any existing tags that match vX format
+          if git tag -l "v[0-9]*" | grep -q .; then
+            # Get highest version number from existing tags
+            latest_version=$(git tag -l "v[0-9]*" | sort -V | tail -n1 | sed 's/v//')
+            next_version=$((latest_version + 1))
           else
-            echo "next_version=1" >> $GITHUB_OUTPUT
+            # No existing version tags, start at 1
+            next_version=1
           fi
+          echo "Next version will be: v$next_version"
+          echo "next_version=$next_version" >> $GITHUB_OUTPUT
       
       - name: Create Release
         uses: softprops/action-gh-release@v1
