@@ -50,6 +50,7 @@ jobs:
         
     - name: Build with PyInstaller for Windows
       if: matrix.os == 'windows-latest'
+      shell: cmd
       run: |
         cd src
         pyinstaller --onefile --clean --name=${{ matrix.output_name }} ^
@@ -104,11 +105,30 @@ jobs:
           chmod +x ./flex-macos/flex-macos || true
           ls -la ./flex-linux/flex-linux ./flex-macos/flex-macos || true
       
+      - name: Get latest release tag
+        id: get_latest_release
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: ${{ github.repository }}
+          excludes: prerelease, draft
+          
+      - name: Calculate next version
+        id: calc_version
+        run: |
+          latest_tag="${{ steps.get_latest_release.outputs.release }}"
+          if [[ $latest_tag == v* ]]; then
+            version_number=${latest_tag#v}
+            next_version=$((version_number + 1))
+            echo "next_version=$next_version" >> $GITHUB_OUTPUT
+          else
+            echo "next_version=1" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ github.run_number }}
-          name: Release v${{ github.run_number }}
+          tag_name: v${{ steps.calc_version.outputs.next_version }}
+          name: Release v${{ steps.calc_version.outputs.next_version }}
           draft: false
           prerelease: false
           files: |
