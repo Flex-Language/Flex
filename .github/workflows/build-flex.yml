@@ -155,7 +155,7 @@ jobs:
 
       # Use the official GitHub Release API instead of the JavaScript approach
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             release/flex-linux
