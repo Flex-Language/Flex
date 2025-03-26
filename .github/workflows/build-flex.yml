@@ -103,8 +103,8 @@ jobs:
           FileWrite $$0 "$$INSTDIR\flex.exe %*$$\r$$\n"
           FileClose $$0
           
-          # Add to PATH using standard System::Call
-          System::Call 'Kernel32::SetEnvironmentVariableA(t "PATH", t "$$INSTDIR;$$PATH")' 
+          # Add to PATH using standard documented syntax
+          System::Call 'Kernel32::SetEnvironmentVariable(t "PATH", t "$$INSTDIR;$${ENV PATH}")' 
           
           # Create uninstaller
           WriteUninstaller "$$INSTDIR\uninstall.exe"
@@ -114,7 +114,7 @@ jobs:
           CreateShortcut "$$SMPROGRAMS\Flex\Flex.lnk" "$$INSTDIR\flex.exe"
           CreateShortcut "$$SMPROGRAMS\Flex\Uninstall.lnk" "$$INSTDIR\uninstall.exe"
           
-          # Create registry entries
+          # Create registry entries with explicit backslashes where needed
           WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex" "DisplayName" "Flex Language Interpreter"
           WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex" "UninstallString" "$$INSTDIR\uninstall.exe"
         SectionEnd
@@ -167,8 +167,18 @@ jobs:
           }
         }
         
-        # Build installer with verbose output
-        & 'C:\Program Files (x86)\NSIS\makensis.exe' /V4 installer.nsi
+        # First try with less verbose output
+        Write-Host "Compiling NSIS script (normal verbosity)..."
+        $compileResult = & 'C:\Program Files (x86)\NSIS\makensis.exe' installer.nsi
+        $exitCode = $LASTEXITCODE
+        
+        if ($exitCode -ne 0) {
+          Write-Host "Compilation failed with exit code $exitCode. Retrying with verbose output..."
+          # Retry with verbose output to get more detailed error information
+          & 'C:\Program Files (x86)\NSIS\makensis.exe' /V4 installer.nsi
+        } else {
+          Write-Host "Compilation successful!"
+        }
       
     # Create macOS Package
     - name: Create macOS Package
