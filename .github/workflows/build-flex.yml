@@ -97,13 +97,13 @@ jobs:
       
       - name: Display structure of downloaded files
         run: ls -R
-        
+      
       - name: Set Permissions for Downloaded Artifacts
-      run: |
-        chmod +x ./flex-linux/flex-linux || true
-        chmod +x ./flex-macos/flex-macos || true
-        ls -la ./flex-linux/flex-linux ./flex-macos/flex-macos || true
-        
+        run: |
+          chmod +x ./flex-linux/flex-linux || true
+          chmod +x ./flex-macos/flex-macos || true
+          ls -la ./flex-linux/flex-linux ./flex-macos/flex-macos || true
+      
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -114,4 +114,4 @@ jobs:
           files: |
             ./flex-linux/flex-linux
             ./flex-windows.exe/flex-windows.exe
-            ./flex-macos/flex-macos
+            ./flex-macos/flex-macos 
