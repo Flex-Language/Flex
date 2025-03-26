@@ -91,54 +91,62 @@ jobs:
         
         !insertmacro MUI_LANGUAGE "English"
         
-        InstallDir "$PROGRAMFILES\Flex"
+        InstallDir "$$PROGRAMFILES\Flex"
         
         Section "Install"
-          SetOutPath "$INSTDIR"
+          SetOutPath "$$INSTDIR"
           File "src\dist\flex.exe"
           
           # Create batch file to invoke the executable
-          FileOpen $0 "$INSTDIR\flex.bat" w
-          FileWrite $0 "@echo off$\r$\n"
-          FileWrite $0 "$INSTDIR\flex.exe %*$\r$\n"
-          FileClose $0
+          FileOpen $$0 "$$INSTDIR\flex.bat" w
+          FileWrite $$0 "@echo off$$\r$$\n"
+          FileWrite $$0 "$$INSTDIR\flex.exe %*$$\r$$\n"
+          FileClose $$0
           
-          # Add to PATH - using System::Call for better compatibility
-          System::Call "Kernel32::SetEnvironmentVariable(t, t) i('PATH', '$INSTDIR;$PATH')"
+          # Add to PATH using standard System::Call
+          System::Call 'Kernel32::SetEnvironmentVariableA(t "PATH", t "$$INSTDIR;$$PATH")' 
           
           # Create uninstaller
-          WriteUninstaller "$INSTDIR\uninstall.exe"
+          WriteUninstaller "$$INSTDIR\uninstall.exe"
           
           # Create Start Menu shortcut
-          CreateDirectory "$SMPROGRAMS\Flex"
-          CreateShortcut "$SMPROGRAMS\Flex\Flex.lnk" "$INSTDIR\flex.exe"
-          CreateShortcut "$SMPROGRAMS\Flex\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+          CreateDirectory "$$SMPROGRAMS\Flex"
+          CreateShortcut "$$SMPROGRAMS\Flex\Flex.lnk" "$$INSTDIR\flex.exe"
+          CreateShortcut "$$SMPROGRAMS\Flex\Uninstall.lnk" "$$INSTDIR\uninstall.exe"
           
           # Create registry entries
           WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex" "DisplayName" "Flex Language Interpreter"
-          WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex" "UninstallString" "$INSTDIR\uninstall.exe"
+          WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex" "UninstallString" "$$INSTDIR\uninstall.exe"
         SectionEnd
         
         Section "Uninstall"
-          Delete "$INSTDIR\flex.exe"
-          Delete "$INSTDIR\flex.bat"
-          Delete "$INSTDIR\uninstall.exe"
+          Delete "$$INSTDIR\flex.exe"
+          Delete "$$INSTDIR\flex.bat"
+          Delete "$$INSTDIR\uninstall.exe"
           
           # Remove Start Menu shortcuts
-          Delete "$SMPROGRAMS\Flex\Flex.lnk"
-          Delete "$SMPROGRAMS\Flex\Uninstall.lnk"
-          RMDir "$SMPROGRAMS\Flex"
+          Delete "$$SMPROGRAMS\Flex\Flex.lnk"
+          Delete "$$SMPROGRAMS\Flex\Uninstall.lnk"
+          RMDir "$$SMPROGRAMS\Flex"
           
           # Remove registry entries
           DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex"
           
           # Remove installation directory
-          RMDir "$INSTDIR"
+          RMDir "$$INSTDIR"
         SectionEnd
         "@
         
+        # Escape $ characters for PowerShell
+        $installerScript = $installerScript -replace '\$\$', '$'
+        
         # Create installer script file
-        Set-Content -Path "installer.nsi" -Value $installerScript
+        Set-Content -Path "installer.nsi" -Value $installerScript -Encoding UTF8
+        
+        # Debug output for script issues
+        Write-Host "--- Generated NSIS script ---"
+        Get-Content "installer.nsi" | ForEach-Object { Write-Host $_ }
+        Write-Host "----------------------------"
         
         # Create icon if it doesn't exist
         New-Item -Path "src\flex_compiler" -ItemType Directory -Force
@@ -146,8 +154,21 @@ jobs:
           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/vscode/main/resources/win32/code.ico" -OutFile "src\flex_compiler\icon.ico"
         }
         
-        # Build installer
-        & 'C:\Program Files (x86)\NSIS\makensis.exe' installer.nsi
+        # Check if NSIS is properly installed
+        if (Test-Path 'C:\Program Files (x86)\NSIS\makensis.exe') {
+          Write-Host "NSIS found at expected location"
+        } else {
+          Write-Host "NSIS not found at expected location - searching for it"
+          $nsisPath = Get-Command makensis.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
+          if ($nsisPath) {
+            Write-Host "Found NSIS at: $nsisPath"
+          } else {
+            Write-Host "NSIS not found in PATH - this will likely fail"
+          }
+        }
+        
+        # Build installer with verbose output
+        & 'C:\Program Files (x86)\NSIS\makensis.exe' /V4 installer.nsi
       
     # Create macOS Package
     - name: Create macOS Package
