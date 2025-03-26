@@ -26,3 +26,8 @@ ENV/
 docs/
 # Ignore Flex Grammar file
 Flex_Grammar.txt
+# macOS system files
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
