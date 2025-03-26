@@ -98,13 +98,13 @@ jobs:
           File "src\dist\flex.exe"
           
           # Create batch file to invoke the executable
-          FileOpen $0 "$INSTDIR\flex.bat" w
+          FileOpen $0 "$INSTDIR\flex.bat" "w"
           FileWrite $0 "@echo off$\r$\n"
           FileWrite $0 "$INSTDIR\flex.exe %*$\r$\n"
           FileClose $0
           
-          # Add to PATH
-          EnVar::AddValue "PATH" "$INSTDIR"
+          # Add to PATH - using System.Environment instead of EnVar plugin
+          System::Call 'Kernel32::SetEnvironmentVariable(t "PATH", t "$INSTDIR;$PATH")'
           
           # Create uninstaller
           WriteUninstaller "$INSTDIR\uninstall.exe"
@@ -123,9 +123,6 @@ jobs:
           Delete "$INSTDIR\flex.exe"
           Delete "$INSTDIR\flex.bat"
           Delete "$INSTDIR\uninstall.exe"
-          
-          # Remove from PATH
-          EnVar::DeleteValue "PATH" "$INSTDIR"
           
           # Remove Start Menu shortcuts
           Delete "$SMPROGRAMS\Flex\Flex.lnk"
@@ -188,29 +185,12 @@ jobs:
         # Make scripts executable
         chmod +x scripts/preinstall scripts/postinstall
         
-        # Create component plist
-        cat > component.plist << EOF
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-          <key>BundleIsRelocatable</key>
-          <false/>
-          <key>BundleIsVersionChecked</key>
-          <true/>
-          <key>BundleOverwriteAction</key>
-          <string>upgrade</string>
-        </dict>
-        </plist>
-        EOF
-        
-        # Build the package
+        # Use direct pkgbuild without component plist
         pkgbuild --root pkg_root \
           --identifier com.flex.interpreter \
           --version 1.0 \
           --install-location / \
           --scripts scripts \
-          --component-plist component.plist \
           flex-component.pkg
         
         # Create distribution file
