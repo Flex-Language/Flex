@@ -21,7 +21,7 @@ def main():
             print("Usage: flex <source_file .lx,.flex> or flex --version")
             sys.exit(1)
             
-        AI = False
+        AI = True
         WEB = False
         try:
             compile_and_run(source_file, AI, WEB)
