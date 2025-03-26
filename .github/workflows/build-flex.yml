@@ -105,6 +105,17 @@ jobs:
           chmod +x ./flex-macos/flex-macos || true
           ls -la ./flex-linux/flex-linux ./flex-macos/flex-macos || true
       
+      - name: Prepare release artifacts
+        run: |
+          mkdir -p release
+          # Copy with platform-specific names for clarity
+          cp ./flex-linux/flex-linux release/flex-linux || true
+          cp ./flex-windows.exe/flex-windows.exe release/flex-windows.exe || true
+          cp ./flex-macos/flex-macos release/flex-macos || true
+          # Make sure executables have correct permissions
+          chmod +x release/* || true
+          ls -la release/
+      
       - name: Checkout repository for tag information
         uses: actions/checkout@v4
         with:
@@ -130,9 +141,24 @@ jobs:
         with:
           tag_name: v${{ steps.calc_version.outputs.next_version }}
           name: Release v${{ steps.calc_version.outputs.next_version }}
+          body: |
+            ## Flex Language Interpreter v${{ steps.calc_version.outputs.next_version }}
+            
+            This release contains pre-built executables for all major platforms:
+            
+            - **Linux**: Download `flex-linux`
+            - **Windows**: Download `flex-windows.exe`
+            - **macOS**: Download `flex-macos`
+            
+            ### Installation
+            
+            1. Download the appropriate executable for your platform
+            2. Make it executable (Linux/macOS): `chmod +x flex-*`
+            3. Run it: `./flex-linux yourfile.flex` (or appropriate executable name)
+          generate_release_notes: false
           draft: false
           prerelease: false
           files: |
-            ./flex-linux/flex-linux
-            ./flex-windows.exe/flex-windows.exe
-            ./flex-macos/flex-macos 
+            release/flex-linux
+            release/flex-windows.exe
+            release/flex-macos 
