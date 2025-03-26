@@ -97,23 +97,24 @@ jobs:
         uses: actions/download-artifact@v4
       
       - name: Display structure of downloaded files
+        run: ls -R
+      
+      - name: Set Permissions for Downloaded Artifacts
         run: |
-          mkdir -p release
-          find . -type f -name "flex-*" -exec ls -la {} \;
+          chmod +x ./flex-linux/flex-linux || true
+          chmod +x ./flex-macos/flex-macos || true
+          ls -la ./flex-linux/flex-linux ./flex-macos/flex-macos || true
       
       - name: Prepare release artifacts
         run: |
-          # Copy executables directly from artifact folders to release directory
-          cp ./flex-linux/flex-linux ./release/flex-linux 2>/dev/null || echo "Linux executable not found"
-          cp ./flex-windows.exe/flex-windows.exe ./release/flex-windows.exe 2>/dev/null || echo "Windows executable not found"
-          cp ./flex-macos/flex-macos ./release/flex-macos 2>/dev/null || echo "macOS executable not found"
-          
-          # Set permissions
-          chmod +x ./release/* 2>/dev/null || true
-          
-          # List contents of release directory to verify
-          echo "Contents of release directory:"
-          ls -la ./release/
+          mkdir -p release
+          # Copy with platform-specific names for clarity
+          cp ./flex-linux/flex-linux release/flex-linux || true
+          cp ./flex-windows.exe/flex-windows.exe release/flex-windows.exe || true
+          cp ./flex-macos/flex-macos release/flex-macos || true
+          # Make sure executables have correct permissions
+          chmod +x release/* || true
+          ls -la release/
       
       - name: Checkout repository for tag information
         uses: actions/checkout@v4
@@ -134,32 +135,85 @@ jobs:
           fi
           echo "Next version will be: v$next_version"
           echo "next_version=$next_version" >> $GITHUB_OUTPUT
-      
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+
+      # First create a tag without creating a release
+      - name: Create Git Tag
+        run: |
+          git config --local user.email "hassansonson2002@gmail.com"
+          git config --local user.name "hassan220022"
+          git tag -a v${{ steps.calc_version.outputs.next_version }} -m "Release v${{ steps.calc_version.outputs.next_version }}"
+          git push origin v${{ steps.calc_version.outputs.next_version }}
+
+      # Then create a release with just our executables
+      - name: Create Custom Release
+        id: create_release
+        uses: actions/github-script@v6
         with:
-          tag_name: v${{ steps.calc_version.outputs.next_version }}
-          name: Release v${{ steps.calc_version.outputs.next_version }}
-          body: |
-            ## Flex Language Interpreter v${{ steps.calc_version.outputs.next_version }}
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs');
             
-            This release contains pre-built executables for all major platforms:
+            // Create the release
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${process.env.NEXT_VERSION}`,
+              name: `Release v${process.env.NEXT_VERSION}`,
+              body: `## Flex Language Interpreter v${process.env.NEXT_VERSION}
+              
+              This release contains pre-built executables for all major platforms:
+              
+              - **Linux**: Download \`flex-linux\`
+              - **Windows**: Download \`flex-windows.exe\`
+              - **macOS**: Download \`flex-macos\`
+              
+              ### Installation
+              
+              1. Download the appropriate executable for your platform
+              2. Make it executable (Linux/macOS): \`chmod +x flex-*\`
+              3. Run it: \`./flex-linux yourfile.flex\` (or appropriate executable name)`,
+              draft: false,
+              prerelease: false,
+              generate_release_notes: false
+            });
             
-            - **Linux**: Download `flex-linux`
-            - **Windows**: Download `flex-windows.exe`
-            - **macOS**: Download `flex-macos`
+            // Function to upload a release asset
+            async function uploadAsset(filepath, contentType) {
+              try {
+                if (!fs.existsSync(filepath)) {
+                  console.log(`File not found: ${filepath}`);
+                  return;
+                }
+                
+                const stats = fs.statSync(filepath);
+                const fileSize = stats.size;
+                const fileData = fs.readFileSync(filepath);
+                
+                const filename = filepath.split('/').pop();
+                
+                await github.rest.repos.uploadReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: release.data.id,
+                  name: filename,
+                  data: fileData,
+                  headers: {
+                    'content-type': contentType,
+                    'content-length': fileSize
+                  }
+                });
+                
+                console.log(`Successfully uploaded ${filename}`);
+              } catch (error) {
+                console.error(`Error uploading ${filepath}: ${error.message}`);
+              }
+            }
             
-            ### Installation
+            // Upload the executables
+            await uploadAsset('release/flex-linux', 'application/octet-stream');
+            await uploadAsset('release/flex-windows.exe', 'application/octet-stream');
+            await uploadAsset('release/flex-macos', 'application/octet-stream');
             
-            1. Download the appropriate executable for your platform
-            2. Make it executable (Linux/macOS): `chmod +x flex-*`
-            3. Run it: `./flex-linux yourfile.flex` (or appropriate executable name)
-          generate_release_notes: false
-          draft: false
-          prerelease: false
-          files_from_path: true
-          fail_on_unmatched_files: false
-          files: >-
-            ./release/flex-linux
-            ./release/flex-windows.exe
-            ./release/flex-macos 
+            core.setOutput('release_id', release.data.id);
+        env:
+          NEXT_VERSION: ${{ steps.calc_version.outputs.next_version }} 
