@@ -1,4 +1,9 @@
 x=0
+fun test(){
+    as=[23,45,67,[88,99]]
+    as[3][0]=100
+    return as
+}
 
 while (x<10){
     print(x)
@@ -8,3 +13,68 @@ while (x<10){
 for(i=0;i<10;i++){
     print("i is {i}")
 }
+
+x=5
+if (x==5){
+    print("x is 5")
+}
+
+z="hello"
+q="wert"
+
+for(i=0;i<length(z);i++){
+    print("i is {i}")
+    if (i==5){
+        break
+    }
+}
+
+u=length(z)+4+length(q)
+
+
+print(u)
+
+vari=[9,7,"hi"]
+
+print(vari[2])
+
+list arr=[1,2,3,4,5]
+for(i=0;i<length(arr);i++){
+    print(arr[i])
+}
+
+
+// int t=8
+// t="nn"
+
+print(test())
+
+list arr2=["aadd",1,3]
+print(arr2)
+
+vari=[2,3,44]
+vari=[2,4,6,7,[1,44,5,6],6]
+print(vari[4][0])
+int r=vari[4][1]
+print(r)
+
+list arr3=[1,2,3,4,5,["hisis"],2,3]
+hj=arr3[5][0]
+print(hj)
+
+wer=[2,3,4,5,6,[1.1,4.5,3],32]
+print(wer)
+
+list qwe=[1,2,3,["hillo",67,9.4,"wsd"],78,32]
+x=qwe[3][0]
+print(x)
+
+qwe[3][0]="xyz"
+print(qwe[3][0])
+
+iom=[1,2,3,["aa","bb","cc"],4,5]
+iom[3][0]="vbn"
+print(iom[3][0])
+print(iom)
+iom[3]=56
+print(iom)

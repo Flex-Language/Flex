@@ -10,7 +10,7 @@ def parse_print_statement(tokens, AI, line_number, line_content):
         return (line_number, line_content)  # Gracefully handle missing '(' after print
     expect(tokens, 'LPAREN', AI)
     if current_token(tokens)[0] == 'ID' and tokens[gv.pos + 1][0] == 'LBRACKET':
-        message = parse_arithmetic_expr(tokens, AI)
+        message = parse_arithmetic_expr(tokens, AI, line_number, line_content)  # Handle list access, e.g., print(x[2])
         # Handle list access, e.g., print(x[2])
     elif current_token(tokens)[0] == 'ID' and tokens[gv.pos + 1][0] == 'LPAREN':
         func_name = current_token(tokens)[1]
@@ -24,13 +24,13 @@ def parse_print_statement(tokens, AI, line_number, line_content):
                 next_token(tokens)
                 continue
             if current_token(tokens)[0] in ('NUMBER', 'ID', 'STRING', 'MINUS'):
-                args.append(parse_arithmetic_expr(tokens, AI))
+                args.append(parse_arithmetic_expr(tokens, AI, line_number, line_content))  # Parse the argument
             else:
                 handle_error(f"Invalid argument in function call: {current_token(tokens)}", AI)
         expect(tokens, 'RPAREN', AI)  # Expect closing ')'
         message = ('FUNC_CALL', func_name, args)
     elif current_token(tokens)[0] in ('NUMBER', 'ID', 'MINUS'):
-        message = parse_arithmetic_expr(tokens, AI)  # Parse the arithmetic expression
+        message = parse_arithmetic_expr(tokens, AI,line_number,line_content)  # Parse the arithmetic expression
     else:
         message = expect(tokens, 'STRING', AI)  # Fallback to string if not an expression
     if current_token(tokens)[0] == 'EOF':

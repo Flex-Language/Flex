@@ -13,20 +13,55 @@ def execute_list_decl(statement, AI, insideFunc, variables, variablesFunc):
 
     return variables, variablesFunc  # Return the updated variables
 
+# def execute_list_assign(statement, AI, insideFunc, variables, variablesFunc):
+#     var_name, index_expr, value_expr, line_number, line_content = statement[1:]
+    
+#     index = eval_value(index_expr, line_number, line_content, AI)
+#     new_value = eval_value(value_expr, line_number, line_content, AI)
+#     if insideFunc and var_name in variablesFunc:
+#         variablesFunc[var_name][0][index] = new_value
+#     elif var_name in variables:
+#         variables[var_name][0][index] = new_value
+#     else:
+#         error_message = f"List '{var_name}' not defined.\n{line_number}: '{line_content.strip()}'"
+#         handle_error(error_message, AI)
+
+#     return variables, variablesFunc  # Return the updated variables
+
 def execute_list_assign(statement, AI, insideFunc, variables, variablesFunc):
     var_name, index_expr, value_expr, line_number, line_content = statement[1:]
-    index = eval_value(index_expr, line_number, line_content, AI)
+
+    # Evaluate the index expression (can be int or list of ints)
+    index_list = eval_value(index_expr, line_number, line_content, AI)
+    if not isinstance(index_list, list):
+        index_list = [index_list]
+
+    # Evaluate the value to assign
     new_value = eval_value(value_expr, line_number, line_content, AI)
-    
+
+    # Choose the correct variable scope
     if insideFunc and var_name in variablesFunc:
-        variablesFunc[var_name][0][index] = new_value
+        target = variablesFunc[var_name][0]
     elif var_name in variables:
-        variables[var_name][0][index] = new_value
+        target = variables[var_name][0]
     else:
         error_message = f"List '{var_name}' not defined.\n{line_number}: '{line_content.strip()}'"
         handle_error(error_message, AI)
 
-    return variables, variablesFunc  # Return the updated variables
+    # Traverse to the correct nested position
+    try:
+        for idx in index_list[:-1]:
+            target = target[idx]
+        target[index_list[-1]] = new_value
+    except (IndexError, TypeError) as e:
+        error_message = (
+            f"Invalid list assignment for '{var_name}' at index {index_list}.\n"
+            f"{line_number}: '{line_content.strip()}'\nError: {e}"
+        )
+        handle_error(error_message, AI)
+
+    return variables, variablesFunc
+
 
 def execute_list_add(statement, AI, insideFunc, variables, variablesFunc):
     value, var_name, line_number, line_content = statement[1:]

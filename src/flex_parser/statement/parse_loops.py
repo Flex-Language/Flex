@@ -94,7 +94,7 @@ def parse_return_statement(tokens, AI, line_number, line_content):
     """Parses a return statement."""
     expect(tokens, 'RETURN', AI)  # Consume 'return'
     if gv.pos < len(tokens) and current_token(tokens)[0] not in ('NEWLINE', 'RBRACE'):
-        return_value = parse_arithmetic_expr(tokens, AI)
+        return_value = parse_arithmetic_expr(tokens, AI,line_number,line_content)  # Parse the return value
     else:
         return_value = None  # No expression to return
     return ('RETURN', return_value, line_number, line_content)

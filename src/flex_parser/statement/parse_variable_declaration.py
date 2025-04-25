@@ -17,20 +17,20 @@ def parse_variable_name_in_variable_declaration(tokens, AI, line_number, line_co
         handle_error(error_message, AI)
     return expect(tokens, 'ID', AI)
 
-def parse_assignment_in_variable_declaration(tokens, AI):
+def parse_assignment_in_variable_declaration(tokens, AI, line_number, line_content):
     # Handle assignment logic (e.g., '=', list, scan, string, function call, or expression)
     if current_token(tokens)[0] == 'ASSIGN':
         expect(tokens, 'ASSIGN', AI)  # Consume '='
         if current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LBRACKET':
-            value = parse_arithmetic_expr(tokens, AI)  # Parse list element
+            value = parse_arithmetic_expr(tokens, AI,line_number,line_content)  # Parse list element
         elif current_token(tokens)[0] == 'SCAN':
             value = parse_scan_in_variable_declaration(tokens, AI)
         elif current_token(tokens)[0] == 'STRING':
             value = expect(tokens, 'STRING', AI)
         elif current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LPAREN':
-            value = parse_func_call_in_variable_declaration(tokens, AI)
+            value = parse_func_call_in_variable_declaration(tokens, AI, line_number, line_content)  # Parse function call
         else:
-            value = parse_arithmetic_expr(tokens, AI) if gv.pos < len(tokens) else None  # Parse the arithmetic expression
+            value = parse_arithmetic_expr(tokens, AI,line_number,line_content) if gv.pos < len(tokens) else None  # Parse the arithmetic expression
         return value
     return None
 
@@ -41,7 +41,7 @@ def parse_scan_in_variable_declaration(tokens, AI):
     expect(tokens, 'RPAREN', AI)
     return "scan_now"
 
-def parse_func_call_in_variable_declaration(tokens, AI):
+def parse_func_call_in_variable_declaration(tokens, AI, line_number, line_content):
     # Handle function call with arguments
     func_name = expect(tokens, 'ID', AI)  # Get the function name
     expect(tokens, 'LPAREN', AI)  # Consume '('
@@ -50,9 +50,9 @@ def parse_func_call_in_variable_declaration(tokens, AI):
     while current_token(tokens)[0] != 'RPAREN':  # Continue until closing parenthesis
         if current_token(tokens)[0] in ('NUMBER', 'ID', 'STRING'):
             if current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LBRACKET':
-                args.append(parse_arithmetic_expr(tokens, AI))
+                args.append(parse_arithmetic_expr(tokens, AI,line_number,line_content))  # Parse a list element
             else:
-                args.append(parse_arithmetic_expr(tokens, AI))  # Parse a simple argument
+                args.append(parse_arithmetic_expr(tokens, AI,line_number,line_content))  # Parse a simple argument
         else:
             error_message = f"Unexpected token {current_token(tokens)[0]} while parsing function arguments"
             handle_error(error_message, AI)
@@ -79,7 +79,7 @@ def parse_variable_declaration_statement(tokens, AI, line_number, line_content):
         value = None
         if current_token(tokens)[0] == 'ASSIGN':  # '=' token
             # expect(tokens, 'ASSIGN', AI)  # Consume '='
-            value = parse_assignment_in_variable_declaration(tokens, AI)
+            value = parse_assignment_in_variable_declaration(tokens, AI, line_number, line_content)
         
         # Store the parsed variable
         variables.append((var_name, value))

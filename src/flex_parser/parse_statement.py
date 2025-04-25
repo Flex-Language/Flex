@@ -23,8 +23,8 @@ def parse_statement(tokens,AI):
 
     if tok_type == 'RETURN':
         return parse_return_statement(tokens, AI, line_number, line_content)
-    elif tok_type == 'IF':     
-         return parse_if_statement(tokens, AI, line_number, line_content)
+    elif tok_type == 'IF':    
+        return parse_if_statement(tokens, AI, line_number, line_content)
     elif tok_type == 'LW':
         return parse_lw_statement(tokens, AI, line_number, line_content)
     elif tok_type=='ELIF':
