@@ -122,7 +122,7 @@ def handle_numeric_value(value):
 
 def handle_scan_now(var_type, line_number, line_content, AI):
     if gv.web:
-      print("__INPUT_VALUE__")
+      print("__FLEX_INPUT_REQUEST__")
     
     value = input()
     try:
