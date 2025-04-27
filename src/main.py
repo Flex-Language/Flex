@@ -13,12 +13,16 @@ def main():
         if sys.argv[1] == "--version":
             print(get_version())
             sys.exit(0)
+        elif sys.argv[1] == "--web":
+            print("Error: No source file provided when using --web flag")
+            print("Usage: flex <source_file .lx,.flex> [--web] or flex --version")
+            sys.exit(1)
         
         # Process normal source file
         source_file = sys.argv[1]
         if not source_file:  # Empty string check
             print("Error: No source file provided")
-            print("Usage: flex <source_file .lx,.flex> or flex --version")
+            print("Usage: flex <source_file .lx,.flex> [--web] or flex --version")
             sys.exit(1)
             
         AI = False
@@ -34,8 +38,26 @@ def main():
             print(f"Error: {f}")
             sys.exit(1)
     else:
-        print("Usage: flex <source_file .lx,.flex> or flex --version")
-        sys.exit(1)
+        source_file = sys.argv[1]
+        AI = False
+        WEB = False
+        
+        # Process additional flags
+        for arg in sys.argv[2:]:
+            if arg == "--web":
+                WEB = True
+            # Add other flags as needed
+
+        try:
+            compile_and_run(source_file, AI, WEB)
+        except SyntaxError as e:
+            # Catch the SyntaxError and print only the error message without the full traceback
+            print(e)
+        except ZeroDivisionError as z:
+            print(z)
+        except FileNotFoundError as f:
+            print(f"Error: {f}")
+            sys.exit(1)
 
 # Usage example
 if __name__ == "__main__":
