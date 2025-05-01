@@ -1,0 +1,514 @@
+name: Build Flex Executables
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build Flex Executable (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            output_name: flex-linux
+            asset_name: flex-linux
+          - os: windows-latest
+            output_name: flex
+            asset_name: flex.exe
+          - os: macos-latest
+            output_name: flex-macos
+            asset_name: flex-macos
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install ply==3.11
+        
+    - name: Build with PyInstaller for Linux/macOS
+      if: matrix.os != 'windows-latest'
+      run: |
+        cd src
+        pyinstaller --onefile --clean --name=${{ matrix.output_name }} \
+          --add-data "flex_compiler:flex_compiler" \
+          --add-data "flex_interpreter:flex_interpreter" \
+          --add-data "flex_parser:flex_parser" \
+          --add-data "flex_tokenizer:flex_tokenizer" \
+          main.py
+        
+    - name: Build with PyInstaller for Windows
+      if: matrix.os == 'windows-latest'
+      shell: cmd
+      run: |
+        cd src
+        pyinstaller --onefile --clean --name=${{ matrix.output_name }} ^
+          --add-data "flex_compiler;flex_compiler" ^
+          --add-data "flex_interpreter;flex_interpreter" ^
+          --add-data "flex_parser;flex_parser" ^
+          --add-data "flex_tokenizer;flex_tokenizer" ^
+          main.py
+          
+    # Create Windows Installer
+    - name: Create Windows Installer
+      if: matrix.os == 'windows-latest'
+      shell: powershell
+      run: |
+        # Install NSIS installer system
+        choco install nsis -y
+        
+        # Create installer script with single $ for NSIS variables
+        # PowerShell won't interpolate these since they're in a here-string
+        $installerScript = @'
+        !include "MUI2.nsh"
+        
+        Name "Flex Language Interpreter"
+        OutFile "flex-installer.exe"
+        Unicode True
+        
+        !define MUI_ICON "src\flex_compiler\icon.ico"
+        !define MUI_UNICON "src\flex_compiler\icon.ico"
+        
+        !define MUI_WELCOMEPAGE_TITLE "Flex Language Interpreter Setup"
+        !define MUI_WELCOMEPAGE_TEXT "This will install the Flex Language Interpreter on your computer."
+        
+        !insertmacro MUI_PAGE_WELCOME
+        !insertmacro MUI_PAGE_DIRECTORY
+        !insertmacro MUI_PAGE_INSTFILES
+        !insertmacro MUI_PAGE_FINISH
+        !insertmacro MUI_UNPAGE_CONFIRM
+        !insertmacro MUI_UNPAGE_INSTFILES
+        
+        !insertmacro MUI_LANGUAGE "English"
+        
+        InstallDir "$PROGRAMFILES\Flex"
+        
+        Section "Install"
+          SetOutPath "$INSTDIR"
+          File "src\dist\flex.exe"
+          
+          # Create batch file to invoke the executable
+          FileOpen $0 "$INSTDIR\flex.bat" w
+          FileWrite $0 "@echo off$\r$\n"
+          FileWrite $0 "$INSTDIR\flex.exe %*$\r$\n"
+          FileClose $0
+          
+          # Add to PATH using standard documented syntax
+          System::Call 'Kernel32::SetEnvironmentVariable(t "PATH", t "$INSTDIR;${ENV PATH}")' 
+          
+          # Create uninstaller
+          WriteUninstaller "$INSTDIR\uninstall.exe"
+          
+          # Create Start Menu shortcut
+          CreateDirectory "$SMPROGRAMS\Flex"
+          CreateShortcut "$SMPROGRAMS\Flex\Flex.lnk" "$INSTDIR\flex.exe"
+          CreateShortcut "$SMPROGRAMS\Flex\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+          
+          # Create registry entries with explicit backslashes where needed
+          WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex" "DisplayName" "Flex Language Interpreter"
+          WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex" "UninstallString" "$INSTDIR\uninstall.exe"
+        SectionEnd
+        
+        Section "Uninstall"
+          Delete "$INSTDIR\flex.exe"
+          Delete "$INSTDIR\flex.bat"
+          Delete "$INSTDIR\uninstall.exe"
+          
+          # Remove Start Menu shortcuts
+          Delete "$SMPROGRAMS\Flex\Flex.lnk"
+          Delete "$SMPROGRAMS\Flex\Uninstall.lnk"
+          RMDir "$SMPROGRAMS\Flex"
+          
+          # Remove registry entries
+          DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex"
+          
+          # Remove installation directory
+          RMDir "$INSTDIR"
+        SectionEnd
+        '@
+        
+        # Create installer script file - no replacements needed since we're using single quotes
+        Set-Content -Path "installer.nsi" -Value $installerScript -Encoding UTF8
+        
+        # Debug output for script issues
+        Write-Host "--- Generated NSIS script ---"
+        Get-Content "installer.nsi" | ForEach-Object { Write-Host $_ }
+        Write-Host "----------------------------"
+        
+        # Create icon if it doesn't exist
+        New-Item -Path "src\flex_compiler" -ItemType Directory -Force
+        if (-not (Test-Path "src\flex_compiler\icon.ico")) {
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/vscode/main/resources/win32/code.ico" -OutFile "src\flex_compiler\icon.ico"
+        }
+        
+        # Check if NSIS is properly installed
+        if (Test-Path 'C:\Program Files (x86)\NSIS\makensis.exe') {
+          Write-Host "NSIS found at expected location"
+        } else {
+          Write-Host "NSIS not found at expected location - searching for it"
+          $nsisPath = Get-Command makensis.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
+          if ($nsisPath) {
+            Write-Host "Found NSIS at: $nsisPath"
+          } else {
+            Write-Host "NSIS not found in PATH - this will likely fail"
+          }
+        }
+        
+        # First try with less verbose output
+        Write-Host "Compiling NSIS script (normal verbosity)..."
+        $compileResult = & 'C:\Program Files (x86)\NSIS\makensis.exe' installer.nsi
+        $exitCode = $LASTEXITCODE
+        
+        if ($exitCode -ne 0) {
+          Write-Host "Compilation failed with exit code $exitCode. Retrying with verbose output..."
+          # Retry with verbose output to get more detailed error information
+          & 'C:\Program Files (x86)\NSIS\makensis.exe' /V4 installer.nsi
+        } else {
+          Write-Host "Compilation successful!"
+        }
+      
+    # Create macOS Package
+    - name: Create macOS Package
+      if: matrix.os == 'macos-latest'
+      run: |
+        # Create package structure
+        mkdir -p pkg_root/usr/local/bin
+        mkdir -p pkg_root/usr/local/share/flex
+        
+        # Copy executable
+        cp src/dist/flex-macos pkg_root/usr/local/bin/flex
+        chmod +x pkg_root/usr/local/bin/flex
+        
+        # Create scripts
+        mkdir -p scripts
+        
+        # Preinstall script
+        cat > scripts/preinstall << EOF
+        #!/bin/bash
+        # Remove previous version if exists
+        if [ -f /usr/local/bin/flex ]; then
+          rm -f /usr/local/bin/flex
+        fi
+        exit 0
+        EOF
+        
+        # Postinstall script
+        cat > scripts/postinstall << EOF
+        #!/bin/bash
+        # Set permissions
+        chmod 755 /usr/local/bin/flex
+        exit 0
+        EOF
+        
+        # Make scripts executable
+        chmod +x scripts/preinstall scripts/postinstall
+        
+        # Use direct pkgbuild without component plist
+        pkgbuild --root pkg_root \
+          --identifier com.flex.interpreter \
+          --version 1.0 \
+          --install-location / \
+          --scripts scripts \
+          flex-component.pkg
+        
+        # Create distribution file
+        cat > distribution.xml << EOF
+        <?xml version="1.0" encoding="utf-8"?>
+        <installer-gui-script minSpecVersion="1">
+          <title>Flex Language Interpreter</title>
+          <welcome file="welcome.html"/>
+          <license file="license.html"/>
+          <conclusion file="conclusion.html"/>
+          <domains enable_localSystem="true"/>
+          <options customize="allow" allow-external-scripts="no"/>
+          <choices-outline>
+            <line choice="default">
+              <line choice="com.flex.interpreter"/>
+            </line>
+          </choices-outline>
+          <choice id="default"/>
+          <choice id="com.flex.interpreter" visible="false">
+            <pkg-ref id="com.flex.interpreter"/>
+          </choice>
+          <pkg-ref id="com.flex.interpreter" version="1.0" onConclusion="none">flex-component.pkg</pkg-ref>
+        </installer-gui-script>
+        EOF
+        
+        # Create HTML files
+        mkdir -p resources
+        
+        # Welcome file
+        cat > resources/welcome.html << EOF
+        <html>
+        <body>
+        <h1>Flex Language Interpreter</h1>
+        <p>This package will install the Flex Language Interpreter on your Mac.</p>
+        </body>
+        </html>
+        EOF
+        
+        # License file
+        cat > resources/license.html << EOF
+        <html>
+        <body>
+        <h1>License Agreement</h1>
+        <p>Copyright (c) 2025 Flex Team</p>
+        <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software...</p>
+        </body>
+        </html>
+        EOF
+        
+        # Conclusion file
+        cat > resources/conclusion.html << EOF
+        <html>
+        <body>
+        <h1>Installation Complete</h1>
+        <p>The Flex Language Interpreter has been installed in /usr/local/bin/flex</p>
+        <p>You can now run it from Terminal by typing "flex"</p>
+        </body>
+        </html>
+        EOF
+        
+        # Build the final package
+        productbuild --distribution distribution.xml \
+          --resources resources \
+          --package-path . \
+          flex-installer.pkg
+        
+    # Linux installation script
+    - name: Create Linux Installer
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        mkdir -p installer
+        cp src/dist/flex-linux installer/flex
+        
+        # Create installation script
+        cat > installer/install.sh << 'EOF'
+        #!/bin/bash
+        
+        # Flex Language Interpreter Installer
+        echo "Flex Language Interpreter Installer"
+        echo "==================================="
+        
+        # Check if running as root
+        if [ "$EUID" -ne 0 ]; then
+          echo "Please run as root (use sudo)"
+          exit 1
+        fi
+        
+        # Default installation directory
+        DEFAULT_INSTALL_DIR="/usr/local/bin"
+        
+        # Ask for installation directory
+        read -p "Installation directory [$DEFAULT_INSTALL_DIR]: " INSTALL_DIR
+        INSTALL_DIR=${INSTALL_DIR:-$DEFAULT_INSTALL_DIR}
+        
+        # Create directory if it doesn't exist
+        mkdir -p "$INSTALL_DIR"
+        
+        # Copy executable
+        cp "$(dirname "$0")/flex" "$INSTALL_DIR/flex"
+        chmod +x "$INSTALL_DIR/flex"
+        
+        echo "Flex has been installed to $INSTALL_DIR/flex"
+        echo "You can now run it by typing 'flex'"
+        EOF
+        
+        chmod +x installer/install.sh
+        
+        # Create tarball
+        tar -czvf flex-linux-installer.tar.gz -C installer .
+        
+    - name: Set Executable Permissions (Linux/macOS)
+      if: matrix.os != 'windows-latest'
+      run: |
+        cd src/dist
+        chmod +x ${{ matrix.output_name }}
+        ls -la ${{ matrix.output_name }}
+        
+    - name: Test Executable (Linux/macOS)
+      if: matrix.os != 'windows-latest'
+      run: |
+        cd src/dist
+        ./${{ matrix.output_name }} --version
+        
+    - name: Test Executable (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd src\dist
+        .\${{ matrix.output_name }}.exe --version
+        
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.asset_name }}
+        path: src/dist/${{ matrix.output_name }}*
+        retention-days: 7
+        
+    # Upload Windows installer as artifact
+    - name: Upload Windows Installer Artifact
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: flex-windows-installer
+        path: flex-installer.exe
+        retention-days: 7
+        
+    # Upload macOS installer as artifact
+    - name: Upload macOS Installer Artifact
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: flex-macos-installer
+        path: flex-installer.pkg
+        retention-days: 7
+        
+    # Upload Linux installer as artifact
+    - name: Upload Linux Installer Artifact
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: flex-linux-installer
+        path: flex-linux-installer.tar.gz
+        retention-days: 7
+        
+  release:
+    name: Create Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+      
+      - name: Display structure of downloaded files
+        run: ls -R
+      
+      - name: Set Permissions for Downloaded Artifacts
+        run: |
+          chmod +x ./flex-linux/flex-linux || true
+          chmod +x ./flex-macos/flex-macos || true
+          ls -la ./flex-linux/flex-linux ./flex-macos/flex-macos || true
+      
+      - name: Prepare release artifacts
+        run: |
+          mkdir -p release
+          # Debug the file structure
+          echo "Directory structure after downloading:"
+          find . -type f -name "flex-*" | sort
+          
+          # Copy with platform-specific names for clarity
+          cp ./flex-linux/flex-linux release/flex-linux || true
+          cp ./flex.exe/flex.exe release/flex.exe || true
+          cp ./flex-macos/flex-macos release/flex-macos || true
+          
+          # Copy installers
+          cp ./flex-windows-installer/flex-installer.exe release/flex-windows-installer.exe || true
+          cp ./flex-macos-installer/flex-installer.pkg release/flex-macos-installer.pkg || true
+          cp ./flex-linux-installer/flex-linux-installer.tar.gz release/flex-linux-installer.tar.gz || true
+          
+          # Make sure executables have correct permissions
+          chmod +x release/* || true
+          echo "Release directory contents:"
+          ls -la release/
+
+      - name: Checkout repository for tag information
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: repo
+      
+      - name: Get next version number
+        id: calc_version
+        working-directory: repo
+        run: |
+          # Check if there are any existing tags that match vX format
+          if git tag -l "v[0-9]*" | grep -q .; then
+            # Get highest version number from existing tags
+            latest_version=$(git tag -l "v[0-9]*" | sort -V | tail -n1 | sed 's/v//')
+            next_version=$((latest_version + 1))
+          else
+            # No existing version tags, start at 1
+            next_version=1
+          fi
+          echo "Next version will be: v$next_version"
+          echo "next_version=$next_version" >> $GITHUB_OUTPUT
+
+      # First create a tag without creating a release
+      - name: Create Git Tag
+        working-directory: repo
+        run: |
+          git config --local user.email "hassansonson2002@gmail.com"
+          git config --local user.name "hassan220022"
+          git tag -a v${{ steps.calc_version.outputs.next_version }} -m "Release v${{ steps.calc_version.outputs.next_version }}"
+          git push origin v${{ steps.calc_version.outputs.next_version }}
+
+      # Use the official GitHub Release API instead of the JavaScript approach
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.calc_version.outputs.next_version }}
+          name: Release v${{ steps.calc_version.outputs.next_version }}
+          body: |
+            ## Flex Language Interpreter v${{ steps.calc_version.outputs.next_version }}
+            
+            This release contains both standalone executables and installers for all major platforms.
+            
+            ### Installers (Recommended)
+            
+            These installers will guide you through the setup process and let you choose where to install Flex:
+            
+            - **Windows**: Download `flex-windows-installer.exe`
+            - **macOS**: Download `flex-macos-installer.pkg`
+            - **Linux**: Download `flex-linux-installer.tar.gz` (extract and run `sudo ./install.sh`)
+            
+            ### Standalone Executables
+            
+            For advanced users who prefer manual installation:
+            
+            - **Linux**: Download `flex-linux`
+            - **Windows**: Download `flex.exe`
+            - **macOS**: Download `flex-macos`
+            
+            #### Manual Installation (Standalone Executables)
+            
+            ##### Linux/macOS:
+            1. Download the appropriate executable for your platform
+            2. Make it executable: `chmod +x flex-*`
+            3. Move to a directory in your PATH: `sudo mv flex-* /usr/local/bin/flex`
+            4. Run it: `flex yourfile.flex`
+            
+            ##### Windows:
+            1. Download `flex.exe`
+            2. Option 1 - Add to PATH:
+               - Move `flex.exe` to a folder (e.g., `C:\Flex`)
+               - Add this folder to your PATH environment variable
+               - Create a batch file named `flex.bat` in the same folder with this content:
+                 ```
+                 @echo off
+                 flex.exe %*
+                 ```
+               - Now you can run `flex` from any command prompt
+               
+            3. Option 2 - Direct use:
+               - Run by typing the full path: `C:\path\to\flex.exe yourfile.flex`
+          files: |
+            release/flex-linux
+            release/flex.exe
+            release/flex-macos
+            release/flex-windows-installer.exe
+            release/flex-macos-installer.pkg
+            release/flex-linux-installer.tar.gz
+          generate_release_notes: false 

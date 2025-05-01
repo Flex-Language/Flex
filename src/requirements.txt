@@ -1,0 +1,2 @@
+ply==3.11
+pyinstaller==5.13.0 

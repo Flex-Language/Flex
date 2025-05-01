@@ -14,3 +14,8 @@ sndo2 meme(){
 }
 
 #geep "flex_tester\test.txt"
+
+sando2 fo(){
+
+   print("dfd")
+}

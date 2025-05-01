@@ -42,7 +42,6 @@ def execute_import(statement, AI, statements, import_list):
 
     # Merge imported statements with the original ones
     all_statements = imported_statements + statements
-
     # Ensure unique imports
     for item in all_statements:
         if item[0] == 'IMPORT' and item[1] not in gv.import_files:
@@ -55,7 +54,8 @@ def execute_import(statement, AI, statements, import_list):
     ]
 
     # Execute all statements after importing
-    execution.run(all_statements, AI, insideFunc=False)
+    # print(all_statements)
+    execution.run(all_statements, AI, gv.web, insideFunc=False)
     sys.exit()  # Exit to prevent re-execution
 
 

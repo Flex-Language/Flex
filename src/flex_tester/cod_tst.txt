@@ -47,3 +47,5 @@ karr x=1 l7d er{
     i++
 }
 
+x = da5l()
+etb3(x)

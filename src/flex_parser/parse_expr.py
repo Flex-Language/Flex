@@ -10,7 +10,7 @@ def parse_function_call_statement(tokens, AI, line_number, line_content):
     args = []
     while current_token(tokens)[0] != 'RPAREN':
         if current_token(tokens)[0] in ('NUMBER', 'ID', 'STRING','MINUS'):
-                args.append(parse_arithmetic_expr(tokens, AI))  
+                args.append(parse_arithmetic_expr(tokens, AI,line_number,line_content))  
         else:
             error_message = f"Unexpected token {current_token(tokens)[0]} while parsing function arguments at {line_number}\nLine content: '{line_content}'"
             handle_error(error_message, AI)
@@ -60,6 +60,8 @@ def parse_right_side(tokens, AI, line_number, line_content):
     """Processes the right side of an operator expression."""
     if current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LBRACKET':
         return parse_list_access(tokens, AI,line_number, line_content)
+    # else:
+    #     return parse_arithmetic_expr(tokens, AI,line_number,line_content)
     elif current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LPAREN':
         return parse_function_call_statement(tokens, AI, line_number, line_content)
     elif current_token(tokens)[0] == 'ID':
@@ -85,6 +87,7 @@ def parse_operator_expression(tokens, AI, left, line_number, line_content):
         op = next_token(tokens)[1]
         right = parse_right_side(tokens, AI, line_number, line_content)
         left = f"{left} {op} {right}"
+        
 
         while gv.pos < len(tokens) and current_token(tokens)[0] in ('AND', 'OR'):
             op = next_token(tokens)[1]  # Consume 'and' or 'or'
@@ -117,6 +120,8 @@ def parse_expr(tokens, AI, line_number, line_content):
     elif current_token(tokens)[0] == 'MINUS':
         left = parse_negative_number(tokens, AI, line_number, line_content)
     else:
+        if gv.forLoopFlag:
+            return ('EMPTY_COND', line_number, line_content)
         tok = current_token(tokens)
         error_message = f"Expected ID, NUMBER, or BOOLEAN at {tok[2]}\nLine content: '{tok[3]}'"
         handle_error(error_message, AI)

@@ -60,6 +60,6 @@ print(l)
 print(do_modulus(10,3))
 print(s())
 
-x= "hello world to print in many ways"
-output("{x}")
-printf("to print {x}")
+xx= "hello world to print in many ways"
+output("{xx}")
+printf("to print {xx}")

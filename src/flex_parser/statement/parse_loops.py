@@ -37,6 +37,7 @@ def parse_for_statement(tokens, AI, line_number, line_content):
 
     # Parse initialization (e.g., i = 0)
     init_statement = parse_statement.parse_statement(tokens, AI)
+    
     if (init_statement != None and init_statement[0] == 'STANDALONE_VAR'):
         pass
     else:
@@ -44,10 +45,12 @@ def parse_for_statement(tokens, AI, line_number, line_content):
 
     # Parse condition (e.g., i < 10)
     condition = parse_expr(tokens, AI,line_number,line_content)  # Parse the condition inside the parentheses
+    
     expect(tokens, 'SEMICOLON', AI)  # Expect ';' after condition
 
     # Parse increment (e.g., i++)
     increment_statement = parse_statement.parse_statement(tokens, AI)
+   
     expect(tokens, 'RPAREN', AI)  # Expect ')' after increment
 
     # Parse block of code inside the for loop
@@ -91,7 +94,7 @@ def parse_return_statement(tokens, AI, line_number, line_content):
     """Parses a return statement."""
     expect(tokens, 'RETURN', AI)  # Consume 'return'
     if gv.pos < len(tokens) and current_token(tokens)[0] not in ('NEWLINE', 'RBRACE'):
-        return_value = parse_arithmetic_expr(tokens, AI)
+        return_value = parse_arithmetic_expr(tokens, AI,line_number,line_content)  # Parse the return value
     else:
         return_value = None  # No expression to return
     return ('RETURN', return_value, line_number, line_content)

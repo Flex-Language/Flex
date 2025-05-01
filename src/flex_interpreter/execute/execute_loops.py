@@ -11,7 +11,7 @@ def execute_while(statement, AI, insideFunc):
 
     while eval_condition(condition, line_number, line_content, insideFunc, AI) or condition in ('true', '1'):
         try:
-            execution.run(block, AI, insideFunc, True)
+            execution.run(block, AI,gv.web, insideFunc, True)
         except StopIteration:  # Catch the break statement
             break
 
@@ -23,16 +23,16 @@ def execute_for(statement, AI, insideFunc):
     line_number, line_content = statement[5], statement[6]
 
     # Execute the initialization part
-    execution.run([init_statement], AI, insideFunc, True)
+    execution.run([init_statement], AI,gv.web, insideFunc, True)
 
     # Execute the for loop
     while eval_condition(condition, line_number, line_content, insideFunc, AI):
         try:
-            execution.run(block, AI, insideFunc, True)
+            execution.run(block, AI, gv.web,insideFunc, True)
         except StopIteration:  # Catch the break statement
             break
         # Execute the increment
-        execution.run([increment_statement], AI, insideFunc, True)
+        execution.run([increment_statement], AI,gv.web, insideFunc, True)
 
 #################################################################################3
 
@@ -112,15 +112,15 @@ def execute_loop_in_karr(init_statement, condition, increment_statement, block, 
     """
     # Execute the initialization part
     if init_statement is not None:
-        execution.run([init_statement], AI, insideFunc, True)
+        execution.run([init_statement], AI,gv.web, insideFunc, True)
 
     # Execute the loop
     while eval_condition(condition, line_number, line_content, insideFunc, AI):
         try:
-            execution.run(block, AI, insideFunc, True)
+            execution.run(block, AI,gv.web, insideFunc, True)
         except StopIteration:  # Catch the break statement
             break
-        execution.run([increment_statement], AI, insideFunc, True)  # Execute the increment
+        execution.run([increment_statement], AI,gv.web, insideFunc, True)  # Execute the increment
 
 def execute_karr(statement, AI, insideFunc, variables, variablesFunc):
     """

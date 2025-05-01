@@ -1,0 +1,18 @@
+geeb "flex_tester/importTst.txt"
+geeb "flex_tester/importTst2.txt"
+fun dupl(){
+    print("no args")
+}
+
+fun dupl(int x,y){
+    print("x and y is {x+y}")
+}
+
+print("kkk")
+print("sssssss")
+
+int x=test(2,4,6,7)
+print(x)
+
+dupl(7,9)
+dupl()

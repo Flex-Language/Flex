@@ -8,7 +8,7 @@ from flex_interpreter.execute.execute_variable_declaration import execute_var_de
 from flex_interpreter.execute.execute_print import execute_print
 from flex_interpreter.execute.execute_import import execute_import
 
-def run(statements,AI,insideFunc=False,insideLoop=False,forLoopLocal=False,import_list=None):
+def run(statements,AI,WEB,insideFunc=False,insideLoop=False,forLoopLocal=False,import_list=None):
     
     skip_next = False  # To track if we need to skip the next statement
     if_first=False
@@ -16,10 +16,17 @@ def run(statements,AI,insideFunc=False,insideLoop=False,forLoopLocal=False,impor
     trueElifFlag=False
     non_if=True
     elif_finished=False
-   
+    if WEB:
+        gv.web = True
+    else:
+        gv.web = False
+    
     for statement in statements:
         
         # print(gv.variables)
+        # print(gv.variablesFunc)
+        if statement[0] == 'EMPTY':
+            continue
         if statement[0] == 'IF':
             non_if = False
             elif_finished = False

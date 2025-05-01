@@ -28,11 +28,16 @@ def checkType(value,type,line_number,line_content,AI):
     elif type in ('int','float','bool',) and isinstance(value,list):
         error_message = f"list in a non list variable! at {line_number}\nLine content: {line_content.strip()}"
         handle_error(error_message, AI)
+    elif type == 'list' and not isinstance(value, list):
+        error_message = f"non list in a list! at {line_number}\nLine content: {line_content.strip()}"
+        handle_error(error_message, AI)
     else:
         return value
 
 def eval_condition(condition, line_number, line_content,isFunc,AI):
     try:
+        if 'EMPTY_COND' in condition:
+            return True
         # Replace 'true' and 'false' with Python's 'True' and 'False'
         condition = condition.replace('true', 'True').replace('false', 'False')
         # Replace '=>' with '>=' and '=<' with '<=' to match Python's syntax
