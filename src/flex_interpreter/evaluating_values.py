@@ -4,6 +4,7 @@ from flex_interpreter.interpreter_utils import *
 from flex_interpreter import execution 
 from flex_interpreter.return_ex import  *
 import re
+import sys
 
 def checkType2(value,type,line_number,line_content,AI):
     if (type != None):
@@ -128,9 +129,18 @@ def handle_numeric_value(value):
 
 def handle_scan_now(var_type, line_number, line_content, AI):
     if gv.web:
-      print("Enter value:")
+        # Signal that we're requesting input with the special marker
+        print("__FLEX_INPUT_REQUEST__", flush=True)
+        # Force flush to ensure immediate output without buffering
+        sys.stdout.flush()
     
     value = input()
+    
+    if gv.web:
+        # Signal that input has been received
+        print("__FLEX_INPUT_RECEIVED__", flush=True)
+        sys.stdout.flush()
+        
     try:
         # if var_type == "string" or var_type is None:
         #     return value
@@ -141,7 +151,6 @@ def handle_scan_now(var_type, line_number, line_content, AI):
             handle_error(error_message, AI)
         elif value[0] == '-' and value[1:].isdigit():
             return int(value)
-            # return eval(value, {}, {k: v[0] for k, v in gv.variables.items()})
         elif re.fullmatch(r'[-+]?\d*\.\d+', value):  # Check if the value is a float
             return float(value)
         else:

@@ -1,0 +1,1565 @@
+
+Flex is a flexible programming language designed to support multiple syntax styles, including Franko Arabic, English, and other common programming syntax conventions. The core idea behind Flex is to enable users to write code in a syntax they are comfortable with while maintaining a consistent logic structure. The language uses regular expressions (regex) for tokenization, making it efficient for identifying and parsing different language constructs. Flex supports various programming constructs such as functions, loops, conditionals, variables, and operations, with unique keywords and variations to accommodate different language preferences. For example, Flex uses "fun" or "sndo2" for function definitions, and "if", "cond" for conditionals, with variations in the syntax like "while" being replaced by "loop" or "for" and "karr" for loops. Data types such as "int", "float", and "bool" are represented as "rakm", "kasr", and "so2al", respectively, with Flex also supporting more flexible data structures like lists, indicated by "list" or "dorg". Operators like addition, subtraction, multiplication, and division follow typical programming conventions with symbols (+, -, *, /), while logical operations are represented using keywords such as "and", "or", and "not". Flex also offers control flow mechanisms such as "break", "return", and "continue", while handling errors gracefully through well-defined syntax and error messages. A significant feature of Flex is its ability to manage comments and long comments, with support for both single-line comments (using "#" or "//") and multi-line comments (using triple quotes or "/*...*/"). Flex supports a variety of built-in constructs for iteration, comparison, and logical operations, ensuring that users can express logic in an intuitive way across different cultural and linguistic contexts. The use of regular expressions allows for efficient error detection and recovery, making Flex a powerful and versatile language for developing software in diverse environments.
+-------------------------------------------------------------------------------------------------------------------------------
+no ; in end of any line
+-------------------------------------------------------------------------------------------------------------------------------
+for Syntax :
+
+# Token types
+TOKENS = [
+    ('FUN', r'\b(?:fun|sndo2)\b'),                           # Function keyword
+    ('ADD',r'(.append|.push)'),
+    ('POP',r'(.pop)'),
+    ('REMOVE',r'(.remove|.delete)'),
+    ('SCAN', r'\b(scan|read|input|da5l)\b'),    
+    ('IF', r'(if|cond)'),                   # lw, if, cond for if statements
+    ('LW',r'(\blw\b)'),
+    ('ELIF', r'(elif)'),                   # elif variations
+    ('AW', r'(\baw\b)'),
+    ('ELSE', r'(else|otherwise|gher)'),             # else variations
+    ('PRINT', r'(etb3|out|output|print|printf|cout)'),  # print variations
+    ('WHILE', r'(while|loop)'),                # while variations
+    ('TALAMA', r'(talama)'),   
+    ('FOR', r'for'),                           # For loop
+    ('REPEAT',r'(\bkarr\b)'),
+    ('UNTILL',r'(\bl7d\b)'),
+    ('SEMICOLON', r';'),                       # Semicolon
+    ('RETURN', r'\b(?:return|rg3)\b'),                     # Return                     
+    ('BREAK', r'(break|stop|w2f)'),                # break variations
+    ('NUMBER', r'\d+(\.\d+)?'),                # Numbers and Floats
+    ('STRING', r'\".*?\"'),                    # Strings
+    ('LIST', r'\b(?:list|dorg)\b'),   # List keyword
+    ('LBRACKET', r'\['),     # Left square bracket  [
+    ('RBRACKET', r'\]'),     # Right square bracket ]
+    ('LPAREN', r'\('),                         # Left Parenthesis
+    ('RPAREN', r'\)'),                         # Right Parenthesis
+    ('LBRACE', r'\{'),                         # Left Curly Brace for blocks
+    ('RBRACE', r'\}'),                         # Right Curly Brace for blocks
+    ('GE', r'>=|=>'),  # Greater than or equal to (>= or =>)
+    ('LE', r'<=|=<'),  # Less than or equal to (<= or =<)
+    ('GT', r'>'),                              # Greater Than
+    ('LT', r'<'),                              # Less Than
+    ('AND', r'and'),                           # And
+    ('OR', r'or'),                             # Or
+    ('NOT',r'not'),                            # not
+    ('EQ', r'=='),                             # Equal
+    ('NEQ', r'!='),                            # Not Equal
+    ('ASSIGN', r'='),                          # Assignment
+    ('TRUE', r'true'),                         # Boolean True
+    ('FALSE', r'false'),                       # Boolean False
+    ('INT', r'\b(?:int|rakm)\b'),                           # Integer type
+    ('FLOAT', r'\b(?:float|kasr)\b'),                       # Float type
+    ('BOOL', r'\b(?:bool|so2al)\b'),                         # Boolean type
+    ('STR', r'\b(?:string|klma)\b'),                        # String Type 
+    ('ID', r'[a-zA-Z_][a-zA-Z_0-9]*'),         # Identifiers (variable names)
+    ('SKIP', r'[ \t]+'),                       # Skip spaces and tabs
+    ('NEWLINE', r'\n'),                        # New lines
+    ('INCREMENT', r'\+\+'),                    # Increment (++)
+    ('DECREMENT', r'--'),                      # Decrement (--)
+    ('PLUS', r'\+'),                           # Addition
+    ('MINUS', r'-'),                           # Subtraction
+    ('MULT', r'\*'),                           # Multiplication
+    ('LONG_COMMENT', r'\'\'\'[\s\S]*?\'\'\'|/\*[\s\S]*?\*/'),  # Long comments ''' or /* */
+    ('COMMENT', r'(#.*|//.*)'),                # Single-line comments using # or //
+    ('DIV', r'\/'),                            # Division
+    ('COMMA', r','),                           # Comma for separating parameters and arguments
+]
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+Examples:
+
+x=5
+y=3
+z=0
+lw x<10 and y<1
+{
+    print(x)
+    print(y)
+}
+aw y<2
+{
+    print("y is {y}")
+}
+aw y<4
+{
+    print("x + y are {x+y}")
+}
+gher
+{
+    print("x is {x}")
+}
+karr l7d 10{
+    print("fefrf")
+}
+
+karr d=7 l7d -7{
+    print(d)
+}
+karr x l7d 8
+{
+    print("mmmmm")
+}
+talama z<5{
+    print(z)
+    z++
+}
+
+talama y<5 and z<10
+{
+    print("y and z are {y} {z}")
+    y++
+    z++
+}
+
+
+x=10
+intttt=6
+funnnn=7.6
+booll=5
+test_var=0
+z=5
+i=6
+for(i=4;i<10;i++){
+    print("i is {i}")
+    if (i==6){
+        break
+    }
+}
+fun xyz(int oo){
+    print("enter number")
+    test_var=9
+    x=scan()
+    print(oo)
+    return x
+}
+//int r="njn"
+int t=5.6
+//bool rf="kkmkm"
+print(t)
+xyz(5)
+
+
+for(z=0;z<8;z++){
+    print("z is {z}")
+}
+
+list xx =[6,2,3,4]
+print(xx)
+xx.push(23)
+xx.push("worddd")
+print(xx)
+xx.pop()
+print(xx)
+xx.remove(3)
+print(xx)
+list qq=[12,22,34]
+print("x0+q1={xx[0]+qq[1]}")
+print(xx[0]+qq[1])
+int no=xx[0]*xx[1]
+ew=xx[0]*xx[1]
+print(no-ew)
+print("no is {no}")
+if (xx[0]<xx[1]){
+    print("xo is smaller")
+}
+xx[0]=9*2
+for(i=0;i<xx[0];i++){
+    print("iiii is {i}")
+}
+//print(no)
+xx[2] = "sdfsdf"
+xx[3]=scan()
+u = "sdfsdfsd"
+xx[0] = u
+print(xx)
+print(xx[2])
+
+
+print(intttt+funnnn+booll)
+print(x)
+x=(x+2)*5
+print(x)
+
+fun greet(int x,list arr) {
+    print(x)
+    test_var=333
+    for(i=0;i<4;i++){
+        print("list element {i} is {arr[i]}")
+    }
+    arr[0]=990
+    print("Hello, World!")
+    int varr=87
+    //return p1
+    print("enter vall")
+    int val=scan()
+    print("val is {val}")
+    x=5
+    if (x>8){
+        return 88
+    }
+    elif (1>2){
+        return 99
+    }
+    for(i=0;i<10;i++){
+        print(i)
+        if (i==7){
+            break
+        }
+    }
+    bhjb=varr+7
+    print(bhjb+8+9-8)
+    #x=334
+    y=5
+    return true
+    print("dedddd")
+}
+pv=9
+s=1
+t=2
+xx[0]=5
+//greet(test_var+qq[1])
+xx[3]=45
+greet(xx[3],xx)
+//int yyy=greet(xx[3])
+print(x)
+print(xx)
+
+x=10
+y=1
+
+fun add(int x, int y,int u) {
+    r=x
+    print(r)
+    '''for(r=0;r<20;i++){
+        return 44
+    }
+    if (r>50){
+        print("rrrrrrrrrr")
+    }'''
+    return x + y +u
+}
+fun min(int t, int b) {
+    return t + b 
+}
+
+fun tms(int q, int w) {
+   
+   if(w>3){
+     print("werwe")
+   }
+   return 6
+  
+}
+tms(4,6)
+for(i=0;i<23;i++){
+    print("i is {i}")
+    if (i==7){
+        break
+    }
+}
+q=0
+while(q<30){
+    if (q==10){
+        break
+    }
+    print("q is {q}")
+    q++
+}
+
+r = add(78,5,7.5)
+print(r)
+
+
+result = add(x,y,8)
+print(result)  # Output: 15
+result = add(1,5,x)
+print(result)
+
+
+
+tmp = min(4,9)
+print(tmp)
+result = add(x, y,0)
+print(result)
+v=add(1,2,3)
+print(v)
+
+
+
+
+
+
+
+
+
+'''
+
+
+print("z is {z}")
+x=10
+x=(x+2)*4
+print("x is {x}")
+
+
+q=4
+//fukval=greet()
+print(q)
+
+while(q<10){
+    print(q)
+    q++
+    if (q==8){
+        print("should leave")
+        break
+    }
+}
+//greet()
+//s=scan()
+er="jnnkn"
+er=8
+//x=scan()
+print("var is {er}")
+
+string x="ekmemf"
+print("str is {x}")
+//x=scan()
+varr=78
+//greet()
+print(varr)
+//greet()
+x=4
+y=5
+z=6
+if (x==4 and y==5 and not(z>1)){
+    print("kkmed")
+}
+print(x)
+y=50
+if (x==5 or not(y<6)){
+    print("qwwee")
+}
+x=2334
+x=x+1
+print(x)
+y=x
+x=89
+x=1+8
+x=x+1
+y=7
+//int x=6+y
+x=4
+y=78
+z=x+1
+print(z+7)
+x=1.2
+x=x+4
+x=y+1
+string werrr="scan_now"
+x="True"
+werrr=true
+print(werrr)
+print("dkmfk")
+float qwe=0/3
+x="sfgrg"
+if (x=="sfgrg"){print("suuui nigga")}
+
+
+y=8
+z=67
+z++
+print(z)
+//float x=89
+yer=78
+yer=8
+print("x is {x}")
+print(z)
+//bool z=true
+int lo=98
+//z=7
+print(z)
+wer=4.5
+print(x)
+print(y)
+int u =2*10
+yer=66
+u++
+//x=false
+print(u)
+print("enter value of c ")
+c=56
+print("c is {c}")
+if (0>1){
+    print("jmjm")
+}
+elif (2>u){
+    print("kemmdke")
+}
+elif (3>u){
+    print("still no")
+}
+elif (1>0){
+    print("yess")
+}
+elif(55>5){
+    print("kmkmkmkmkm")
+}
+else{print("uuuuuu")}
+c=4
+u=3*(-2-2)
+print(u)
+if (1>2){
+    print("never")
+}
+elif(55>3){
+    print("nooo")
+}
+elif(55>22){
+    print("nooo22")
+}
+elif(1>3){
+    print("nooo33")
+}
+else{
+    print("nnoo")
+}
+x=false
+var=22
+x=33
+if (7>0){
+    print("nnoonkn")
+}
+
+
+//greet()
+
+print(x)
+print("this is {x/0}")
+wer=true
+x=34
+print(x)
+
+y=-5
+etb3(y)
+print("this var is sdds")
+if (x<y){print("jnjnrnf")}
+#z=--2
+u=3/-4
+print("z is {z}")
+print("u is {u}")
+float y = 5.555
+bool t = false
+etb3("x = {x}")
+etb3("y = {y}")
+etb3("t is {t}")
+x = 10 -2 
+etb3("New x = {x}")
+
+//if (2<4){print("this is crazyy")}
+lw (9 < 7){
+      etb3("kokgdgoko")
+  etb3("helrgerglo")
+print("x")
+print("{x}")
+}
+if (1 <= 3) {
+    print("Hello and x = {x} and y = {y}")
+}
+lw (5 < 4) {
+    etb3("This should not print")
+}
+
+x = 1
+while(x) {
+    etb3("mah")
+    x = x + 1
+    if (x == 5) {
+        break
+    }
+}
+
+etb3("frfrfrfr") 
+x = x * 3 + 4 / 2 + 0 
+print("x ={x}")
+
+print("Rfrf {x}")
+int yo = 9
+if(yo==9){
+    etb3("frfr")
+}
+
+lw(x>yo){
+    print("ok")
+}
+print("rfr")
+int j = 8
+b =5*4/5*y
+print("{b}")
+//int 
+
+
+
+l =0
+x=u
+//e=iw
+print("{lfgd}")
+n=90
+x=5
+--x
+print(x)
+for (i = 1; i =< 9; i=i+1) {
+    etb3("i is {i}")
+    for (k = 0; k =< i; k=k+1) {
+    etb3("i is {k}")
+    if(k==90){
+        break
+    }
+}
+    if(i==90){
+        break
+    }
+}
+for (k = 0; k =< i; k=k+1) {
+    etb3("i is {k}")
+    if(k==90){
+        break
+    }
+    x=6
+    while(true){
+        print("ff")
+          x++
+          if(x==12){
+            break
+          }
+    }
+}
+
+for (i = 0; i > -5; i--) {
+    etb3("i is ")
+}
+
+'''
+
+for(i=0;i<7;i++){
+ print("sdfsd")
+}
+etb3("----------------------------------")
+
+for(z=0;z<8;z++){
+    print("z is {z}")
+}
+etb3("----------------------------------")
+q=0
+while(q<30){
+    if (q==10){
+        break
+    }
+    print("q is {q}")
+    q++
+}
+etb3("----------------------------------")
+rakm x = 546456
+print(x)
+dorg o =["sfsdf",23,true]
+print(o[1])
+u= da5l()
+print(u)
+sndo2 tms(int q, int w) {
+   
+   if(w>3){
+     print("werwe")
+   }
+   rg3 66
+  
+}
+r=tms(4,6)
+print(r)
+
+list b =[2,3,4,5,6]
+etb3(b)
+
+----------------------------------------------------------------------------------------------------------------------------
+more exampls:
+
+To print in flex you can use:
+
+etb3("sfsdfsds")
+print("sddfsfs") #"" for strings
+print(x)  # for vars
+etb3(x)
+etb3(2+3) # for nums
+Note: Strings must be enclosed in double quotes "".
+Note: You can print expressions, variables, or strings directly.
+-----------------------------------------------
+To input in flex you can use:
+
+x=da5l() # for entering any thind string, int,float
+y = input()
+note: you cant use da5l() or input() alone, you need to declare them to a var like x = da5l()
+note: you cant put any thing in da5l(anything) the () showd rmain empty
+-----------------------------------------------------------------
+No Semicolons: Flex does not require semicolons at the end of lines.
+---------------------------------------------------------------
+To Declare integer in Flex you can use:
+
+rakm x = 10         # Explicit declaration
+x = 15              # Auto-detection as integer
+----------------------------------------------------------------------
+To Declare float in Flex you can use:
+
+kasr pi = 3.14      # Explicit declaration
+x = 5.5             # Auto-detection as float
+----------------------------------------------------------------------
+To Declare boolean in Flex you can use:
+
+so2al v = sa7  # True
+so2al d = ghalt # False
+----------------------------------------------------------------------
+To Declare list in Flex you can use:
+
+dorg myList = [1, 2, "three", sa7] # Heterogeneous list
+--------------------------------------------------------------------
+To use if condition in Flex you can use:
+
+lw x > 5 { 
+    etb3("Greater than 5") 
+}
+----------------------------------------------------------------------
+or To use if condition in Flex you can use:
+
+lw x > 5 { 
+    etb3("Greater than 5") 
+}
+aw x == 5 { 
+    etb3("Equal to 5") 
+}
+gher { 
+    etb3("Less than 5") 
+}
+Note: Blocks must be enclosed in {}.
+Note: gher (else) cannot have a condition.
+----------------------------------------------------------------------
+To use for loop in Flex you can use:
+
+karr x = 1 l7d 5 { 
+    etb3(x) 
+}               # Loops from 1 to 5
+
+karr l7d 3 { 
+    etb3("Flex") 
+}               # Loops from 0 to 3
+
+karr x l7d 3 { 
+    etb3("Flex") 
+}               # Loops from x to 3, x must be decleard in top
+Note: Loops require a valid range or condition.
+Note: Use w2f to break out of a loop.
+----------------------------------------------------------------------
+To use while loop in Flex you can use:
+
+talama x < 10 { 
+    etb3(x) 
+    x = x + 1 
+}
+
+talama x > 10 { 
+    etb3(x) 
+    x = x + 1
+    lw X==5 {
+       w2f  
+       }  # stop when x == 5
+}
+Note: Loops require a valid range or condition.
+Note: Use w2f to break out of a loop.
+----------------------------------------------------------------------
+To use function in Flex you can use:
+
+sndo2 greet() { 
+    etb3("Hello, Flex!") 
+}               # Simple function
+
+sndo2 add(rakm a, rakm b) { 
+    rg3 a + b   # Returns sum of a and b
+}
+
+Note: Functions are declared using sndo2 and return values with rg3.
+----------------------------------------------------------------------
+To declare variables in Flex you can use:
+
+rakm a = 5         # Declares an integer variable
+kasr b = 3.14      # Declares a float variable
+so2al isActive = sa7  # Declares a boolean variable
+klma message = "Hello, Flex!" # Declares a string
+dorg mixedList = [1, "two", sa7, 3.14] # Declares a list
+----------------------------------------------------------------------
+To perform arithmetic operations in Flex you can use:
+
+rakm a = 10
+rakm b = 5
+rakm c = a + b  # Adds two integers
+kasr d = 3.5
+kasr e = d * b  # Multiplies a float and an integer
+etb3(c)         # Prints 15
+etb3(d / 2)     # Prints 1.75
+
+----------------------------------------------------------------------
+To print in Flex you can use:
+
+etb3("Welcome to Flex!")
+----------------------------------------------------------------------
+To print in Flex you can use:
+
+rakm a = 5
+kasr b = 3.5
+etb3("The value of a is {a} and b is {b}")
+----------------------------------------------------------------------
+To print in Flex you can use:
+
+etb3(10 * 2 + 5)
+----------------------------------------------------------------------
+To print in Flex you can use:
+
+klma greeting = "Hello, World!"
+etb3(greeting)
+-------------------------------------------------------------------
+to use loops in flex you can do it in many ways like:
+
+talama x < 10 { 
+    etb3(x) 
+    x = x + 1 
+}
+
+talama x > 10 { 
+    etb3(x) 
+    x = x + 1
+    lw X==5 {
+       w2f  
+       }  # stop when x == 5
+}
+
+#OR#
+
+while(q<30){
+    if (q==10){
+        break
+    }
+    print("q is {q}")
+    q++
+}
+
+#OR#
+
+while(q<30){
+    if (q==10){
+        w2f  #same as break
+    }
+    print("q is {q}")
+    q++
+}
+---------------------------------------------------------------------------------------------------------------------
+
+# Flex Programming Language - Complete Guide
+
+## Introduction
+
+Welcome to **Flex**, a flexible and beginner-friendly programming language that allows you to write code in multiple syntax styles, including **Franko Arabic, English, and C-style syntax**. **Flex** is designed for all levels of programmers, from children to professionals, providing an easy-to-learn syntax with powerful programming capabilities
+
+This guide will take you from the basics to advanced concepts, with **clear explanations and code examples with outputs**.
+
+---
+
+# 1. Getting Started with Flex
+
+### 1.1 Features of Flex
+- Supports multiple syntaxes (**Franko Arabic, English, C-style, etc.**)
+- Uses **regular expressions (regex)** for efficient tokenization
+- Provides **control flow structures** (*if-else, loops, functions*)
+- Allows **variable declarations** with intuitive keywords
+- Implements **built-in functions** for input and output
+- **No need for semicolons** (`;`) at the end of statements
+- **Blocks** are enclosed within `{}`
+- **Seamless integration** with Python and C-style and Flex syntax
+- **Automatic type detection** when variables are assigned values
+
+### 1.2 Writing Your First Flex Program
+```flex
+etb3("Hello, Flex!")
+```
+**Output:**
+```
+Hello, Flex!
+```
+
+---
+
+# 2. Syntax and Basic Constructs
+
+## 2.1 Variables and Data Types
+
+### Integer
+```flex
+rakm x = 10
+int y = 5
+rakm z=2, m=1, n=0
+etb3("{x} and {y}")
+etb3("count down {z} {m} {n}")
+```
+**Output:**
+```
+10 and 5
+count down 2 1 0
+```
+
+### Float
+```flex
+kasr pi = 3.14
+float radius = 3
+etb3("Value of pi is {pi} and the radius value is {radius}")
+```
+**Output:**
+```
+Value of pi is 3.14 and the radius value is 3.0
+```
+
+### Boolean
+```flex
+isActive = true
+bool isComplete = false
+etb3("Active: {isActive}, Complete: {isComplete}")
+```
+**Output:**
+```
+Active: True, Complete: False
+```
+
+### String
+```flex
+klma message = "Welcome to Flex!"
+string letter = "Welcome to the world!"
+etb3(message)
+etb3(letter)
+```
+**Output:**
+```
+Welcome to Flex!
+Welcome to the world!
+```
+
+### Lists (Arrays)
+```flex
+dorg myList = [1, 2.3, "hello", true]
+list alist = [15,3,26,1000]
+etb3(myList)
+etb3(alist)
+```
+**Output:**
+```
+[1, 2.3, 'hello', True]
+[15, 3, 26, 1000]
+
+```
+
+### Auto Declaration 
+```flex
+x=5
+y=2.43
+z="hello"
+l="m"
+etb3(x)
+etb3(y)
+etb3(z)
+etb3(l)
+```
+**Output:**
+```
+5
+2.43
+hello
+m
+
+```
+
+### print
+```flex
+x= "hello world to print in many ways"
+etb3(x)
+out("this is {x}")
+print(x)
+cout("this way for {x}")
+output("{x}")
+printf("to print {x}")
+```
+
+**Output:**
+```
+hello world to print in many ways
+this is hello world to print in many ways
+hello world to print in many ways
+this way for hello world to print in many ways
+hello world to print in many ways
+to print hello world to print in many ways
+```
+
+---
+
+# 3. Input and Output
+
+## 3.1 Getting User Input
+```flex
+etb3("Enter your name:")
+klma name = da5l()
+etb3("Hello, {name}!")
+etb3("Enter your age:")
+age = scan()
+etb3("your age is {age}")
+etb3("Enter your birthday:")
+klma dateofbirth = read()
+etb3("you were born on {dateofbirth}.")
+etb3("Enter your phone number:")
+number = input()
+etb3("your phone number is {number}.")
+etb3("Enter your favorite color:")
+klma color = da5al()
+etb3("your color is {color}!")
+etb3("Enter your pet type:")
+pet = d5l()
+etb3("your pet is, {pet}!")
+```
+
+**Output:**
+```
+Enter your name:
+```
+*Input:* 
+`lina`
+```
+Hello, lina!
+```
+```
+Enter your age:
+```
+*Input:* 
+`23`
+```
+your age is 23
+```
+```
+Enter your birthday:
+```
+*Input:* 
+`10-2-1999`
+```
+you were born on 10-2-1999.
+```
+```
+Enter your phone number:
+```
+*Input:* `01002325428`
+```
+your phone number is 1002325428.
+```
+```
+Enter your favorite color:
+```
+*Input:* `red`
+```
+
+your color is red!
+```
+```
+Enter your pet type:
+```
+*Input:* `cat`
+```
+your pet is, cat!
+```
+
+---
+
+# 4. Conditional Statements
+
+## 4.1 If-Else Condition
+```flex
+rakm x = 5
+lw x > 3 {
+    etb3("x is greater than 3")
+}
+gher {
+    etb3("x is not greater than 3")
+}
+```
+**Output:**
+```
+x is greater than 3
+```
+
+## 4.2 If-Else with Multiple Conditions
+```flex
+rakm x = -2
+lw x > 10 { etb3("x is greater than 10") }
+aw x == 5 { etb3("x is equal to 5") }
+aw x <= 0 { etb3("x is less than or equal 0") }
+gher { etb3("x is less than 10") }
+```
+**Output:**
+```
+x is less than or equal 0
+```
+
+## 4.3 If in Another Way
+```flex
+rakm x = 5
+if (x > 3) { etb3("x is greater than 3") }
+else { etb3("x is not greater than 3") }
+```
+**Output:**
+```
+x is greater than 3
+```
+## 4.4 If in Another Way
+```flex
+rakm x = 5
+lw x > 3 and x < 9 {
+    etb3("x is between 3 and 9")
+}
+gher {
+    etb3("x is not in the middle of 3 and 9")
+}
+```
+**Output:**
+```
+x is between 3 and 9
+```
+## 4.5 If in Another Way
+```flex
+kasr x = 5.45
+cond (x > 10) {
+    etb3("{x} is bigger than 10")
+}
+gher {
+    etb3("{x} is less than 10")
+}
+```
+**Output:**
+```
+5.45 is less than 10
+```
+## 4.6 Else in Another Way
+```flex
+rakm x = 2
+lw x > 3 {
+    etb3("x is greater than 3")
+}
+otherwise {
+    etb3("x is not greater than 3")
+}
+```
+**Output:**
+```
+x is not greater than 3
+```
+## 4.7 Else in Another Way
+```flex
+kasr x = 5.23
+lw x > 3 {
+    etb3("x is greater than 3")
+}
+else {
+    etb3("x is not greater than 3")
+}
+```
+**Output:**
+```
+x is greater than 3
+```
+
+---
+
+# 5. Loops
+
+## 5.1 While Loop
+```flex
+rakm i = 0
+talama i < 5 {
+    etb3(i)
+    i++
+}
+```
+**Output:**
+```
+0
+1
+2
+3
+4
+```
+
+## 5.2 While Loop in Another Way
+```flex
+i = 1.0
+tlma i < 5.0 {
+    etb3(i)
+    i++
+}
+```
+**Output:**
+```
+1.0
+2.0
+3.0
+4.0
+```
+
+## 5.3 While Loop in Another Way
+```flex
+i = 30
+talma i >= 25 {
+    etb3(i)
+    i--
+}
+```
+**Output:**
+```
+29
+28
+27
+26
+25
+```
+
+## 5.4 While Loop in Another Way
+```flex
+i = 4
+while (i == 4) {
+    etb3(i)
+    i++
+}
+```
+**Output:**
+```
+4
+```
+## 5.5 While Loop in Another Way
+```flex
+i = 0
+loop (i < 6) {
+    etb3(i)
+    i++
+}
+```
+**Output:**
+```
+0
+1
+2
+3
+4
+5
+```
+
+## 5.6 For Loop
+```flex
+karr x=4 l7d 10 {etb3(x)}
+```
+**Output:**
+```
+4
+5
+6
+7
+8
+9
+```
+## 5.7 For Loop in Another Way
+```flex
+karr x l7d 10 {etb3("hello world 10 times")} //x will automatically be initiated by 0
+```
+**Output:**
+```
+4
+5
+6
+7
+8
+9
+```
+## 5.8 For Loop in Another Way
+```flex
+karr l7d 10 {etb3("hello 10 times")} //automatically be initiated by 0
+```
+**Output:**
+```
+hello 10 times
+hello 10 times
+hello 10 times
+hello 10 times
+hello 10 times
+hello 10 times
+hello 10 times
+hello 10 times
+hello 10 times
+hello 10 times
+```
+## 5.9 For Loop in Another Way
+```flex
+n=15
+for (int i=5; i <= n; i++) {etb3("hello {i}")}
+```
+**Output:**
+```
+
+```
+---
+
+# 6. Functions
+
+## 6.1 Defining and Calling Functions
+```flex
+sndo2 add(rakm a, rakm b) {
+    rg3 a + b
+}
+
+rakm result = add(3, 7)
+etb3("Result: {result}")
+```
+**Output:**
+```
+Result: 10
+```
+
+## 6.2 Functions in Antoher Way
+```flex
+fun add(rakm a, rakm b) {
+    rg3 a + b
+}
+
+rakm result = add(3, 7)
+etb3("Result: {result}")
+```
+**Output:**
+```
+Result: 10
+```
+
+## 6.3 Functions and Return in Antoher Way
+```flex
+sando2 add(rakm a, rakm b) {
+    rg3 a + b
+}
+
+rakm result = add(3, 7)
+etb3("Result: {result}")
+```
+**Output:**
+```
+Result: 10
+```
+
+## 6.4 Functions and Return in Antoher Way
+```flex
+fn add(rakm a, rakm b) {
+    return a + b
+}
+
+rakm result = add(3, 7)
+etb3("Result: {result}")
+```
+**Output:**
+```
+Result: 10
+```
+## 6.5 Functions and Return in Antoher Way
+```flex
+function add(rakm a, rakm b) {
+    rg3 (-1) * a + b
+}
+
+rakm result = add(3, 7)
+etb3("Result: {result}")
+```
+**Output:**
+```
+Result: 4
+```
+
+---
+
+# 7. List Operations
+
+## 7.1 List Operations
+```flex
+dorg myList = [1, 2, 3]
+myList.push(4)
+etb3(myList)
+myList.pop()
+etb3(myList)
+```
+**Output:**
+```
+[1, 2, 3, 4]
+[1, 2, 3]
+```
+
+## 7.2 List in Another Way
+```flex
+list myList = [1, 2, 3]
+myList.push(4)
+etb3(myList)
+myList.pop()
+etb3(myList)
+```
+**Output:**
+```
+[1, 2, 3, 4]
+[1, 2, 3]
+```
+
+---
+
+# 8. import Operations
+
+## 8.1 geeb Operations
+```flex
+sando2 absolute(rakm a){
+    lw a < 0 {
+        x = a * (-1)
+        rg3 x
+    }
+    gher{ rg3 a}
+}
+```
+
+```
+geeb "path to the .lx file "
+x= -400
+postive = absolute(x)
+etb3("{x} after absolute is {postive}")
+```
+**Output:**
+```
+-400 after absolute is 400
+```
+
+## 8.2 geep Operations
+```flex
+sando2 absolute(rakm a){
+    lw a < 0 {
+        x = a * (-1)
+        rg3 x
+    }
+    gher{ rg3 a}
+}
+```
+
+```
+geep "path to the .lx file "
+x= -400
+postive = absolute(x)
+etb3("{x} after absolute is {postive}")
+```
+**Output:**
+```
+-400 after absolute is 400
+```
+
+## 8.3 import Operations
+```flex
+sando2 absolute(rakm a){
+    lw a < 0 {
+        x = a * (-1)
+        rg3 x
+    }
+    gher{ rg3 a}
+}
+```
+
+```
+import "path to the .lx file "
+x= -400
+postive = absolute(x)
+etb3("{x} after absolute is {postive}")
+```
+**Output:**
+```
+-400 after absolute is 400
+```
+
+---
+
+
+# 9. List Operations
+
+## 9.1 Dorg Operation
+```flex
+# Define a list
+dorg arrr = [-1, 2, -3, 4, 99]  
+
+# Access elements by index and perform operations
+rakm num = 4
+etb3(arrr[num] + arrr[num])  # 99 + 99 = 198
+
+# Finding the length of a list
+rakm y = length(arrr)  
+lw length(arrr) < 3 {
+    etb3("List is too short!")
+}
+etb3(y)
+
+# Creating and modifying lists
+dorg xx = [6, 2, 3, 4]
+etb3(xx)  # Print the initial list
+
+# Adding elements
+xx.push(23)  # Equivalent to push
+xx.push("worddd")
+etb3(xx)  # Print list after additions
+
+# Removing elements
+xx.pop()  # Removes the last element (pop)
+etb3(xx)  
+
+xx.remove(3)  # Removes the value 3 from the list
+etb3(xx)
+```
+
+**Output:**
+```
+198
+5
+[6, 2, 3, 4]
+[6, 2, 3, 4, 23, 'worddd']
+[6, 2, 3, 4, 23]
+[6, 2, 4, 23]
+```
+
+## 9.2 List Operation
+```flex
+
+# Creating and modifying lists
+dorg xx = [6, 2, 3, 4]
+etb3(xx)  # Print the initial list
+
+# Merging lists & performing calculations
+dorg qq = [12, 22, 34]
+etb3("x0+q1={xx[0] + qq[1]}")  # Print formatted string with calculation
+etb3(xx[0] + qq[1])  # Sum of first element of xx and second of qq
+
+# Arithmetic operations with list elements
+rakm no = xx[0] * xx[1]
+rakm ew = xx[0] * xx[1]
+etb3(no - ew)  # Should print 0
+etb3("no is {no}")
+
+# Conditional check with list values
+lw xx[0] < xx[1] {
+    etb3("xo is smaller")
+}
+
+```
+
+
+**Output:**
+```
+[6, 2, 3, 4]
+x0+q1=28
+28
+0
+no is 12
+```
+
+---
+
+# 10. break Operation
+
+## 10.1 w2f Operation
+```flex
+rakm i = 0
+talama i < 10 {
+    etb3(i)
+    lw i == 4 {
+        w2f
+    }
+    i++
+}
+
+```
+**Output:**
+```
+0
+1
+2
+3
+4
+```
+
+## 10.2 break in Another Way
+```flex
+rakm i = 0
+talama i < 10 {
+    etb3(i)
+    lw i == 4 {
+        break
+    }
+    i++
+}
+```
+**Output:**
+```
+0
+1
+2
+3
+4
+```
+## 10.3 stop in Another Way
+```flex
+rakm i = 0
+talama i < 10 {
+    etb3(i)
+    lw i == 4 {
+        stop
+    }
+    i++
+}
+```
+**Output:**
+```
+0
+1
+2
+3
+4
+```
+
+---
+
+# 11. More Advanced Examples
+```flex
+sndo2 multiply(rakm a, rakm b) {
+    rg3 a * b
+}
+
+rakm x = 5
+rakm y = 6
+print("{x} x {y} = {multiply(x, y)}")
+```
+**Output:**
+```
+5 x 6 = 30
+```
+
+---
+
+# Conclusion
+
+Congratulations! You have now learned the basics of **Flex** mixed with **Python and C**! 🚀 This guide covered:
+- **Variables and Data Types**
+- **Input and Output**
+- **Conditional Statements**
+- **Loops and Iterations**
+- **Functions and Error Handling**
+- **Advanced Features (Lists, Nested Loops, Mixed Syntax, etc.)**
+
+Feel free to experiment with **Flex** and create your own programs!
+
+---
