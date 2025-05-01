@@ -202,7 +202,7 @@ def handle_function_scope(value, line_number, line_content, AI,func):
         evaluated_value = evaluate_expression(value, line_number, line_content, AI,func)
         # Use eval if it's a string expression
         if isinstance(evaluated_value, str):
-            return eval(evaluated_value, {}, {k: v[0] for k, v in gv.variables.items()})
+            return eval(evaluated_value, {}, {k: v[0] for k, v in gv.variablesFunc.items()})
         else:
             return evaluated_value
         # return eval(value, {}, {k: v[0] for k, v in gv.variablesFunc.items()})
