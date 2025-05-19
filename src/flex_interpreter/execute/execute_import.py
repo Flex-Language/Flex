@@ -8,7 +8,7 @@ import flex_interpreter.glopal_vars as gv
 from flex_interpreter import execution   
 from flex_AI.useModel import *
 
-def execute_import(statement, AI, statements, import_list):
+def execute_import(statement, AI, statements, import_list, model_name=None):
     """
     Execute an import statement to include code from a file or all valid files from a folder and its subfolders.
     Handles .lx and .txt files when a folder is provided.
@@ -55,7 +55,7 @@ def execute_import(statement, AI, statements, import_list):
 
     # Execute all statements after importing
     # print(all_statements)
-    execution.run(all_statements, AI, gv.web, insideFunc=False)
+    execution.run(all_statements, AI, gv.web, insideFunc=False, model_name=model_name)
     sys.exit()  # Exit to prevent re-execution
 
 

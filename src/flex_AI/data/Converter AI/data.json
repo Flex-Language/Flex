@@ -1,0 +1,340 @@
+{
+  "languageName": "Flex",
+  "description": "A flexible programming language designed to support multiple syntax styles, including Franko Arabic, English, and other common programming syntax conventions.",
+  "features": [
+    "Support for multiple syntaxes (Franko Arabic, English, C-style)",
+    "Regular expressions (regex) for efficient tokenization",
+    "No semicolons required at end of lines",
+    "Control flow structures (if-else, loops, functions)",
+    "Variable declarations with intuitive keywords",
+    "Built-in functions for input and output",
+    "Blocks enclosed within {}",
+    "Automatic type detection"
+  ],
+  "tokenDefinitions": [
+    {
+      "name": "FUN",
+      "regex": "\\b(?:fun|sndo2)\\b",
+      "description": "Function keyword"
+    },
+    {
+      "name": "ADD",
+      "regex": "(.append|.push)",
+      "description": "Add element to list"
+    },
+    {
+      "name": "POP",
+      "regex": "(.pop)",
+      "description": "Remove last element from list"
+    },
+    {
+      "name": "REMOVE",
+      "regex": "(.remove|.delete)",
+      "description": "Remove specific element from list"
+    },
+    {
+      "name": "SCAN",
+      "regex": "\\b(scan|read|input|da5l)\\b",
+      "description": "Input function"
+    },
+    { "name": "IF", "regex": "(if|cond)", "description": "If statement" },
+    {
+      "name": "LW",
+      "regex": "(\\blw\\b)",
+      "description": "If statement (Arabic)"
+    },
+    { "name": "ELIF", "regex": "(elif)", "description": "Else if statement" },
+    {
+      "name": "AW",
+      "regex": "(\\baw\\b)",
+      "description": "Else if statement (Arabic)"
+    },
+    {
+      "name": "ELSE",
+      "regex": "(else|otherwise|gher)",
+      "description": "Else statement"
+    },
+    {
+      "name": "PRINT",
+      "regex": "(etb3|out|output|print|printf|cout)",
+      "description": "Print statement"
+    },
+    { "name": "WHILE", "regex": "(while|loop)", "description": "While loop" },
+    {
+      "name": "TALAMA",
+      "regex": "(talama)",
+      "description": "While loop (Arabic)"
+    },
+    { "name": "FOR", "regex": "for", "description": "For loop" },
+    {
+      "name": "REPEAT",
+      "regex": "(\\bkarr\\b)",
+      "description": "Repeat loop (Arabic)"
+    },
+    {
+      "name": "UNTILL",
+      "regex": "(\\bl7d\\b)",
+      "description": "Until condition for loop (Arabic)"
+    },
+    {
+      "name": "BREAK",
+      "regex": "(break|stop|w2f)",
+      "description": "Break statement"
+    },
+    {
+      "name": "RETURN",
+      "regex": "\\b(?:return|rg3)\\b",
+      "description": "Return statement"
+    },
+    {
+      "name": "LIST",
+      "regex": "\\b(?:list|dorg)\\b",
+      "description": "List keyword"
+    },
+    {
+      "name": "INT",
+      "regex": "\\b(?:int|rakm)\\b",
+      "description": "Integer type"
+    },
+    {
+      "name": "FLOAT",
+      "regex": "\\b(?:float|kasr)\\b",
+      "description": "Float type"
+    },
+    {
+      "name": "BOOL",
+      "regex": "\\b(?:bool|so2al)\\b",
+      "description": "Boolean type"
+    },
+    {
+      "name": "STR",
+      "regex": "\\b(?:string|klma)\\b",
+      "description": "String type"
+    }
+  ],
+  "dataTypes": [
+    {
+      "name": "Integer",
+      "keywords": ["int", "rakm"],
+      "examples": [
+        {
+          "code": "rakm x = 10\nint y = 5\nrakm z=2, m=1, n=0\netb3(\"{x} and {y}\")\netb3(\"count down {z} {m} {n}\")",
+          "output": "10 and 5\ncount down 2 1 0"
+        }
+      ]
+    },
+    {
+      "name": "Float",
+      "keywords": ["float", "kasr"],
+      "examples": [
+        {
+          "code": "kasr pi = 3.14\nfloat radius = 3\netb3(\"Value of pi is {pi} and the radius value is {radius}\")",
+          "output": "Value of pi is 3.14 and the radius value is 3.0"
+        }
+      ]
+    },
+    {
+      "name": "Boolean",
+      "keywords": ["bool", "so2al"],
+      "examples": [
+        {
+          "code": "isActive = true\nbool isComplete = false\netb3(\"Active: {isActive}, Complete: {isComplete}\")",
+          "output": "Active: True, Complete: False"
+        }
+      ]
+    },
+    {
+      "name": "String",
+      "keywords": ["string", "klma"],
+      "examples": [
+        {
+          "code": "klma message = \"Welcome to Flex!\"\nstring letter = \"Welcome to the world!\"\netb3(message)\netb3(letter)",
+          "output": "Welcome to Flex!\nWelcome to the world!"
+        }
+      ]
+    },
+    {
+      "name": "List",
+      "keywords": ["list", "dorg"],
+      "examples": [
+        {
+          "code": "dorg myList = [1, 2.3, \"hello\", true]\nlist alist = [15,3,26,1000]\netb3(myList)\netb3(alist)",
+          "output": "[1, 2.3, 'hello', True]\n[15, 3, 26, 1000]"
+        }
+      ],
+      "operations": [
+        {
+          "name": "Add element",
+          "syntax": "listName.push(element) or listName.append(element)",
+          "example": "xx.push(23)"
+        },
+        {
+          "name": "Remove last element",
+          "syntax": "listName.pop()",
+          "example": "xx.pop()"
+        },
+        {
+          "name": "Remove specific element",
+          "syntax": "listName.remove(element) or listName.delete(element)",
+          "example": "xx.remove(3)"
+        }
+      ]
+    }
+  ],
+  "controlFlow": [
+    {
+      "name": "If Statement",
+      "keywords": ["if", "cond", "lw"],
+      "examples": [
+        {
+          "code": "x = 5\nlw x < 10 {\n    etb3(\"x is less than 10\")\n}",
+          "output": "x is less than 10"
+        },
+        {
+          "code": "if (x == 6) {\n    print(\"x equals 6\")\n}",
+          "output": ""
+        }
+      ]
+    },
+    {
+      "name": "If-Else Statement",
+      "keywords": ["if", "else", "lw", "gher"],
+      "examples": [
+        {
+          "code": "x = 3\nlw x > 5 {\n    etb3(\"x is greater than 5\")\n} gher {\n    etb3(\"x is not greater than 5\")\n}",
+          "output": "x is not greater than 5"
+        }
+      ]
+    },
+    {
+      "name": "If-Elif-Else Statement",
+      "keywords": ["if", "elif", "else", "lw", "aw", "gher"],
+      "examples": [
+        {
+          "code": "x = 5\ny = 3\nlw x < 3 {\n    etb3(\"x is less than 3\")\n} aw y > 4 {\n    etb3(\"y is greater than 4\")\n} gher {\n    etb3(\"None of the conditions are met\")\n}",
+          "output": "None of the conditions are met"
+        }
+      ]
+    },
+    {
+      "name": "For Loop",
+      "keywords": ["for"],
+      "examples": [
+        {
+          "code": "for(i=0; i<5; i++) {\n    etb3(\"i is {i}\")\n}",
+          "output": "i is 0\ni is 1\ni is 2\ni is 3\ni is 4"
+        }
+      ]
+    },
+    {
+      "name": "While Loop",
+      "keywords": ["while", "loop", "talama"],
+      "examples": [
+        {
+          "code": "q = 0\ntalama q < 5 {\n    etb3(\"q is {q}\")\n    q++\n}",
+          "output": "q is 0\nq is 1\nq is 2\nq is 3\nq is 4"
+        }
+      ]
+    },
+    {
+      "name": "Repeat Loop",
+      "keywords": ["karr", "l7d"],
+      "examples": [
+        {
+          "code": "karr x l7d 3 {\n    etb3(\"x is {x}\")\n    x++\n}",
+          "output": "x is 0\nx is 1\nx is 2"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "definition": {
+      "keywords": ["fun", "sndo2"],
+      "examples": [
+        {
+          "code": "fun add(int x, int y) {\n    return x + y\n}\nresult = add(5, 10)\netb3(result)",
+          "output": "15"
+        }
+      ]
+    },
+    "inputOutput": {
+      "input": {
+        "keywords": ["scan", "read", "input", "da5l"],
+        "examples": [
+          {
+            "code": "etb3(\"Enter your name:\")\nname = scan()\netb3(\"Hello, {name}!\")",
+            "description": "Takes user input and assigns it to the variable 'name'"
+          }
+        ]
+      },
+      "output": {
+        "keywords": ["etb3", "out", "output", "print", "printf", "cout"],
+        "examples": [
+          {
+            "code": "x = 10\netb3(\"The value of x is {x}\")",
+            "output": "The value of x is 10"
+          }
+        ]
+      }
+    }
+  },
+  "operators": {
+    "arithmetic": [
+      { "symbol": "+", "description": "Addition" },
+      { "symbol": "-", "description": "Subtraction" },
+      { "symbol": "*", "description": "Multiplication" },
+      { "symbol": "/", "description": "Division" },
+      { "symbol": "++", "description": "Increment" },
+      { "symbol": "--", "description": "Decrement" }
+    ],
+    "comparison": [
+      { "symbol": "==", "description": "Equal to" },
+      { "symbol": "!=", "description": "Not equal to" },
+      { "symbol": ">", "description": "Greater than" },
+      { "symbol": "<", "description": "Less than" },
+      { "symbol": ">=", "description": "Greater than or equal to" },
+      { "symbol": "<=", "description": "Less than or equal to" }
+    ],
+    "logical": [
+      { "keyword": "and", "description": "Logical AND" },
+      { "keyword": "or", "description": "Logical OR" },
+      { "keyword": "not", "description": "Logical NOT" }
+    ]
+  },
+  "comments": {
+    "singleLine": [
+      { "symbol": "#", "example": "# This is a comment" },
+      { "symbol": "//", "example": "// This is a comment" }
+    ],
+    "multiLine": [
+      {
+        "opening": "'''",
+        "closing": "'''",
+        "example": "'''This is a\nmulti-line comment'''"
+      },
+      {
+        "opening": "/*",
+        "closing": "*/",
+        "example": "/*This is a\nmulti-line comment*/"
+      }
+    ]
+  },
+  "examples": {
+    "simpleProgram": {
+      "code": "x = 5\ny = 10\nsum = x + y\netb3(\"The sum of {x} and {y} is {sum}\")",
+      "output": "The sum of 5 and 10 is 15"
+    },
+    "conditionalExample": {
+      "code": "x = 10\nlw x > 5 {\n    etb3(\"x is greater than 5\")\n} aw x < 5 {\n    etb3(\"x is less than 5\")\n} gher {\n    etb3(\"x is equal to 5\")\n}",
+      "output": "x is greater than 5"
+    },
+    "listExample": {
+      "code": "list numbers = [1, 2, 3, 4, 5]\nnumbers.push(6)\netb3(numbers)\nnumbers.pop()\netb3(numbers)\nnumbers.remove(3)\netb3(numbers)",
+      "output": "[1, 2, 3, 4, 5, 6]\n[1, 2, 3, 4, 5]\n[1, 2, 4, 5]"
+    },
+    "functionExample": {
+      "code": "fun factorial(int n) {\n    lw n <= 1 {\n        return 1\n    }\n    return n * factorial(n-1)\n}\nresult = factorial(5)\netb3(\"Factorial of 5 is {result}\")",
+      "output": "Factorial of 5 is 120"
+    }
+  }
+}
