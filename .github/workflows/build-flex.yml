@@ -35,11 +35,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install ply==3.11
-        # Force reinstall PyInstaller to avoid module import issues
+        # Force reinstall all dependencies to avoid module import issues
+        pip install --force-reinstall --no-cache-dir ipaddress
         pip uninstall -y PyInstaller
         pip install --no-cache-dir pyinstaller==5.13.0
         pip install requests>=2.0.0
-        pip install ipaddress
         # Verify installed packages
         pip list
         # Ensure all modules can be imported
@@ -88,7 +88,7 @@ jobs:
                 ('flex_parser', 'flex_parser'),
                 ('flex_tokenizer', 'flex_tokenizer')
             ],
-            hiddenimports=['ipaddress', 'PyInstaller.loader.pyimod01_archive', 'PyInstaller.loader.pyimod02_importers', 'PyInstaller.loader.pyimod03_ctypes'],
+            hiddenimports=['ipaddress', 'PyInstaller.loader', 'PyInstaller.loader.pyimod01_archive', 'PyInstaller.loader.pyimod02_importers', 'PyInstaller.loader.pyimod03_ctypes', 'PyInstaller.loader.pyiboot01_bootstrap'],
             hookspath=[],
             hooksconfig={},
             runtime_hooks=[],
@@ -123,8 +123,8 @@ jobs:
         )
         EOF
         
-        # Run PyInstaller using the spec file
-        pyinstaller --clean main.spec
+        # Run PyInstaller using the spec file with verbose debugging
+        pyinstaller --clean --log-level=DEBUG main.spec
         
     - name: Build with PyInstaller for Windows
       if: matrix.os == 'windows-latest'
@@ -145,7 +145,7 @@ jobs:
         @echo         ('flex_parser', 'flex_parser'), >> main.spec
         @echo         ('flex_tokenizer', 'flex_tokenizer') >> main.spec
         @echo     ], >> main.spec
-        @echo     hiddenimports=['ipaddress', 'PyInstaller.loader.pyimod01_archive', 'PyInstaller.loader.pyimod02_importers', 'PyInstaller.loader.pyimod03_ctypes'], >> main.spec
+        @echo     hiddenimports=['ipaddress', 'PyInstaller.loader', 'PyInstaller.loader.pyimod01_archive', 'PyInstaller.loader.pyimod02_importers', 'PyInstaller.loader.pyimod03_ctypes', 'PyInstaller.loader.pyiboot01_bootstrap'], >> main.spec
         @echo     hookspath=[], >> main.spec
         @echo     hooksconfig={}, >> main.spec
         @echo     runtime_hooks=[], >> main.spec
@@ -179,7 +179,7 @@ jobs:
         @echo     entitlements_file=None, >> main.spec
         @echo ) >> main.spec
         
-        pyinstaller --clean main.spec
+        pyinstaller --clean --log-level=DEBUG main.spec
           
     # Create Windows Installer
     - name: Create Windows Installer
