@@ -794,3 +794,4 @@ EOF
             release/flex-macos-installer.pkg
             release/flex-linux-installer.tar.gz
           generate_release_notes: false 
+
