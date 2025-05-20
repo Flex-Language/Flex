@@ -1,55 +1,123 @@
-# from openai import OpenAI
-# import json
+import requests
+import json
+import os
+import sys
 
-# # Initialize OpenAI client
-# client = OpenAI()
+# Function to use OpenRouter API
+def use_openrouter(prompt, model_name=None, api_key=None):
+    """
+    Use OpenRouter API to get a response from the specified model.
+    
+    Args:
+        prompt (str): The prompt to send to the model
+        model_name (str): The name of the OpenRouter model to use
+        api_key (str): The OpenRouter API key
+        
+    Returns:
+        str: The model's response
+    """
+    # Check if API key is provided or try to get from environment
+    if not api_key:
+        api_key = os.environ.get('OPENROUTER_API_KEY')
+        if not api_key:
+            error_message = "OpenRouter API key not found. Please set the OPENROUTER_API_KEY environment variable."
+            print(f"\033[91m{error_message}\033[0m")  # red
+            sys.exit(1)
+    
+    # Set default model if none provided
+    if not model_name:
+        model_name = "openai/gpt-4.1-mini"  # Default model
+    
+    # API endpoint
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    
+    # Headers
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://flex-language.org",  # Replace with your actual site
+        "X-Title": "Flex Language"  # Replace with your application name
+    }
+    
+    # Request payload
+    payload = {
+        "model": model_name,
+        "messages": [
+            {"role": "user", "content": prompt}
+        ]
+    }
+    
+    try:
+        # Make the API request
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()  # Raise exception for HTTP errors
+        
+        # Parse the response
+        result = response.json()
+        
+        # Extract and return the model's response
+        if 'choices' in result and len(result['choices']) > 0:
+            message = result['choices'][0]['message']['content']
+            return message
+        else:
+            error_message = f"Unexpected response format from OpenRouter: {result}"
+            print(f"\033[91m{error_message}\033[0m")  # red
+            return f"Error: {error_message}"
+            
+    except requests.exceptions.RequestException as e:
+        error_message = f"Error connecting to OpenRouter API: {str(e)}"
+        print(f"\033[91m{error_message}\033[0m")  # red
+        return f"Error: {error_message}"
+    except json.JSONDecodeError:
+        error_message = "Error parsing response from OpenRouter API"
+        print(f"\033[91m{error_message}\033[0m")  # red
+        return f"Error: {error_message}"
+    except Exception as e:
+        error_message = f"Unexpected error: {str(e)}"
+        print(f"\033[91m{error_message}\033[0m")  # red
+        return f"Error: {error_message}"
 
-# # Function to load IDs from a file
-
-# assistant_id = "asst_3i5D8GsOpJrIAMyBChDmgoDK"
-# #asst_3i5D8GsOpJrIAMyBChDmgoDK
-# #asst_sm2mmHPOVtkkPTRbVyjMT3ev # first one
-
-# # Function to interact with the assistant
-# def ask_assistant(prompt):
-#     # Create a thread and attach the file to the message
-#     thread = client.beta.threads.create(
-#         messages=[
-#             {
-#                 "role": "user",
-#                 "content": prompt,
-#                 "attachments": [],
-#             }
-#         ]
-#     )
-
-#     # Use the create and poll SDK helper to create a run and poll the status of the run until it's in a terminal state.
-#     run = client.beta.threads.runs.create_and_poll(
-#         thread_id=thread.id, assistant_id=assistant_id
-#     )
-
-#     messages = list(client.beta.threads.messages.list(thread_id=thread.id, run_id=run.id))
-
-#     message_content = messages[0].content[0].text
-#     annotations = message_content.annotations
-#     citations = []
-#     for index, annotation in enumerate(annotations):
-#         message_content.value = message_content.value.replace(annotation.text, f"[{index}]")
-#         if file_citation := getattr(annotation, "file_citation", None):
-#             cited_file = client.files.retrieve(file_citation.file_id)
-#             citations.append(f"[{index}] {cited_file.filename}")
-
-#     print("\033[92m"+ message_content.value +"\033[0m")
-#     #print("\n".join(citations))
+# Function to interact with the assistant (legacy OpenAI version)
+def ask_assistant(prompt, model_name=None):
+    """
+    Process the prompt using either OpenAI (legacy) or OpenRouter based on model_name.
+    
+    Args:
+        prompt (str): The prompt to send to the model
+        model_name (str, optional): If provided, uses OpenRouter with this model
+        
+    Returns:
+        None: Prints the response to console
+    """
+    if model_name:
+        # Use OpenRouter with the specified model
+        response = use_openrouter(prompt, model_name)
+        print(f"\033[92m{response}\033[0m")  # green
+    else:
+        # Legacy OpenAI implementation would go here
+        # For now, we'll just use OpenRouter with a default model
+        response = use_openrouter(prompt)
+        print(f"\033[92m{response}\033[0m")  # green
 
 
 
-
-def handle_error(error_message, AI):
+def handle_error(error_message, AI, model_name=None):
     """Handles errors based on the AI flag."""
     if (AI == True):
         print("\033[91m"+ error_message +"\033[0m")  # red
-        # ask_assistant(error_message)
+        
+        # Import here to avoid circular imports
+        import flex_interpreter.glopal_vars as gv
+        
+        # Use model_name parameter if provided, otherwise use global model_name
+        if model_name:
+            ask_assistant(error_message, model_name)
+        elif gv.model_name:
+            ask_assistant(error_message, gv.model_name)
+        else:
+            # Use default model if no specific model is provided
+            ask_assistant(error_message)
+            
         raise SyntaxError("\033[92m"+ "Flex AI :)" +"\033[0m") # green
     else:
         raise SyntaxError("\033[91m"+ error_message +"\033[0m") # red

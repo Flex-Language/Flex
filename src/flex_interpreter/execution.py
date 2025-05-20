@@ -8,7 +8,7 @@ from flex_interpreter.execute.execute_variable_declaration import execute_var_de
 from flex_interpreter.execute.execute_print import execute_print
 from flex_interpreter.execute.execute_import import execute_import
 
-def run(statements,AI,WEB,insideFunc=False,insideLoop=False,forLoopLocal=False,import_list=None):
+def run(statements, AI, WEB, insideFunc=False, insideLoop=False, forLoopLocal=False, import_list=None, model_name=None):
     
     skip_next = False  # To track if we need to skip the next statement
     if_first=False
@@ -20,6 +20,9 @@ def run(statements,AI,WEB,insideFunc=False,insideLoop=False,forLoopLocal=False,i
         gv.web = True
     else:
         gv.web = False
+        
+    # Set the global model_name variable
+    gv.model_name = model_name
     
     for statement in statements:
         
