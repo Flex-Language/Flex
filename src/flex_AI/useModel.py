@@ -3,6 +3,43 @@ import json
 import os
 import sys
 
+# Get the current directory path for relative file access
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Load flex example files
+def load_flex_examples():
+    """
+    Load all example files from the data directories.
+    Returns a string containing all the content concatenated.
+    """
+    examples = []
+    
+    # Define paths to individual example files
+    ammar_data_dir = os.path.join(current_dir, "data", "ammar_data")
+    example_files = [
+        # os.path.join(ammar_data_dir, "all_loops.lx"),
+        # os.path.join(ammar_data_dir, "print.lx"),
+        # os.path.join(ammar_data_dir, "conditions.lx"),
+        # os.path.join(ammar_data_dir, "functions.lx"),
+        # os.path.join(ammar_data_dir, "user_input.lx"),
+        # os.path.join(ammar_data_dir, "var_declaration.lx")
+        os.path.join(ammar_data_dir, "total.txt")
+    ]
+    
+    # Read each file and add its content to examples
+    for file_path in example_files:
+        try:
+            with open(file_path, 'r') as file:
+                examples.append(file.read())
+        except FileNotFoundError:
+            print(f"\033[93mWarning: Could not find example file {file_path}\033[0m")  # yellow warning
+    
+    # Return concatenated content
+    return "\n\n".join(examples)
+
+# Load the flex examples when module is imported
+flex_data = load_flex_examples()
+
 # Function to use OpenRouter API
 def use_openrouter(prompt, model_name=None, api_key=None):
     """
@@ -39,10 +76,11 @@ def use_openrouter(prompt, model_name=None, api_key=None):
         "X-Title": "Flex Language"  # Replace with your application name
     }
     
-    # Request payload
+    # Request payload with system prompt containing Flex language examples
     payload = {
         "model": model_name,
         "messages": [
+            {"role": "system", "content": "You are an assistant for the Flex programming language. Here are examples of Flex code to help you understand the language syntax and features:\n\n" + flex_data},
             {"role": "user", "content": prompt}
         ]
     }

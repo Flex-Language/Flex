@@ -1,0 +1,104 @@
+fun no_params()// no parameters
+{    
+    print("no parameters in this function")
+    return 3
+}
+sndo2 franco() { // identical to the English function, only name diffrences
+    
+    rg3 4
+}
+fun one_param(string a)// one parameter
+{
+    etb3("the passed argument is: {a}")
+}
+fun two_params(int a, b)// two parameters, the second one is not typed
+{
+    print("the passed arguments are: {a} and {b}")
+}
+fun params_no_type(a, b,c,d)// no types
+{
+    print("the passed arguments are: {a} and {b} and {c} and {d}")
+}
+x=no_params()
+// return stored in x
+print("x is {x}")
+no_params()
+// in that case, the function is called. it will run normally
+// but the return value is not used
+string y=no_params() // error here as the return value is not a string
+one_param("hello") // one argument
+one_param("hello", "world") // error here as the function only takes one argument
+one_param() // error here as the function requires one argument
+one_param(1) // error here as the function requires a string argument
+bottom() // although the function is defined, the interpreter can't see it since we follow a line by line basis
+
+
+fun bottom()// no parameters
+{
+    print("this is the bottom function")
+}
+bottom() // now the interpreter can see it, we can call it
+a=35
+b="hello"
+two_params(a, b) // two arguments 
+c=33.5
+two_params(a, c) // two arguments, 2nd could be any type
+list arr=[1,2,3,4,["dnnf",1.3,2],5,6]
+params_no_type(arr, 3.8, true, 4) // four arguments any type even list inside list 
+// ---------------------------------------------------------------------------------
+// what happens if variables are declared inside functions?
+// even with identical names to variables in the program?
+// ---------------------------------------------------------------------------------
+fun test_var(float q)
+{
+    int var=5 // this var is local to the function
+    q=q+12 // this q is also local to the function
+    var=var+46
+    print("var of the function is {var} and q of the function is {q}")
+}
+
+int var=10 // this a is global to the program
+float q=3.5 // this q is global to the program
+test_var(q) // this will print var=51 and q=15.5
+print("var of the program is {var} and q of the program is {q}") // this will print 10 and 3.5
+// ---------------------------------------------------------------------------------
+// we can do anything we want inside a function
+// --------------------------------------------------------------------------------
+fun cond_and_loops(int num,int times){
+    if (num> 0){
+      print("num is positive")
+    }
+    elif (num<0){
+      print("num is negative")
+    }
+    else{
+      print("num is zero")
+    }
+    print("num {num} will be printed {times} times")
+    for (int i=0; i < times; i++) {
+       print("{num}: {i+1}") 
+    }
+    karr i=0 l7d 5 {
+        print("karr works too")
+    }
+}
+cond_and_loops(3, 5) // this will print num is positive and then 3:0, 3:1, 3:2, 3:3, 3:4
+
+// A BUILT IN FUNCTION
+// this function is built in, it will return the length of a string
+string s="hello"
+print(length(s)) // this will print 5
+
+// ANOTHER IMPORTANT CASE, REALLY USEFUL FOR IMPORTS
+fun same_name(int a1,a2){
+    print("2 param version")
+}
+fun same_name(){
+    print("no param version")
+}
+// both will be called without issues
+
+
+same_name(1,5)
+same_name()
+same_name(1,5,6) // error here as the function only takes 2 or 0 arguments

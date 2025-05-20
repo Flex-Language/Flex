@@ -1,5 +1,4 @@
 // Test script for OpenRouter integration
-print("Testing OpenRouter integration");
-
+print("Testing OpenRouter integration")
 // Intentional error to trigger AI assistance
-var x = undefinedVariable;
+var x = undefinedVariable

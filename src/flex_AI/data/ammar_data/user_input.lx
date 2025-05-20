@@ -1,0 +1,21 @@
+print("scan without type")
+x=scan()
+// if the input is a number
+// it will be stored as a number (int or float)
+// otherwise, it will be stored as a string
+// if you press enter without typing anything, error
+y=x+5
+print("x is {x}")
+print("y is {y}")
+
+// however, if we want to force the type
+// we declare the variable type
+// here, a string for example will not work
+print("scan with type")
+int z=scan()
+print(z)
+
+// FRANCO SCAN
+franco= da5l()
+etb3("franco is {franco}")
+// no difference between scan and franco, just the name
