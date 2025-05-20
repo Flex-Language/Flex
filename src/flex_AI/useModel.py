@@ -18,12 +18,6 @@ def load_flex_examples():
     compiler_data_dir = os.path.join(current_dir, "data", "Compiler_AI")
     ammar_data_dir = os.path.join(current_dir, "data", "ammar_data")
     example_files = [
-        # os.path.join(ammar_data_dir, "all_loops.lx"),
-        # os.path.join(ammar_data_dir, "print.lx"),
-        # os.path.join(ammar_data_dir, "conditions.lx"),
-        # os.path.join(ammar_data_dir, "functions.lx"),
-        # os.path.join(ammar_data_dir, "user_input.lx"),
-        # os.path.join(ammar_data_dir, "var_declaration.lx")
         os.path.join(compiler_data_dir, "data.txt"),
         os.path.join(ammar_data_dir, "total.txt")
     ]
