@@ -481,121 +481,121 @@ jobs:
         if [ ! -f "$LOADER_DIR/pyimod02_importers.py" ]; then
           echo "Missing pyimod02_importers.py - creating it"
           cat > "$LOADER_DIR/pyimod02_importers.py" << 'EOF'
-"""
-PEP-302 finder and loader for PyInstaller embedding its modules.
-This code is directly imported by the PyInstaller from its bootstrap module.
-"""
+          """
+          PEP-302 finder and loader for PyInstaller embedding its modules.
+          This code is directly imported by the PyInstaller from its bootstrap module.
+          """
 
-import sys
-import os.path
-import marshal
-import pyimod01_archive
-import importlib.abc
-import importlib.machinery
+          import sys
+          import os.path
+          import marshal
+          import pyimod01_archive
+          import importlib.abc
+          import importlib.machinery
 
-class FrozenImporter(importlib.abc.MetaPathFinder, importlib.abc.Loader):
-    """
-    Load modules from an FrozenImporter archive embedded within a binary.
-    """
-    def __init__(self):
-        self._pyz_archive = pyimod01_archive.PYZ_ARCHIVE()
-        self._pyz_prefix = 'pyz-'
-        
-    def find_module(self, fullname, path=None):
-        """
-        Legacy finder interface.
-        """
-        if fullname.startswith(self._pyz_prefix):
-            return None
-        if self._pyz_archive.is_pyz_compressed(fullname):
-            return self
-        return None
-        
-    def find_spec(self, fullname, path=None, target=None):
-        """
-        PEP-451 finder interface.
-        """
-        if fullname.startswith(self._pyz_prefix):
-            return None
-        if self._pyz_archive.is_pyz_compressed(fullname):
-            return importlib.machinery.ModuleSpec(
-                fullname, self, is_package=self._pyz_archive.is_package(fullname))
-        return None
-        
-    def load_module(self, fullname):
-        """
-        Method for Python 3.3 and older.
-        """
-        if fullname in sys.modules:
-            return sys.modules[fullname]
-            
-        code = self.get_code(fullname)
-        if code is None:
-            return None
-            
-        mod = sys.modules.setdefault(fullname, importlib.machinery.SourcelessFileLoader(fullname, "").create_module(importlib.machinery.ModuleSpec(fullname, "")))
-        if mod is None:
-            mod = importlib.machinery.SourcelessFileLoader(fullname, "").create_module(importlib.machinery.ModuleSpec(fullname, ""))
-            
-        mod.__file__ = self.__file(fullname)
-        mod.__loader__ = self
-        if self._pyz_archive.is_package(fullname):
-            mod.__path__ = [fullname.replace('.', os.sep)]
-            mod.__package__ = fullname
-        else:
-            mod.__package__ = fullname.rpartition('.')[0]
-            
-        exec(code, mod.__dict__)
-        return mod
-        
-    def create_module(self, spec):
-        """
-        Method for Python 3.4+
-        """
-        return None
-        
-    def exec_module(self, module):
-        """
-        Method for Python 3.4+
-        """
-        fullname = module.__name__
-        code = self.get_code(fullname)
-        if code:
-            exec(code, module.__dict__)
-            
-    def get_code(self, fullname):
-        """
-        Get the code object associated with the module.
-        """
-        if self._pyz_archive is None:
-            return None
-        return self._pyz_archive.extract(fullname)
-        
-    def get_source(self, fullname):
-        """
-        Method for retrieving source. Not implemented.
-        """
-        return None
-        
-    def get_data(self, path):
-        """
-        Method for retrieving data. Not implemented.
-        """
-        return None
-        
-    def is_package(self, fullname):
-        if self._pyz_archive is None:
-            return False
-        return self._pyz_archive.is_package(fullname)
-        
-    def __file(self, fullname):
-        """
-        Return a dummy file name for a module.
-        """
-        return '<frozen %s>' % fullname
-        
-sys.meta_path.insert(0, FrozenImporter())
-EOF
+          class FrozenImporter(importlib.abc.MetaPathFinder, importlib.abc.Loader):
+              """
+              Load modules from an FrozenImporter archive embedded within a binary.
+              """
+              def __init__(self):
+                  self._pyz_archive = pyimod01_archive.PYZ_ARCHIVE()
+                  self._pyz_prefix = 'pyz-'
+                  
+              def find_module(self, fullname, path=None):
+                  """
+                  Legacy finder interface.
+                  """
+                  if fullname.startswith(self._pyz_prefix):
+                      return None
+                  if self._pyz_archive.is_pyz_compressed(fullname):
+                      return self
+                  return None
+                  
+              def find_spec(self, fullname, path=None, target=None):
+                  """
+                  PEP-451 finder interface.
+                  """
+                  if fullname.startswith(self._pyz_prefix):
+                      return None
+                  if self._pyz_archive.is_pyz_compressed(fullname):
+                      return importlib.machinery.ModuleSpec(
+                          fullname, self, is_package=self._pyz_archive.is_package(fullname))
+                  return None
+                  
+              def load_module(self, fullname):
+                  """
+                  Method for Python 3.3 and older.
+                  """
+                  if fullname in sys.modules:
+                      return sys.modules[fullname]
+                      
+                  code = self.get_code(fullname)
+                  if code is None:
+                      return None
+                      
+                  mod = sys.modules.setdefault(fullname, importlib.machinery.SourcelessFileLoader(fullname, "").create_module(importlib.machinery.ModuleSpec(fullname, "")))
+                  if mod is None:
+                      mod = importlib.machinery.SourcelessFileLoader(fullname, "").create_module(importlib.machinery.ModuleSpec(fullname, ""))
+                      
+                  mod.__file__ = self.__file(fullname)
+                  mod.__loader__ = self
+                  if self._pyz_archive.is_package(fullname):
+                      mod.__path__ = [fullname.replace('.', os.sep)]
+                      mod.__package__ = fullname
+                  else:
+                      mod.__package__ = fullname.rpartition('.')[0]
+                      
+                  exec(code, mod.__dict__)
+                  return mod
+                  
+              def create_module(self, spec):
+                  """
+                  Method for Python 3.4+
+                  """
+                  return None
+                  
+              def exec_module(self, module):
+                  """
+                  Method for Python 3.4+
+                  """
+                  fullname = module.__name__
+                  code = self.get_code(fullname)
+                  if code:
+                      exec(code, module.__dict__)
+                      
+              def get_code(self, fullname):
+                  """
+                  Get the code object associated with the module.
+                  """
+                  if self._pyz_archive is None:
+                      return None
+                  return self._pyz_archive.extract(fullname)
+                  
+              def get_source(self, fullname):
+                  """
+                  Method for retrieving source. Not implemented.
+                  """
+                  return None
+                  
+              def get_data(self, path):
+                  """
+                  Method for retrieving data. Not implemented.
+                  """
+                  return None
+                  
+              def is_package(self, fullname):
+                  if self._pyz_archive is None:
+                      return False
+                  return self._pyz_archive.is_package(fullname)
+                  
+              def __file(self, fullname):
+                  """
+                  Return a dummy file name for a module.
+                  """
+                  return '<frozen %s>' % fullname
+                  
+          sys.meta_path.insert(0, FrozenImporter())
+          EOF
         fi
         
         # Execute the tests for PyInstaller modules again
