@@ -1,0 +1,532 @@
+// ---------------------------------
+// ENGLISH MODE
+// ---------------------------------
+
+// ---------------------------------
+// FOR LOOP
+// ---------------------------------
+print("for loop")
+print("---------------------------------------------")
+for(i=0;i<10;i++){ // basic for loop
+    print("i is {i}")
+}
+for(i=0;i<10;i++){ 
+    print("i is {i}")
+    if (i==5){ // if statement
+        print("will stop the loop")
+        break // break statement to terminate the loop
+    }
+}
+for(i=0;i<10;i++){
+    for(j=0;j<10;j++){ // nested for loop
+        print("i is {i} and j is {j}")
+    }
+}
+for(i=0;i<10;i=i+2){ // can change the increment
+    print("i is {i}") 
+}
+for(i=10;i>2;i--){ // can do decrement too
+    print("i is {i}") 
+    if (i==5){ // if statement
+        print("will stop the loop")
+        break // break statement to terminate the loop
+    }
+}
+for(;;){
+    print("infinite loop. equivalent to while(true)")
+    break // break statement to terminate the loop
+}
+for (i=0;;) {
+    print("this works too. infinite loop")
+    i++
+    if (i==5){
+        break // break statement to terminate the loop
+    }
+}
+//errors can be detected
+for (int x=0; x < 5; u++) { // u is not defined
+    print("will not work, u doesn't exist")
+}
+// ----------------------------------
+// WHILE LOOP (equivalent to for loop, just different syntax)
+// ----------------------------------
+
+int var=0
+while (var<5){ // basic while loop
+    print("var is {var}")
+    var++
+}
+// inside the while loop, you can do anything, just like in a for loop
+var=-5
+print("--------------------------------")
+print("while loop")
+print("--------------------------------")
+
+while (var<10){
+    print("var is {var}")
+    var++
+    if (var==5){ // if statement
+        print("will stop the loop")
+        break // break statement to terminate the loop
+    }
+}
+
+while(1){ // infinite loop
+    print("infinite loop")
+    break // break statement to terminate the loop
+}
+
+d=[1,2,[55,66,77],4]
+while (d[2][0]<60){ // while loop with list
+    print("d[2][0] is {d[2][0]}")
+    d[2][0]++
+}
+
+// ----------------------------------
+// FRANCO MODE 
+// ----------------------------------
+// l7d 4 is equivalent to < 4, no <= here
+print("--------------------------------")
+print("KARR loop")
+print("--------------------------------")
+karr l7d 4 { // very basic karr
+    print("will print 4 times")
+}
+karr u l7d 4 { // karr with variable
+    print("karr with variable")
+}
+// if the variable is defined, we take its number as the initial
+// in the case above, u is undefined, so it will intialize u to 0
+x=5
+karr x l7d 10{ // since x is defined, it will start from 5
+    print("x is {x}")
+}
+// what if we want to start from any number?
+karr x=3 l7d 10{ // we assign any value to out inital variable
+    print("x is {x}")
+}
+// what happens if the intial number is larger?
+karr 5 l7d 0{
+    print("we decrement")
+}
+karr -5 l7d -12{
+    print("will print 7 times")
+}
+// we can do that without variables of we want
+karr 3 l7d 10{ // we assign any value to out inital variable
+    print("no vars here")
+}
+// can also use 2 variables
+// one starting and one ending condition
+x=2
+y=10
+karr x l7d y{
+    print(x)
+}
+// or just the ending condition
+y=13
+karr 10 l7d y{
+    print("will print 3 times since y is 13")
+}
+string s="hello"
+karr l7d length(s){
+    print("can even use fun calls")
+}
+
+list qaz=[1,2,3,4,5,[7,10],11]
+print(qaz[5][0]) // will print 7
+
+karr qaz[5][0]=0 l7d qaz[5][1]{ // we can use the list as a condition
+    print("will print 10 times: {qaz[5][0]+1}")
+}
+//-----------------------------
+// TALAMA LOOP
+//-----------------------------
+// same as while, just no brackets
+
+print("--------------------------------")
+print("KARR loop")
+print("--------------------------------")
+talama 1{
+    print("infinite loop")
+    break
+}
+f=7
+talama f>5 and f <20{
+    print(f)
+    f++
+}
+
+
+// ----------------------------------
+// ---------------------------------
+// ENGLISH MODE
+// ---------------------------------
+// basic if statement
+fun test(){
+    return 8
+}
+x=5
+y=12
+z=[1,3,5,7,["cfbfb",1.4]]
+if(1>0){
+    print("a true case")
+}
+if(0>=2){
+    print("a false case. will not print")
+}
+if (x>0){
+    print("variable inside conditon")
+}
+if (x<=y){
+    print("2 variables compared")
+}
+if (x==5 and y==12){ // AND operator
+    print("x is 5 and y is 12")
+}
+if (x==2 or y==12){ // OR operator
+    print("OR operator. at least one condition is true")
+}
+if (not x==2 and y==10){ // OR operator
+    print("NOT operator. inverses the condition (true becomes false and vice versa)")
+}
+if (z[4][1]==1.4){
+    print("list element inside condition")
+}
+print("basic if statement done")
+//----------------------------------------
+// if elif and else statement
+//----------------------------------------
+
+else{
+    print("can't do that")
+}
+elif (x==5){
+    print("can't do that either")
+}
+else{
+    print("must start with if")
+}
+if (x==5){
+    print("x is 5")
+}
+elif (x==6){
+    print("x is 6")
+}
+elif (x==7){
+    print("x is 7")
+}
+else{
+    print("x is not 5, 6 or 7")
+}
+// once we reach else, the if statement is done
+// therefore we can't add another else or elif
+// if we want a new condition we start with an if
+elif(x==8){
+    print("can't do that")
+}
+y=10
+if (y==5){
+    print("y is 5")
+}
+elif (y==10){
+    print("y is 10")
+}
+elif (y==10){
+    print("will not print. the previous elif is true, so no more checks and the if statement is done")
+}
+else{
+    print("y is not 5, 10 or 15. will print if all conditions are false")
+}
+// However, if we use if instead of elif
+// we will keep checking
+if (y==5){
+    print("y is 5")
+}
+if (y==10){ // new condition
+    print("y is 10")
+}
+if (y==10){ // new condition
+    print("will print, IF starts over")
+}
+if (y==15){ // new condition
+    print("y is 15")
+}
+else{ // will Print because all other conditions are ignored. ELSE is now looking at (y==15)
+    print("y is not 5, 10 or 15. this will print because IF starts a new condition")
+    print("meanwhile ELIF carries over the previous condition untill an ELSE is reached")
+}
+
+if (x==20){
+    print("x is 20")
+}
+else{
+    print("x is not 20")
+}
+// if-else statement
+
+// ---------------------------------
+// FRANCO MODE
+// ---------------------------------
+lw x==5{
+    etb3("x is 5 franco")
+}
+aw x==6{
+    etb3("x is 6 franco")
+}
+aw x==7{
+    print("x is 7") // can use print normally with franco
+}
+gher{
+    etb3("x is not 5, 6 or 7 franco")
+}
+
+lw (x==13){ // error
+    etb3("can't include brackets in franco")
+}
+// ---------------------------------
+// Functions
+// ---------------------------------
+
+fun no_params()// no parameters
+{    
+    print("no parameters in this function")
+    return 3
+}
+sndo2 franco() { // identical to the English function, only name diffrences
+    
+    rg3 4
+}
+fun one_param(string a)// one parameter
+{
+    etb3("the passed argument is: {a}")
+}
+fun two_params(int a, b)// two parameters, the second one is not typed
+{
+    print("the passed arguments are: {a} and {b}")
+}
+fun params_no_type(a, b,c,d)// no types
+{
+    print("the passed arguments are: {a} and {b} and {c} and {d}")
+}
+x=no_params()
+// return stored in x
+print("x is {x}")
+no_params()
+// in that case, the function is called. it will run normally
+// but the return value is not used
+string y=no_params() // error here as the return value is not a string
+one_param("hello") // one argument
+one_param("hello", "world") // error here as the function only takes one argument
+one_param() // error here as the function requires one argument
+one_param(1) // error here as the function requires a string argument
+bottom() // although the function is defined, the interpreter can't see it since we follow a line by line basis
+
+
+fun bottom()// no parameters
+{
+    print("this is the bottom function")
+}
+bottom() // now the interpreter can see it, we can call it
+a=35
+b="hello"
+two_params(a, b) // two arguments 
+c=33.5
+two_params(a, c) // two arguments, 2nd could be any type
+list arr=[1,2,3,4,["dnnf",1.3,2],5,6]
+params_no_type(arr, 3.8, true, 4) // four arguments any type even list inside list 
+// ---------------------------------------------------------------------------------
+// what happens if variables are declared inside functions?
+// even with identical names to variables in the program?
+// ---------------------------------------------------------------------------------
+fun test_var(float q)
+{
+    int var=5 // this var is local to the function
+    q=q+12 // this q is also local to the function
+    var=var+46
+    print("var of the function is {var} and q of the function is {q}")
+}
+
+int var=10 // this a is global to the program
+float q=3.5 // this q is global to the program
+test_var(q) // this will print var=51 and q=15.5
+print("var of the program is {var} and q of the program is {q}") // this will print 10 and 3.5
+// ---------------------------------------------------------------------------------
+// we can do anything we want inside a function
+// --------------------------------------------------------------------------------
+fun cond_and_loops(int num,int times){
+    if (num> 0){
+      print("num is positive")
+    }
+    elif (num<0){
+      print("num is negative")
+    }
+    else{
+      print("num is zero")
+    }
+    print("num {num} will be printed {times} times")
+    for (int i=0; i < times; i++) {
+       print("{num}: {i+1}") 
+    }
+    karr i=0 l7d 5 {
+        print("karr works too")
+    }
+}
+cond_and_loops(3, 5) // this will print num is positive and then 3:0, 3:1, 3:2, 3:3, 3:4
+
+// A BUILT IN FUNCTION
+// this function is built in, it will return the length of a string
+string s="hello"
+print(length(s)) // this will print 5
+
+// ANOTHER IMPORTANT CASE, REALLY USEFUL FOR IMPORTS
+fun same_name(int a1,a2){
+    print("2 param version")
+}
+fun same_name(){
+    print("no param version")
+}
+// both will be called without issues
+
+
+same_name(1,5)
+same_name()
+same_name(1,5,6) // error here as the function only takes 2 or 0 arguments
+
+// ------------------------------------------------------------
+// CLASSIC PRINT
+// ------------------------------------------------------------
+fun test() {
+    //x=6
+    //print(x)
+    return 3
+}
+print("hello world") // prints a string
+etb3("hello world") // franco print. only difference is the name of the function
+print(5) // prints a number
+print(1+4*5) // prints a mathematical expression
+x=5
+a=3.5
+print(x) // prints a standalone variable
+print(dygg) // prints a variable that hasn't been declared yet (error)
+print(x+7) // prints a mathematical expression that includes a variable
+print(x+a) // prints a mathematical expression that includes two variables
+print(test()) // prints the result of a function
+// if a function doesn't return anything, it will print 'None'
+// -------------------------------------------------
+// FORMATTED PRINT
+// -------------------------------------------------
+print("--------------------------------------------")
+print("hello world this is {x}") // prints a string with a variable inside
+y=7
+z=[1,2,4,["kkk",3.5]]
+print("hello world this is {x} and {y}") // prints a string with two variables inside
+print("hello world this is {x} and {y} and {x+y}") // prints a string with two variables and an expression inside
+print("hello world this is {qwe}") // prints a string with an undeclared variable
+// in that case, no formatting will happen
+print("this list is {z}") // prints a string with a list inside
+print("the 1st element is {z[0]}") // prints a string with a list element inside
+print("list inside is {z[3]}") // prints a string with a list element inside
+print("the 1st element of the list inside is {z[3][0]}") // prints a string with a list element inside
+print("expression involving list inside list: {z[3][1]+7}") // prints a string with two list elements inside
+// the variable and the braces will be treated as part of the string
+print("this is {4+3+(2*3)}") // an expression including brackets
+print("this function is {test()}") // a function call
+print("this function is {test(5)+5}") // will be ignored. could be added in the future
+
+// ------------------------------------------------------------
+// user input
+// ------------------------------------------------------------
+print("scan without type")
+x=scan()
+// if the input is a number
+// it will be stored as a number (int or float)
+// otherwise, it will be stored as a string
+// if you press enter without typing anything, error
+y=x+5
+print("x is {x}")
+print("y is {y}")
+
+// however, if we want to force the type
+// we declare the variable type
+// here, a string for example will not work
+print("scan with type")
+int z=scan()
+print(z)
+
+// FRANCO SCAN
+franco= da5l()
+etb3("franco is {franco}")
+// no difference between scan and franco, just the name
+
+// ------------------------------------------------------------
+// Variable Declaration
+// ------------------------------------------------------------
+
+// ---------------------------------------------------------
+// ENGLISH MODE
+// ---------------------------------------------------------
+int num_int=5 // int declaration
+print(num_int) // prints 5
+float num_float=5.0 // float declaration
+string var_string="hello" // string declaration
+bool var_bool=true // bool declaration
+list var_list=[1,2,3] // list declaration 
+list var_list_inside_list=[1,2.0,"hello",[5,true,"qas",3.5],8,9] // list with mixed types
+print(var_list_inside_list)
+print(var_list)
+print(var_list[0]) // access the first element of the list (1)
+print(var_list_inside_list[3][2]) // access the string "qas" inside the list inside the list
+int num_int=3 // error: redeclaration of variable 'num_int'
+//--------------------------------------------------------
+int y=4
+print(y)
+y=4.7
+print(y) // will also be 4 (truncated to int)
+//--------------------------------------------------------------------
+// you can't change the type of a variable after it has been declared
+//--------------------------------------------------------------------
+y="hello" // error: incompatible types in assignment
+y=true // error: incompatible types in assignment
+y=[1,2,3] //error: incompatible types in assignment
+//----------------------------------------------------------------
+// you can declare a variable without giving it a type
+// in that case, you can change its initial value to any type
+// however, you can't redeclare it later with a type
+//----------------------------------------------------------------
+z=5
+print(z)
+z="z is now a string"
+print(z)
+z=[1,3,"asdf"] // can even become a list
+print(z)
+z=False
+print(z)
+int z=8 // error: variable is already declared
+// --------------------------------------------------------
+// FRANCO MODE
+// --------------------------------------------------------
+rakm num_rakam=5 // int declaration
+etb3(num_rakam)
+kasr num_kasr=5.0 // float declaration
+klma var_klma="hello" // string declaration
+so2al var_so2al=sa7 // bool declaration
+print(var_so2al) // prints true
+dorg var_dorg=[1,2,3] // list declaration 
+rakm num_rakam=3 // error: redeclaration of variable 'num_int'
+
+// ANOTHER IMPORTANAT CASE
+// WORKS WITH BOTH ENGLISH AND FRANCO
+
+int v1,v2,v3 // var declaration in one line
+rakm f1,f2,f3 // var declaration in one line franco
+// all of them are int
+v1=5
+v2="hello" // error
+v2=10.9 // will be truncated to 10
+v3=13
+print("{v1} {v2} {v3}")
+
+string v4="hello",v5="world",v6 // var declaration and assignment in one line
+v6=12 // error
+// ------------------------------------------------------------

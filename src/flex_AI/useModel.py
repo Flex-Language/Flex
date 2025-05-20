@@ -3,6 +3,86 @@ import json
 import os
 import sys
 
+# Get the appropriate base directory path for relative file access
+def get_base_dir():
+    """
+    Returns the appropriate base directory path based on whether
+    the application is running as a bundled executable or not
+    """
+    # Check if the application is running as a bundled executable
+    if getattr(sys, 'frozen', False):
+        # If bundled with PyInstaller, use sys._MEIPASS
+        base_dir = sys._MEIPASS
+    else:
+        # If running as a normal Python script
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    return base_dir
+
+# Load flex example files
+def load_flex_examples():
+    """
+    Load all example files from the data directories.
+    Returns a string containing all the content concatenated.
+    """
+    examples = []
+    base_dir = get_base_dir()
+    
+    # Define paths to individual example files - first try bundled path, then development path
+    data_locations = [
+        # PyInstaller bundled paths
+        {
+            "compiler_data_dir": os.path.join(base_dir, "flex_AI", "data", "Compiler_AI"),
+            "ammar_data_dir": os.path.join(base_dir, "flex_AI", "data", "ammar_data")
+        },
+        # Development paths
+        {
+            "compiler_data_dir": os.path.join(base_dir, "data", "Compiler_AI"),
+            "ammar_data_dir": os.path.join(base_dir, "data", "ammar_data")
+        }
+    ]
+    
+    # Try all possible locations for data files
+    for location in data_locations:
+        compiler_data_dir = location["compiler_data_dir"]
+        ammar_data_dir = location["ammar_data_dir"]
+        
+        example_files = [
+            os.path.join(compiler_data_dir, "data.txt"),
+            os.path.join(ammar_data_dir, "total.txt")
+        ]
+        
+        # For debugging
+        debug_info = f"Searching for data files in: {compiler_data_dir} and {ammar_data_dir}"
+        print(f"\033[94m{debug_info}\033[0m")  # blue debug message
+        
+        # Check if any files exist in this location
+        files_found = False
+        
+        # Read each file and add its content to examples
+        for file_path in example_files:
+            try:
+                with open(file_path, 'r') as file:
+                    examples.append(file.read())
+                    files_found = True
+                    print(f"\033[92mFound and loaded: {file_path}\033[0m")  # green success
+            except FileNotFoundError:
+                print(f"\033[93mWarning: Could not find example file {file_path}\033[0m")  # yellow warning
+        
+        # If we found files in this location, no need to check other locations
+        if files_found:
+            break
+    
+    # Return concatenated content, or empty string if no examples were found
+    if examples:
+        return "\n\n".join(examples)
+    else:
+        print("\033[93mWarning: No example files were found. AI responses may have limited Flex language knowledge.\033[0m")
+        return ""
+
+# Load the flex examples when module is imported
+flex_data = load_flex_examples()
+
 # Function to use OpenRouter API
 def use_openrouter(prompt, model_name=None, api_key=None):
     """
@@ -39,10 +119,11 @@ def use_openrouter(prompt, model_name=None, api_key=None):
         "X-Title": "Flex Language"  # Replace with your application name
     }
     
-    # Request payload
+    # Request payload with system prompt containing Flex language examples
     payload = {
         "model": model_name,
         "messages": [
+            {"role": "system", "content": "You are an assistant for the Flex programming language. Here are examples of Flex code to help you understand the language syntax and features:\n\n" + flex_data},
             {"role": "user", "content": prompt}
         ]
     }

@@ -1,0 +1,40 @@
+// ------------------------------------------------------------
+// CLASSIC PRINT
+// ------------------------------------------------------------
+fun test() {
+   //x=6
+   //print(x)
+   return 3
+}
+print("hello world") // prints a string
+etb3("hello world") // franco print. only difference is the name of the function
+print(5) // prints a number
+print(1+4*5) // prints a mathematical expression
+x=5
+a=3.5
+print(x) // prints a standalone variable
+print(dygg) // prints a variable that hasn't been declared yet (error)
+print(x+7) // prints a mathematical expression that includes a variable
+print(x+a) // prints a mathematical expression that includes two variables
+print(test()) // prints the result of a function
+// if a function doesn't return anything, it will print 'None'
+// -------------------------------------------------
+// FORMATTED PRINT
+// -------------------------------------------------
+print("--------------------------------------------")
+print("hello world this is {x}") // prints a string with a variable inside
+y=7
+z=[1,2,4,["kkk",3.5]]
+print("hello world this is {x} and {y}") // prints a string with two variables inside
+print("hello world this is {x} and {y} and {x+y}") // prints a string with two variables and an expression inside
+print("hello world this is {qwe}") // prints a string with an undeclared variable
+// in that case, no formatting will happen
+print("this list is {z}") // prints a string with a list inside
+print("the 1st element is {z[0]}") // prints a string with a list element inside
+print("list inside is {z[3]}") // prints a string with a list element inside
+print("the 1st element of the list inside is {z[3][0]}") // prints a string with a list element inside
+print("expression involving list inside list: {z[3][1]+7}") // prints a string with two list elements inside
+// the variable and the braces will be treated as part of the string
+print("this is {4+3+(2*3)}") // an expression including brackets
+print("this function is {test()}") // a function call
+print("this function is {test(5)+5}") // will be ignored. could be added in the future
