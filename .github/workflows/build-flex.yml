@@ -125,41 +125,28 @@ jobs:
           echo # Flex AI usage examples will be included in future releases > flex_AI\data\ammar_data\total.txt
         )
         
-        REM Create PyInstaller hook files
-        echo """
-        PyInstaller hook for encodings module
+        REM Create PyInstaller hook files - using single file redirects for Windows
+        echo from PyInstaller.utils.hooks import collect_data_files > hooks\hook-flex_AI.py
+        echo. >> hooks\hook-flex_AI.py
+        echo # Include all data files from the flex_AI module >> hooks\hook-flex_AI.py
+        echo datas = collect_data_files('flex_AI') >> hooks\hook-flex_AI.py
+        echo. >> hooks\hook-flex_AI.py
+        echo # Ensure these modules are included >> hooks\hook-flex_AI.py
+        echo hiddenimports = [ >> hooks\hook-flex_AI.py
+        echo     'encodings.idna', >> hooks\hook-flex_AI.py
+        echo     'ipaddress', >> hooks\hook-flex_AI.py
+        echo     'requests', >> hooks\hook-flex_AI.py
+        echo     'json', >> hooks\hook-flex_AI.py
+        echo     'urllib3', >> hooks\hook-flex_AI.py
+        echo     'chardet', >> hooks\hook-flex_AI.py
+        echo     'certifi' >> hooks\hook-flex_AI.py
+        echo ] >> hooks\hook-flex_AI.py
         
-        This hook ensures that the idna encoding is properly included in the build,
-        which is required for proper handling of URLs and internationalized domain names.
-        """
-        
-        # Explicitly include idna encoding to prevent the "unknown encoding: idna" error
-        hiddenimports = ['encodings.idna', 'encodings.ascii', 'encodings.utf_8', 'encodings.latin_1', 'encodings.cp1252']
-        > hooks\hook-encodings.py
-        
-        echo """
-        PyInstaller hook for flex_AI module
-        
-        This hook ensures that the data directories for flex_AI are properly included in the build,
-        and that all necessary dependencies are imported.
-        """
-        
-        from PyInstaller.utils.hooks import collect_data_files
-        
-        # Include all data files from the flex_AI module
-        datas = collect_data_files('flex_AI')
-        
-        # Ensure these modules are included
-        hiddenimports = [
-            'encodings.idna',
-            'ipaddress',
-            'requests',
-            'json',
-            'urllib3',
-            'chardet',
-            'certifi'
-        ]
-        > hooks\hook-flex_AI.py
+        echo # PyInstaller hook for encodings > hooks\hook-encodings.py
+        echo # This hook ensures that the idna encoding is properly included in the build >> hooks\hook-encodings.py
+        echo. >> hooks\hook-encodings.py
+        echo # Explicitly include idna encoding to prevent the "unknown encoding: idna" error >> hooks\hook-encodings.py
+        echo hiddenimports = ['encodings.idna', 'encodings.ascii', 'encodings.utf_8', 'encodings.latin_1', 'encodings.cp1252'] >> hooks\hook-encodings.py
         
         pyinstaller --onefile --clean --name=${{ matrix.output_name }} ^
           --add-data "flex_compiler;flex_compiler" ^
