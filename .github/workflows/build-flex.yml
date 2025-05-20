@@ -38,7 +38,25 @@ jobs:
         pip install pyinstaller==5.13.0 
         pip install requests>=2.0.0
         pip install ipaddress
-
+        # Verify installed packages
+        pip list
+        # Ensure all modules can be imported
+        python -c "import sys; print(f'Python {sys.version}'); import ipaddress; import ply; import requests; import PyInstaller; print('All dependencies successfully imported')" || exit 1
+        
+    # Special handling for Windows dependencies
+    - name: Extra Windows dependencies
+      if: matrix.os == 'windows-latest'
+      shell: powershell
+      run: |
+        # Force reinstall ipaddress module on Windows
+        python -m pip install --force-reinstall ipaddress
+        # Verify the module is accessible in the Python environment
+        python -c "import ipaddress; print('ipaddress module successfully imported on Windows')"
+        
+    - name: Debug src directory
+      run: |
+        ls -la src
+        ls -la src/* 2>/dev/null || echo "No subdirectories in src"
         
     - name: Build with PyInstaller for Linux/macOS
       if: matrix.os != 'windows-latest'
@@ -49,6 +67,7 @@ jobs:
           --add-data "flex_interpreter:flex_interpreter" \
           --add-data "flex_parser:flex_parser" \
           --add-data "flex_tokenizer:flex_tokenizer" \
+          --hidden-import=ipaddress \
           main.py
         
     - name: Build with PyInstaller for Windows
@@ -61,6 +80,7 @@ jobs:
           --add-data "flex_interpreter;flex_interpreter" ^
           --add-data "flex_parser;flex_parser" ^
           --add-data "flex_tokenizer;flex_tokenizer" ^
+          --hidden-import=ipaddress ^
           main.py
           
     # Create Windows Installer
