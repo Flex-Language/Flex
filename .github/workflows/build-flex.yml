@@ -38,8 +38,34 @@ jobs:
         pip install pyinstaller==5.13.0 
         pip install requests>=2.0.0
         pip install ipaddress
-
         
+    - name: Create PyInstaller hooks
+      run: |
+        # Create a directory for PyInstaller hooks
+        mkdir -p src/hooks
+        
+        # Create a hook file to ensure ipaddress encoding is properly loaded
+        cat > src/hooks/hook-multiprocessing.py << 'EOF'
+        # PyInstaller hook for multiprocessing to ensure encodings.idna is properly included
+        # This addresses the "unknown encoding: idna" error that can occur in child processes
+        
+        hiddenimports = ['encodings.idna', 'ipaddress']
+        EOF
+        
+        # Create a runtime hook to preload the encodings.idna module
+        cat > src/hooks/runtime-hook.py << 'EOF'
+        # Runtime hook to ensure encodings.idna is properly loaded before multiprocessing
+        import encodings.idna
+        import ipaddress
+        import codecs
+        
+        # Ensure the encoding is registered
+        try:
+            codecs.lookup('idna')
+        except LookupError:
+            pass  # Will be handled by the encodings import
+        EOF
+
     - name: Build with PyInstaller for Linux/macOS
       if: matrix.os != 'windows-latest'
       run: |
@@ -49,6 +75,10 @@ jobs:
           --add-data "flex_interpreter:flex_interpreter" \
           --add-data "flex_parser:flex_parser" \
           --add-data "flex_tokenizer:flex_tokenizer" \
+          --hidden-import="encodings.idna" \
+          --hidden-import="ipaddress" \
+          --additional-hooks-dir=hooks \
+          --runtime-hook=hooks/runtime-hook.py \
           main.py
         
     - name: Build with PyInstaller for Windows
@@ -61,6 +91,10 @@ jobs:
           --add-data "flex_interpreter;flex_interpreter" ^
           --add-data "flex_parser;flex_parser" ^
           --add-data "flex_tokenizer;flex_tokenizer" ^
+          --hidden-import="encodings.idna" ^
+          --hidden-import="ipaddress" ^
+          --additional-hooks-dir=hooks ^
+          --runtime-hook=hooks/runtime-hook.py ^
           main.py
           
     # Create Windows Installer
