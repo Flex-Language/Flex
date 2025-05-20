@@ -37,6 +37,7 @@ jobs:
         pip install ply==3.11
         pip install pyinstaller==5.13.0 
         pip install requests>=2.0.0
+        pip install ipaddress
 
         
     - name: Build with PyInstaller for Linux/macOS
