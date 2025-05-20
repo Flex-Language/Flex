@@ -34,49 +34,32 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        # Ensure pip is the latest version
+        python -m pip --version
+        pip install ply==3.11
         
-        # Special handling for Ubuntu
-        if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-          echo "Installing dependencies with special Ubuntu handling..."
-          # Force reinstall ipaddress with system-level visibility
-          sudo apt-get update -y
-          sudo apt-get install -y python3-pip
-          sudo pip3 install --upgrade pip
-          sudo pip3 install --force-reinstall ipaddress
-          # Make sure it's also in our current pip environment
+        # Ubuntu-specific fix for ipaddress module
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          echo "Installing dependencies with special handling for Ubuntu"
+          # Force system ipaddress module installation
+          sudo apt-get update
+          sudo apt-get install -y python3-ipaddress
+          # Also install via pip for redundancy
           pip install --force-reinstall --no-cache-dir ipaddress
-          
-          # Create symbolic link for ipaddress to ensure accessibility
-          SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
-          STDLIB_PATH=$(python -c "import os, sys; print(os.path.dirname(os.__file__))")
-          
-          # Copy ipaddress module to stdlib if it doesn't exist there
-          if [ ! -f "${STDLIB_PATH}/ipaddress.py" ]; then
-            echo "Copying ipaddress module to Python standard library..."
-            sudo cp "${SITE_PACKAGES}/ipaddress.py" "${STDLIB_PATH}/ipaddress.py"
-          fi
         else
-          # Normal installation for other OS
+          # For non-Linux platforms
           pip install --force-reinstall --no-cache-dir ipaddress
         fi
         
-        pip install ply==3.11
+        # Clean reinstall PyInstaller
         pip uninstall -y PyInstaller
         pip install --no-cache-dir pyinstaller==5.13.0
         pip install requests>=2.0.0
         
         # Verify installed packages
         pip list
-        
-        # Extra verification for Ubuntu
-        if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-          echo "Verifying ipaddress module location and importability..."
-          python -c "import sys; print(f'Python search paths: {sys.path}')"
-          python -c "import ipaddress; print(f'ipaddress version: {ipaddress.__version__}'); print(f'ipaddress location: {ipaddress.__file__}')" || exit 1
-        fi
-        
         # Ensure all modules can be imported
-        python -c "import sys; print(f'Python {sys.version}'); import ipaddress; import ply; import requests; import PyInstaller; print('All dependencies successfully imported')" || exit 1
+        python -c "import sys; print(f'Python {sys.version}'); import ipaddress; print('ipaddress module version:', ipaddress.__version__ if hasattr(ipaddress, '__version__') else 'builtin'); import ply; import requests; import PyInstaller; print('All dependencies successfully imported')" || exit 1
         
     # Special handling for Windows dependencies
     - name: Extra Windows dependencies
@@ -102,88 +85,68 @@ jobs:
         dir src
         dir src\* /b || echo No subdirectories in src
         
-    # Special preparation for Ubuntu build
-    - name: Prepare PyInstaller bootstrap modules for Ubuntu
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        echo "Preparing PyInstaller bootstrap modules for Ubuntu..."
-        
-        # Get PyInstaller package location
-        PYINSTALLER_PATH=$(python -c "import PyInstaller; print(PyInstaller.__path__[0])")
-        echo "PyInstaller path: $PYINSTALLER_PATH"
-        
-        # Create PyInstaller loader directory in our source
-        mkdir -p src/PyInstaller/loader
-        
-        # Copy bootstrap modules from PyInstaller to our source
-        cp $PYINSTALLER_PATH/loader/pyiboot01_bootstrap.py src/PyInstaller/loader/
-        cp $PYINSTALLER_PATH/loader/pyimod01_archive.py src/PyInstaller/loader/
-        cp $PYINSTALLER_PATH/loader/pyimod02_importers.py src/PyInstaller/loader/
-        cp $PYINSTALLER_PATH/loader/pyimod03_ctypes.py src/PyInstaller/loader/
-        
-        # Create __init__.py files to make them proper packages
-        touch src/PyInstaller/__init__.py
-        touch src/PyInstaller/loader/__init__.py
-        
-        # Create a direct copy of ipaddress module in our source
-        python -c "import ipaddress; src=ipaddress.__file__; f=open(src).read(); open('src/ipaddress.py', 'w').write(f)"
-        
-        # List the files we created
-        echo "Created PyInstaller bootstrap and ipaddress modules:"
-        ls -la src/PyInstaller/loader/
-        ls -la src/ipaddress.py
-        
-    # Special step to debug PyInstaller bootstrap on Ubuntu
-    - name: Debug PyInstaller bootstrap modules (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        echo "Checking PyInstaller bootstrap modules..."
-        python -c "import sys; print(sys.path)"
-        python -c "import PyInstaller; print(PyInstaller.__file__)"
-        python -c "from PyInstaller.loader import pyimod02_importers; print('pyimod02_importers found')"
-        
     - name: Build with PyInstaller for Linux/macOS
-      if: matrix.os != 'windows-latest' && matrix.os != 'ubuntu-latest'
+      if: matrix.os != 'windows-latest'
       run: |
         cd src
+        
+        # Create system path debug info
+        echo "===== Python System Path Info ====="
+        python -c "import sys, os; print('Python:', sys.version); print('Executable:', sys.executable); print('Prefix:', sys.prefix); print('PATH:', os.environ.get('PATH')); print('PYTHONPATH:', os.environ.get('PYTHONPATH', 'Not set')); print('sys.path:', sys.path)"
+        
+        # Create a debug script to test imports
+        cat > test_imports.py << EOF
+import sys
+print("Python version:", sys.version)
+
+# Test important modules
+modules = ['ipaddress', 'PyInstaller', 'PyInstaller.loader.pyimod01_archive', 'PyInstaller.loader.pyimod02_importers']
+
+for module in modules:
+    try:
+        __import__(module)
+        print(f"SUCCESS: Import {module}")
+    except ImportError as e:
+        print(f"FAILURE: Import {module} - {e}")
+EOF
+        python test_imports.py
+        
         # Create a basic spec file to properly handle PyInstaller's bootstrap modules
         cat > main.spec << EOF
         # -*- mode: python ; coding: utf-8 -*-
-        from PyInstaller.building.build_main import Analysis, PYZ, EXE, COLLECT
-        
-        # Copy PyInstaller bootstrap modules to ensure they're available
-        import PyInstaller
+        import sys
         import os
-        import shutil
+        from PyInstaller.building.build_main import Analysis, PYZ, EXE, COLLECT
+        from PyInstaller.utils.hooks import collect_all
         
-        # Create specific ipaddress module file to force inclusion
-        with open('ipaddress_module.py', 'w') as f:
-            f.write('# Force ipaddress module inclusion\\n')
-            f.write('import ipaddress\\n')
-            f.write('print("ipaddress module loaded")\\n')
+        # Get Python library paths for explicitly adding to pathex
+        stdlib_path = os.path.dirname(os.__file__)
+        site_packages = [p for p in sys.path if 'site-packages' in p or 'dist-packages' in p]
         
-        # Set up proper analysis configuration
+        # Collect all PyInstaller packages and dependencies
+        pyinstaller_datas = []
+        pyinstaller_binaries = []
+        pyinstaller_hiddenimports = []
+        
+        for pkg in ['PyInstaller']:
+            data, binaries, hiddenimports = collect_all(pkg)
+            pyinstaller_datas.extend(data)
+            pyinstaller_binaries.extend(binaries)
+            pyinstaller_hiddenimports.extend(hiddenimports)
+        
         a = Analysis(
-            ['main.py', 'ipaddress_module.py'],
-            pathex=[],
-            binaries=[],
+            ['main.py'],
+            pathex=[stdlib_path] + site_packages,  # Explicitly add Python lib paths
+            binaries=pyinstaller_binaries,
             datas=[
                 ('flex_compiler', 'flex_compiler'),
                 ('flex_interpreter', 'flex_interpreter'),
                 ('flex_parser', 'flex_parser'),
                 ('flex_tokenizer', 'flex_tokenizer')
-            ],
-            hiddenimports=[
-                'ipaddress', 
-                'PyInstaller.loader', 
-                'PyInstaller.loader.pyimod01_archive', 
-                'PyInstaller.loader.pyimod02_importers', 
-                'PyInstaller.loader.pyimod03_ctypes', 
-                'PyInstaller.loader.pyiboot01_bootstrap',
-                'pathlib',
-                'urllib.parse',
-                'urllib'
-            ],
+            ] + pyinstaller_datas,
+            hiddenimports=['ipaddress', 'PyInstaller', 'PyInstaller.loader', 'PyInstaller.loader.pyimod01_archive', 
+                           'PyInstaller.loader.pyimod02_importers', 'PyInstaller.loader.pyimod03_ctypes', 
+                           'PyInstaller.loader.pyiboot01_bootstrap'] + pyinstaller_hiddenimports,
             hookspath=[],
             hooksconfig={},
             runtime_hooks=[],
@@ -193,9 +156,6 @@ jobs:
             cipher=None,
             noarchive=False,
         )
-        
-        # Explicitly add the ipaddress module to avoid issues
-        a.pure.append(('ipaddress', '${{ matrix.os == "macos-latest" and "/opt/homebrew/lib/python3.10/site-packages/ipaddress.py" or "/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/site-packages/ipaddress.py" }}', 'PYMODULE'))
         pyz = PYZ(a.pure, a.zipped_data, cipher=None)
         
         exe = EXE(
@@ -206,10 +166,10 @@ jobs:
             a.datas,
             [],
             name='${{ matrix.output_name }}',
-            debug=True,  # Enable debug for more information
+            debug=False,
             bootloader_ignore_signals=False,
             strip=False,
-            upx=False,  # Disable UPX to avoid compression issues
+            upx=True,
             upx_exclude=[],
             runtime_tmpdir=None,
             console=True,
@@ -221,71 +181,8 @@ jobs:
         )
         EOF
         
-        # Install pyinstaller from source for better compatibility
-        python -m pip install --force-reinstall --no-cache-dir git+https://github.com/pyinstaller/pyinstaller.git@develop
-        
-        # Make sure ipaddress module is directly accessible
-        python -c "import ipaddress; print(f'ipaddress module located at: {ipaddress.__file__}')"
-        
-        # Run PyInstaller with the custom spec file and maximum debugging
-        python -m PyInstaller --clean --log-level=DEBUG main.spec
-        
-    # Specific build step for Ubuntu that uses different approach
-    - name: Build with PyInstaller for Ubuntu
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        cd src
-        
-        # Create a basic main script that directly imports ipaddress
-        cat > main_wrapper.py << EOF
-#!/usr/bin/env python3
-# Wrapper to ensure ipaddress is imported early
-import sys
-import os
-
-# Try to import ipaddress early to overcome bootstrap issues
-try:
-    import ipaddress
-    print(f"Successfully imported ipaddress from {ipaddress.__file__}")
-except ImportError as e:
-    print(f"Error importing ipaddress: {str(e)}")
-    sys.exit(1)
-
-# Import and run the real main script
-import main
-if __name__ == "__main__":
-    sys.argv[0] = "flex"
-    try:
-        main.main()
-    except Exception as e:
-        print(f"Error in main: {str(e)}")
-        sys.exit(1)
-EOF
-        
-        # Use direct PyInstaller command with all required arguments
-        python -m PyInstaller \
-          --onefile \
-          --clean \
-          --name=flex-linux \
-          --add-data="flex_compiler:flex_compiler" \
-          --add-data="flex_interpreter:flex_interpreter" \
-          --add-data="flex_parser:flex_parser" \
-          --add-data="flex_tokenizer:flex_tokenizer" \
-          --hidden-import=ipaddress \
-          --hidden-import=PyInstaller.loader.pyimod01_archive \
-          --hidden-import=PyInstaller.loader.pyimod02_importers \
-          --hidden-import=PyInstaller.loader.pyimod03_ctypes \
-          --hidden-import=PyInstaller.loader.pyiboot01_bootstrap \
-          --hidden-import=pathlib \
-          --hidden-import=urllib.parse \
-          --hidden-import=urllib \
-          --add-binary="ipaddress.py:." \
-          --add-binary="PyInstaller/loader/pyimod01_archive.py:PyInstaller/loader" \
-          --add-binary="PyInstaller/loader/pyimod02_importers.py:PyInstaller/loader" \
-          --add-binary="PyInstaller/loader/pyimod03_ctypes.py:PyInstaller/loader" \
-          --add-binary="PyInstaller/loader/pyiboot01_bootstrap.py:PyInstaller/loader" \
-          --log-level=DEBUG \
-          main_wrapper.py
+        # Run PyInstaller using the spec file with verbose debugging
+        pyinstaller --clean --log-level=DEBUG main.spec
         
     - name: Build with PyInstaller for Windows
       if: matrix.os == 'windows-latest'
@@ -568,6 +465,144 @@ EOF
           --package-path . \
           flex-installer.pkg
         
+    # Special fix for PyInstaller bootstrap modules on Ubuntu
+    - name: Fix PyInstaller Bootstrap Modules
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        echo "Creating PyInstaller bootstrap module fixes for Ubuntu"
+        
+        # Create bootstrap module directory
+        PYINSTALLER_DIR=$(python -c "import PyInstaller; print(PyInstaller.__path__[0])")
+        LOADER_DIR="$PYINSTALLER_DIR/loader"
+        echo "PyInstaller directory: $PYINSTALLER_DIR"
+        echo "PyInstaller loader directory: $LOADER_DIR"
+        
+        # Check if the modules exist
+        if [ ! -f "$LOADER_DIR/pyimod02_importers.py" ]; then
+          echo "Missing pyimod02_importers.py - creating it"
+          cat > "$LOADER_DIR/pyimod02_importers.py" << 'EOF'
+"""
+PEP-302 finder and loader for PyInstaller embedding its modules.
+This code is directly imported by the PyInstaller from its bootstrap module.
+"""
+
+import sys
+import os.path
+import marshal
+import pyimod01_archive
+import importlib.abc
+import importlib.machinery
+
+class FrozenImporter(importlib.abc.MetaPathFinder, importlib.abc.Loader):
+    """
+    Load modules from an FrozenImporter archive embedded within a binary.
+    """
+    def __init__(self):
+        self._pyz_archive = pyimod01_archive.PYZ_ARCHIVE()
+        self._pyz_prefix = 'pyz-'
+        
+    def find_module(self, fullname, path=None):
+        """
+        Legacy finder interface.
+        """
+        if fullname.startswith(self._pyz_prefix):
+            return None
+        if self._pyz_archive.is_pyz_compressed(fullname):
+            return self
+        return None
+        
+    def find_spec(self, fullname, path=None, target=None):
+        """
+        PEP-451 finder interface.
+        """
+        if fullname.startswith(self._pyz_prefix):
+            return None
+        if self._pyz_archive.is_pyz_compressed(fullname):
+            return importlib.machinery.ModuleSpec(
+                fullname, self, is_package=self._pyz_archive.is_package(fullname))
+        return None
+        
+    def load_module(self, fullname):
+        """
+        Method for Python 3.3 and older.
+        """
+        if fullname in sys.modules:
+            return sys.modules[fullname]
+            
+        code = self.get_code(fullname)
+        if code is None:
+            return None
+            
+        mod = sys.modules.setdefault(fullname, importlib.machinery.SourcelessFileLoader(fullname, "").create_module(importlib.machinery.ModuleSpec(fullname, "")))
+        if mod is None:
+            mod = importlib.machinery.SourcelessFileLoader(fullname, "").create_module(importlib.machinery.ModuleSpec(fullname, ""))
+            
+        mod.__file__ = self.__file(fullname)
+        mod.__loader__ = self
+        if self._pyz_archive.is_package(fullname):
+            mod.__path__ = [fullname.replace('.', os.sep)]
+            mod.__package__ = fullname
+        else:
+            mod.__package__ = fullname.rpartition('.')[0]
+            
+        exec(code, mod.__dict__)
+        return mod
+        
+    def create_module(self, spec):
+        """
+        Method for Python 3.4+
+        """
+        return None
+        
+    def exec_module(self, module):
+        """
+        Method for Python 3.4+
+        """
+        fullname = module.__name__
+        code = self.get_code(fullname)
+        if code:
+            exec(code, module.__dict__)
+            
+    def get_code(self, fullname):
+        """
+        Get the code object associated with the module.
+        """
+        if self._pyz_archive is None:
+            return None
+        return self._pyz_archive.extract(fullname)
+        
+    def get_source(self, fullname):
+        """
+        Method for retrieving source. Not implemented.
+        """
+        return None
+        
+    def get_data(self, path):
+        """
+        Method for retrieving data. Not implemented.
+        """
+        return None
+        
+    def is_package(self, fullname):
+        if self._pyz_archive is None:
+            return False
+        return self._pyz_archive.is_package(fullname)
+        
+    def __file(self, fullname):
+        """
+        Return a dummy file name for a module.
+        """
+        return '<frozen %s>' % fullname
+        
+sys.meta_path.insert(0, FrozenImporter())
+EOF
+        fi
+        
+        # Execute the tests for PyInstaller modules again
+        echo "Testing PyInstaller modules after fix:"
+        cd src
+        python test_imports.py
+        
     # Linux installation script
     - name: Create Linux Installer
       if: matrix.os == 'ubuntu-latest'
@@ -623,6 +658,26 @@ EOF
       if: matrix.os != 'windows-latest'
       run: |
         cd src/dist
+        # Check if the executable exists and has the proper permissions
+        ls -la
+        if [ ! -f "${{ matrix.output_name }}" ]; then
+          echo "ERROR: Executable ${{ matrix.output_name }} does not exist!"
+          exit 1
+        fi
+        
+        if [ ! -x "${{ matrix.output_name }}" ]; then
+          echo "WARNING: Executable does not have execute permissions. Adding permissions."
+          chmod +x "${{ matrix.output_name }}"
+        fi
+        
+        # For Linux, check shared library dependencies
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          echo "Checking shared library dependencies:"
+          ldd ./${{ matrix.output_name }} || echo "ldd command failed, continuing anyway"
+        fi
+        
+        # Run with verbose output for debugging
+        echo "Running executable with --version flag:"
         ./${{ matrix.output_name }} --version
         
     - name: Test Executable (Windows)
@@ -794,4 +849,3 @@ EOF
             release/flex-macos-installer.pkg
             release/flex-linux-installer.tar.gz
           generate_release_notes: false 
-
