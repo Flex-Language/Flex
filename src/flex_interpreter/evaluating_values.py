@@ -36,7 +36,6 @@ def checkType2(value,type,line_number,line_content,AI):
 
 def eval_value(value, line_number, line_content, AI, var_type=None, func=False):
     
-    
     if value is None and var_type is None:
         handle_uninitialized_variable_error(line_number, line_content, AI)
     elif value is None:
@@ -51,9 +50,9 @@ def eval_value(value, line_number, line_content, AI, var_type=None, func=False):
         return handle_numeric_value(value)
     elif value == "scan_now":
         return handle_scan_now(var_type, line_number, line_content, AI)
-    elif value == 'true':
+    elif value in  ('true','True','TRUE','sa7','s7','sah','saa7'):
         return True
-    elif value == 'false':
+    elif value in ('false','False','FALSE','ghalt','ghlt','ghalat'):
         return False
     elif isinstance(value, tuple) and value[0] == 'LIST_ACCESS':
         return handle_list_access(value, line_number, line_content, AI, func)

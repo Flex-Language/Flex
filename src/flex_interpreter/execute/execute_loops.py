@@ -78,32 +78,74 @@ def set_default_variable_in_karr(variables, variablesFunc,statement):
         else:
             gv.variables['default'] = [0, 'INT', True]
 
-def determine_loop_parameters_in_karr(number, init_statement, line_number, line_content, AI):
+def determine_loop_parameters_in_karr(number, init_statement, line_number, line_content, AI,insideFunc):
     """
     Determines the loop parameters (increment/decrement) based on the given number.
     """
+    flag=0
     try:
-        number=eval_value(number, line_number, line_content, AI)
-        if init_statement==None:
-            var_name = 'default'
-        elif init_statement[0]=="NUMBER" or init_statement[0]=="-VE_NUMBER":
-            var_name = 'default'
+        if insideFunc:
+            
+            if init_statement==None:
+                var_name = 'default'
+            elif init_statement[0]=="NUMBER" or init_statement[0]=="-VE_NUMBER":
+                var_name = 'default'
+            else:
+                var_name = init_statement[1]
+            
+            if int(number) < gv.variablesFunc[var_name][0]:
+                plusminus = 'DECREMENT'
+                bigless = '>'
+            else:
+                plusminus = 'INCREMENT'
+                bigless = '<'
         else:
-            var_name = init_statement[1]
-        if int(number) < gv.variables[var_name][0]:
-            plusminus = 'DECREMENT'
-            bigless = '>'
-        else:
-            plusminus = 'INCREMENT'
-            bigless = '<'
+            number=eval_value(number, line_number, line_content, AI)   
+            if init_statement==None:
+                var_name = 'default'
+                init_number=gv.variables[var_name][0]
+            elif init_statement[0]=="NUMBER" or init_statement[0]=="-VE_NUMBER":
+                var_name = 'default'
+                init_number=gv.variables[var_name][0]
+            # If it's a LIST_ACCESS, apply the indices
+            elif init_statement[0] in ("LIST_ACCESS",'LIST_ASSIGN'):   
+                var_name = init_statement[1]
+                init_number=gv.variables[var_name][0]
+                indices = init_statement[2]  # ['5', '0'] in your example
+                var_name = var_name + ''.join(f'[{i}]' for i in indices)
+                for idx in indices:
+                    init_number = init_number[int(idx)]
+            else:
+                var_name = init_statement[1]
+                init_number=gv.variables[var_name][0]
+            if int(number) < int(init_number):
+                flag=0
+                plusminus = 'DECREMENT'
+                bigless = '>'
+            else:
+                flag=1
+                plusminus = 'INCREMENT'
+                bigless = '<'
     except ValueError as v:
         error_message = f"{v}\n{line_number}: {line_content.strip()}"
         handle_error(error_message, AI)
     
     condition = f'{var_name} {bigless} {number}'
+    print(var_name)
     increment_statement = (
         (plusminus, var_name, line_number, line_content)
     )
+    if '[' in var_name and flag==0:
+        plusminus = 'LIST_DECREMENT'
+        increment_statement = (
+            plusminus,init_statement[1], init_statement[2], line_number, line_content
+        )
+
+    elif '[' in var_name and flag==1:
+        plusminus = 'LIST_INCREMENT'
+        increment_statement = (
+            plusminus,init_statement[1], init_statement[2], line_number, line_content
+        )
     return condition, increment_statement
 
 def execute_loop_in_karr(init_statement, condition, increment_statement, block, AI, insideFunc, line_number, line_content):
@@ -133,7 +175,7 @@ def execute_karr(statement, AI, insideFunc, variables, variablesFunc):
     number = statement[2]
     block = statement[3]
     
-    condition, increment_statement = determine_loop_parameters_in_karr(number, init_statement, line_number, line_content, AI)
+    condition, increment_statement = determine_loop_parameters_in_karr(number, init_statement, line_number, line_content, AI,insideFunc)
    
     execute_loop_in_karr(init_statement, condition, increment_statement, block, AI, insideFunc, line_number, line_content)
     if variables and 'default' in gv.variables:

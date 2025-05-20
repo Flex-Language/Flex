@@ -1,0 +1,66 @@
+// ---------------------------------------------------------
+// ENGLISH MODE
+// ---------------------------------------------------------
+int num_int=5 // int declaration
+print(num_int) // prints 5
+float num_float=5.0 // float declaration
+string var_string="hello" // string declaration
+bool var_bool=true // bool declaration
+list var_list=[1,2,3] // list declaration 
+list var_list_inside_list=[1,2.0,"hello",[5,true,"qas",3.5],8,9] // list with mixed types
+print(var_list_inside_list)
+print(var_list)
+print(var_list[0]) // access the first element of the list (1)
+print(var_list_inside_list[3][2]) // access the string "qas" inside the list inside the list
+int num_int=3 // error: redeclaration of variable 'num_int'
+//--------------------------------------------------------
+int y=4
+print(y)
+y=4.7
+print(y) // will also be 4 (truncated to int)
+//--------------------------------------------------------------------
+// you can't change the type of a variable after it has been declared
+//--------------------------------------------------------------------
+y="hello" // error: incompatible types in assignment
+y=true // error: incompatible types in assignment
+y=[1,2,3] //error: incompatible types in assignment
+//----------------------------------------------------------------
+// you can declare a variable without giving it a type
+// in that case, you can change its initial value to any type
+// however, you can't redeclare it later with a type
+//----------------------------------------------------------------
+z=5
+print(z)
+z="z is now a string"
+print(z)
+z=[1,3,"asdf"] // can even become a list
+print(z)
+z=False
+print(z)
+int z=8 // error: variable is already declared
+// --------------------------------------------------------
+// FRANCO MODE
+// --------------------------------------------------------
+rakm num_rakam=5 // int declaration
+etb3(num_rakam)
+kasr num_kasr=5.0 // float declaration
+klma var_klma="hello" // string declaration
+so2al var_so2al=sa7 // bool declaration
+print(var_so2al) // prints true
+dorg var_dorg=[1,2,3] // list declaration 
+rakm num_rakam=3 // error: redeclaration of variable 'num_int'
+
+// ANOTHER IMPORTANAT CASE
+// WORKS WITH BOTH ENGLISH AND FRANCO
+
+int v1,v2,v3 // var declaration in one line
+rakm f1,f2,f3 // var declaration in one line franco
+// all of them are int
+v1=5
+v2="hello" // error
+v2=10.9 // will be truncated to 10
+v3=13
+print("{v1} {v2} {v3}")
+
+string v4="hello",v5="world",v6 // var declaration and assignment in one line
+v6=12 // error

@@ -1,6 +1,7 @@
 from flex_parser.parse_arithmetic_expr import *
 from flex_parser.parser_utils import *
 import  flex_parser.glopal_vars as gv
+# from flex_parser.statement.parse_list import parse_list_assignment_statement
 
 def parse_function_call_statement(tokens, AI, line_number, line_content):
     func_name = current_token(tokens)[1]
@@ -34,16 +35,29 @@ def parse_not_expression(tokens, AI, line_number, line_content):
         expect(tokens, 'RPAREN', AI)  # Consume ')'
         return f"(not {inner_expr})"
     else:
-        inner_expr = parse_expr(tokens, AI)
+        inner_expr = parse_expr(tokens, AI,line_number,line_content)  # Parse the inner expression
         return f"(not {inner_expr})"
 
 def parse_list_access(tokens, AI, line_number, line_content):
-    """Processes a list access expression like x[3]."""
-    var_name = expect(tokens, 'ID', AI)  # Expect the list variable name
-    expect(tokens, 'LBRACKET', AI)  # Consume '['
-    index = parse_expr(tokens, AI,line_number,line_content)  # Parse the index expression
-    expect(tokens, 'RBRACKET', AI)  # Consume ']'
-    return f"{var_name}[{index}]"
+    # """Processes a list access expression like x[3]."""
+    # var_name = expect(tokens, 'ID', AI)  # Expect the list variable name
+    # expect(tokens, 'LBRACKET', AI)  # Consume '['
+    # index = parse_expr(tokens, AI,line_number,line_content)  # Parse the index expression
+    # expect(tokens, 'RBRACKET', AI)  # Consume ']'
+    # return f"{var_name}[{index}]"
+    
+    # """Processes a list access expression like x[3] or x[0][2]."""
+    var_name = expect(tokens, 'ID', AI)  # Get the base variable name
+    access_expr = var_name
+
+    # Keep parsing nested list accesses like x[0][1][2]
+    while gv.pos < len(tokens) and tokens[gv.pos][0] == 'LBRACKET':
+        expect(tokens, 'LBRACKET', AI)
+        index = parse_expr(tokens, AI, line_number, line_content)
+        expect(tokens, 'RBRACKET', AI)
+        access_expr = f"{access_expr}[{index}]"
+
+    return access_expr
 
 def parse_negative_number(tokens, AI, line_number, line_content):
     """Processes a negative number expression."""

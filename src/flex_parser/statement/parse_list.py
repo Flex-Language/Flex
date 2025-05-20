@@ -111,5 +111,11 @@ def parse_list_assignment_statement(tokens, AI, line_number, line_content):
         else:
             value = parse_arithmetic_expr(tokens, AI, line_number, line_content)
         return ('LIST_ASSIGN', var_name, indices, value, tokens[gv.pos - 1][2], tokens[gv.pos - 1][3])
+    elif current_token(tokens)[0] == 'INCREMENT':
+        expect(tokens, 'INCREMENT', AI)
+        return ('LIST_INCREMENT', var_name, indices, tokens[gv.pos - 1][2], tokens[gv.pos - 1][3])
+    elif current_token(tokens)[0] == 'DECREMENT':
+        expect(tokens, 'DECREMENT', AI)
+        return ('LIST_DECREMENT', var_name, indices, tokens[gv.pos - 1][2], tokens[gv.pos - 1][3])
     else:
         return ('LIST_ACCESS', var_name, indices, tokens[gv.pos - 1][2], tokens[gv.pos - 1][3])

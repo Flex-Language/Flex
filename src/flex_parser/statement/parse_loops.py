@@ -69,6 +69,7 @@ def parse_repeat_statement(tokens, AI, line_number, line_content):
     # Parse initialization (e.g., i = 0)
     if (current_token(tokens)[0] != 'UNTILL'):
         init_statement = parse_statement.parse_statement(tokens, AI)
+        
         if (init_statement != None and init_statement[0] == 'STANDALONE_VAR'):
             pass
         else:

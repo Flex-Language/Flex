@@ -10,7 +10,7 @@ def parse_function_call_statement(tokens, AI, line_number, line_content):
 
     args = []
     while current_token(tokens)[0] != 'RPAREN':
-        if current_token(tokens)[0] in ('NUMBER', 'ID', 'STRING','MINUS'):
+        if current_token(tokens)[0] in ('NUMBER', 'ID', 'STRING','MINUS','TRUE','LIST','FALSE'):
                 args.append(parse_arithmetic_expr(tokens, AI, line_number, line_content))  # Parse the argument
         else:
             error_message = f"Unexpected token {current_token(tokens)[0]} while parsing function arguments at {line_number}\nLine content: '{line_content}'"
@@ -32,6 +32,9 @@ def parse_function_declaration_statement(tokens, AI, line_number, line_content):
 
     params = parse_function_parameters_in_function_declaration(tokens, AI, line_number, line_content)  # Parse function parameters
     expect(tokens, 'RPAREN', AI)  # Expect closing ')'
+    
+    if current_token(tokens)[0] == 'NEWLINE':
+        next_token(tokens)
     
     block = parse_block(tokens, AI)  # Parse the function body
     return ('FUN', func_name, params, block, line_number, line_content)

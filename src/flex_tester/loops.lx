@@ -72,7 +72,7 @@ print(x)
 qwe[3][0]="xyz"
 print(qwe[3][0])
 
-iom=[1,2,3,["aa","bb","cc"],4,5]
+iom=[1,2,3,["aa","bb","cc",1,5,2.6],4,5]
 iom[3][0]="vbn"
 print(iom[3][0])
 print(iom)

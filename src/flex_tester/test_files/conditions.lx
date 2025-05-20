@@ -1,0 +1,125 @@
+// ---------------------------------
+// ENGLISH MODE
+// ---------------------------------
+// basic if statement
+fun test(){
+    return 8
+}
+x=5
+y=12
+z=[1,3,5,7,["cfbfb",1.4]]
+if(1>0){
+    print("a true case")
+}
+if(0>=2){
+    print("a false case. will not print")
+}
+if (x>0){
+    print("variable inside conditon")
+}
+if (x<=y){
+    print("2 variables compared")
+}
+if (x==5 and y==12){ // AND operator
+    print("x is 5 and y is 12")
+}
+if (x==2 or y==12){ // OR operator
+    print("OR operator. at least one condition is true")
+}
+if (not x==2 and y==10){ // OR operator
+    print("NOT operator. inverses the condition (true becomes false and vice versa)")
+}
+if (z[4][1]==1.4){
+    print("list element inside condition")
+}
+print("basic if statement done")
+//----------------------------------------
+// if elif and else statement
+//----------------------------------------
+
+else{
+    print("can't do that")
+}
+elif (x==5){
+    print("can't do that either")
+}
+else{
+    print("must start with if")
+}
+if (x==5){
+    print("x is 5")
+}
+elif (x==6){
+    print("x is 6")
+}
+elif (x==7){
+    print("x is 7")
+}
+else{
+    print("x is not 5, 6 or 7")
+}
+// once we reach else, the if statement is done
+// therefore we can't add another else or elif
+// if we want a new condition we start with an if
+elif(x==8){
+    print("can't do that")
+}
+y=10
+if (y==5){
+    print("y is 5")
+}
+elif (y==10){
+    print("y is 10")
+}
+elif (y==10){
+    print("will not print. the previous elif is true, so no more checks and the if statement is done")
+}
+else{
+    print("y is not 5, 10 or 15. will print if all conditions are false")
+}
+// However, if we use if instead of elif
+// we will keep checking
+if (y==5){
+    print("y is 5")
+}
+if (y==10){ // new condition
+    print("y is 10")
+}
+if (y==10){ // new condition
+    print("will print, IF starts over")
+}
+if (y==15){ // new condition
+    print("y is 15")
+}
+else{ // will Print because all other conditions are ignored. ELSE is now looking at (y==15)
+    print("y is not 5, 10 or 15. this will print because IF starts a new condition")
+    print("meanwhile ELIF carries over the previous condition untill an ELSE is reached")
+}
+
+if (x==20){
+    print("x is 20")
+}
+else{
+    print("x is not 20")
+}
+// if-else statement
+
+// ---------------------------------
+// FRANCO MODE
+// ---------------------------------
+lw x==5{
+    etb3("x is 5 franco")
+}
+aw x==6{
+    etb3("x is 6 franco")
+}
+aw x==7{
+    print("x is 7") // can use print normally with franco
+}
+gher{
+    etb3("x is not 5, 6 or 7 franco")
+}
+
+lw (x==13){ // error
+    etb3("can't include brackets in franco")
+}

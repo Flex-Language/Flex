@@ -29,7 +29,10 @@ def execute_list_decl(statement, AI, insideFunc, variables, variablesFunc):
 #     return variables, variablesFunc  # Return the updated variables
 
 def execute_list_assign(statement, AI, insideFunc, variables, variablesFunc):
-    var_name, index_expr, value_expr, line_number, line_content = statement[1:]
+    if statement[0] == 'LIST_ASSIGN':
+        var_name, index_expr, value_expr, line_number, line_content = statement[1:]
+    else:
+        var_name, index_expr, line_number, line_content = statement[1:]   
 
     # Evaluate the index expression (can be int or list of ints)
     index_list = eval_value(index_expr, line_number, line_content, AI)
@@ -37,7 +40,8 @@ def execute_list_assign(statement, AI, insideFunc, variables, variablesFunc):
         index_list = [index_list]
 
     # Evaluate the value to assign
-    new_value = eval_value(value_expr, line_number, line_content, AI)
+    if statement[0] == 'LIST_ASSIGN':
+        new_value = eval_value(value_expr, line_number, line_content, AI)
 
     # Choose the correct variable scope
     if insideFunc and var_name in variablesFunc:
@@ -52,7 +56,12 @@ def execute_list_assign(statement, AI, insideFunc, variables, variablesFunc):
     try:
         for idx in index_list[:-1]:
             target = target[idx]
-        target[index_list[-1]] = new_value
+        if statement[0] == 'LIST_ASSIGN':
+            target[index_list[-1]] = new_value
+        elif statement[0] == 'LIST_INCREMENT':
+            target[index_list[-1]] += 1
+        elif statement[0] == 'LIST_DECREMENT':
+            target[index_list[-1]] -= 1
     except (IndexError, TypeError) as e:
         error_message = (
             f"Invalid list assignment for '{var_name}' at index {index_list}.\n"

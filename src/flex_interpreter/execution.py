@@ -45,6 +45,10 @@ def run(statements,AI,WEB,insideFunc=False,insideLoop=False,forLoopLocal=False,i
              gv.variables, gv.variablesFunc = execute_list_decl(statement, AI, insideFunc, gv.variables, gv.variablesFunc)
         elif statement[0] == 'LIST_ASSIGN':
              gv.variables, gv.variablesFunc = execute_list_assign(statement, AI, insideFunc, gv.variables, gv.variablesFunc)
+        elif statement[0] == 'LIST_INCREMENT':
+             gv.variables, gv.variablesFunc = execute_list_assign(statement, AI, insideFunc, gv.variables, gv.variablesFunc)
+        elif statement[0] == 'LIST_DECREMENT':
+             gv.variables, gv.variablesFunc = execute_list_assign(statement, AI, insideFunc, gv.variables, gv.variablesFunc)
         elif statement[0]=='LIST_ADD':
            gv.variables, gv.variablesFunc = execute_list_add(statement, AI, insideFunc, gv.variables, gv.variablesFunc)
         elif statement[0]=='LIST_POP':

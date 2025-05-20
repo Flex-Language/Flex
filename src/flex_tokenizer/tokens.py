@@ -5,7 +5,7 @@ TOKENS = [
     ('POP', r'(.pop)'),  # List pop method
     ('REMOVE', r'(.remove|.delete)'),  # List remove/delete methods
     ('SCAN', r'\b(scan|read|input|da5l|da5al|d5l)\b'),  # Input/scan keywords
-    ('IF', r'(if|cond)'),  # If statement keywords
+    ('IF', r'\b(if|cond)\b'),  # If statement keywords
     ('LW', r'(\blw\b)'),  # If statement keyword in another language
     ('ELIF', r'(elif)'),  # Elif statement keyword
     ('AW', r'(\baw\b)'),  # Elif statement keyword in another language
@@ -38,7 +38,7 @@ TOKENS = [
     ('EQ', r'=='),  # Equal operator
     ('NEQ', r'!='),  # Not equal operator
     ('ASSIGN', r'='),  # Assignment operator
-    ('TRUE', r'(true|True|TRUE|sa7|s7|sah|saa7)'),  # Boolean true
+    ('TRUE', r'\b(true|True|TRUE|sa7|s7|sah|saa7)\b'),  # Boolean true
     ('FALSE', r'(false|False|FALSE|ghalt|ghlt|ghalat)'),  # Boolean false
     ('INT', r'\b(?:int|rakm)\b'),  # Integer type
     ('FLOAT', r'\b(?:float|kasr|ksr)\b'),  # Float type

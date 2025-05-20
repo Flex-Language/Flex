@@ -1,0 +1,158 @@
+// ---------------------------------
+// ENGLISH MODE
+// ---------------------------------
+
+// ---------------------------------
+// FOR LOOP
+// ---------------------------------
+print("for loop")
+print("---------------------------------------------")
+for(i=0;i<10;i++){ // basic for loop
+    print("i is {i}")
+}
+for(i=0;i<10;i++){ 
+    print("i is {i}")
+    if (i==5){ // if statement
+        print("will stop the loop")
+        break // break statement to terminate the loop
+    }
+}
+for(i=0;i<10;i++){
+    for(j=0;j<10;j++){ // nested for loop
+        print("i is {i} and j is {j}")
+    }
+}
+for(i=0;i<10;i=i+2){ // can change the increment
+    print("i is {i}") 
+}
+for(i=10;i>2;i--){ // can do decrement too
+    print("i is {i}") 
+    if (i==5){ // if statement
+        print("will stop the loop")
+        break // break statement to terminate the loop
+    }
+}
+for(;;){
+    print("infinite loop. equivalent to while(true)")
+    break // break statement to terminate the loop
+}
+for (i=0;;) {
+    print("this works too. infinite loop")
+    i++
+    if (i==5){
+        break // break statement to terminate the loop
+    }
+}
+//errors can be detected
+for (int x=0; x < 5; u++) { // u is not defined
+    print("will not work, u doesn't exist")
+}
+// ----------------------------------
+// WHILE LOOP (equivalent to for loop, just different syntax)
+// ----------------------------------
+
+int var=0
+while (var<5){ // basic while loop
+    print("var is {var}")
+    var++
+}
+// inside the while loop, you can do anything, just like in a for loop
+var=-5
+print("--------------------------------")
+print("while loop")
+print("--------------------------------")
+
+while (var<10){
+    print("var is {var}")
+    var++
+    if (var==5){ // if statement
+        print("will stop the loop")
+        break // break statement to terminate the loop
+    }
+}
+
+while(1){ // infinite loop
+    print("infinite loop")
+    break // break statement to terminate the loop
+}
+
+d=[1,2,[55,66,77],4]
+while (d[2][0]<60){ // while loop with list
+    print("d[2][0] is {d[2][0]}")
+    d[2][0]++
+}
+
+// ----------------------------------
+// FRANCO MODE 
+// ----------------------------------
+// l7d 4 is equivalent to < 4, no <= here
+print("--------------------------------")
+print("KARR loop")
+print("--------------------------------")
+karr l7d 4 { // very basic karr
+    print("will print 4 times")
+}
+karr u l7d 4 { // karr with variable
+    print("karr with variable")
+}
+// if the variable is defined, we take its number as the initial
+// in the case above, u is undefined, so it will intialize u to 0
+x=5
+karr x l7d 10{ // since x is defined, it will start from 5
+    print("x is {x}")
+}
+// what if we want to start from any number?
+karr x=3 l7d 10{ // we assign any value to out inital variable
+    print("x is {x}")
+}
+// what happens if the intial number is larger?
+karr 5 l7d 0{
+    print("we decrement")
+}
+karr -5 l7d -12{
+    print("will print 7 times")
+}
+// we can do that without variables of we want
+karr 3 l7d 10{ // we assign any value to out inital variable
+    print("no vars here")
+}
+// can also use 2 variables
+// one starting and one ending condition
+x=2
+y=10
+karr x l7d y{
+    print(x)
+}
+// or just the ending condition
+y=13
+karr 10 l7d y{
+    print("will print 3 times since y is 13")
+}
+string s="hello"
+karr l7d length(s){
+    print("can even use fun calls")
+}
+
+list qaz=[1,2,3,4,5,[7,10],11]
+print(qaz[5][0]) // will print 7
+
+karr qaz[5][0]=0 l7d qaz[5][1]{ // we can use the list as a condition
+    print("will print 10 times: {qaz[5][0]+1}")
+}
+//-----------------------------
+// TALAMA LOOP
+//-----------------------------
+// same as while, just no brackets
+
+print("--------------------------------")
+print("KARR loop")
+print("--------------------------------")
+talama 1{
+    print("infinite loop")
+    break
+}
+f=7
+talama f>5 and f <20{
+    print(f)
+    f++
+}
