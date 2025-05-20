@@ -35,7 +35,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install ply==3.11
-        pip install pyinstaller==5.13.0 
+        # Force reinstall PyInstaller to avoid module import issues
+        pip uninstall -y PyInstaller
+        pip install --no-cache-dir pyinstaller==5.13.0
         pip install requests>=2.0.0
         pip install ipaddress
         # Verify installed packages
@@ -53,35 +55,131 @@ jobs:
         # Verify the module is accessible in the Python environment
         python -c "import ipaddress; print('ipaddress module successfully imported on Windows')"
         
+    # Add directory debugging before PyInstaller runs
     - name: Debug src directory
+      if: matrix.os != 'windows-latest'
       run: |
         ls -la src
         ls -la src/* 2>/dev/null || echo "No subdirectories in src"
+        
+    - name: Debug src directory (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: cmd
+      run: |
+        dir src
+        dir src\* /b || echo No subdirectories in src
         
     - name: Build with PyInstaller for Linux/macOS
       if: matrix.os != 'windows-latest'
       run: |
         cd src
-        pyinstaller --onefile --clean --name=${{ matrix.output_name }} \
-          --add-data "flex_compiler:flex_compiler" \
-          --add-data "flex_interpreter:flex_interpreter" \
-          --add-data "flex_parser:flex_parser" \
-          --add-data "flex_tokenizer:flex_tokenizer" \
-          --hidden-import=ipaddress \
-          main.py
+        # Create a basic spec file to properly handle PyInstaller's bootstrap modules
+        cat > main.spec << EOF
+        # -*- mode: python ; coding: utf-8 -*-
+        from PyInstaller.building.build_main import Analysis, PYZ, EXE, COLLECT
+        
+        a = Analysis(
+            ['main.py'],
+            pathex=[],
+            binaries=[],
+            datas=[
+                ('flex_compiler', 'flex_compiler'),
+                ('flex_interpreter', 'flex_interpreter'),
+                ('flex_parser', 'flex_parser'),
+                ('flex_tokenizer', 'flex_tokenizer')
+            ],
+            hiddenimports=['ipaddress', 'PyInstaller.loader.pyimod01_archive', 'PyInstaller.loader.pyimod02_importers', 'PyInstaller.loader.pyimod03_ctypes'],
+            hookspath=[],
+            hooksconfig={},
+            runtime_hooks=[],
+            excludes=[],
+            win_no_prefer_redirects=False,
+            win_private_assemblies=False,
+            cipher=None,
+            noarchive=False,
+        )
+        pyz = PYZ(a.pure, a.zipped_data, cipher=None)
+        
+        exe = EXE(
+            pyz,
+            a.scripts,
+            a.binaries,
+            a.zipfiles,
+            a.datas,
+            [],
+            name='${{ matrix.output_name }}',
+            debug=False,
+            bootloader_ignore_signals=False,
+            strip=False,
+            upx=True,
+            upx_exclude=[],
+            runtime_tmpdir=None,
+            console=True,
+            disable_windowed_traceback=False,
+            argv_emulation=False,
+            target_arch=None,
+            codesign_identity=None,
+            entitlements_file=None,
+        )
+        EOF
+        
+        # Run PyInstaller using the spec file
+        pyinstaller --clean main.spec
         
     - name: Build with PyInstaller for Windows
       if: matrix.os == 'windows-latest'
       shell: cmd
       run: |
         cd src
-        pyinstaller --onefile --clean --name=${{ matrix.output_name }} ^
-          --add-data "flex_compiler;flex_compiler" ^
-          --add-data "flex_interpreter;flex_interpreter" ^
-          --add-data "flex_parser;flex_parser" ^
-          --add-data "flex_tokenizer;flex_tokenizer" ^
-          --hidden-import=ipaddress ^
-          main.py
+        
+        @echo # -*- mode: python ; coding: utf-8 -*- > main.spec
+        @echo from PyInstaller.building.build_main import Analysis, PYZ, EXE, COLLECT >> main.spec
+        @echo. >> main.spec
+        @echo a = Analysis( >> main.spec
+        @echo     ['main.py'], >> main.spec
+        @echo     pathex=[], >> main.spec
+        @echo     binaries=[], >> main.spec
+        @echo     datas=[ >> main.spec
+        @echo         ('flex_compiler', 'flex_compiler'), >> main.spec
+        @echo         ('flex_interpreter', 'flex_interpreter'), >> main.spec
+        @echo         ('flex_parser', 'flex_parser'), >> main.spec
+        @echo         ('flex_tokenizer', 'flex_tokenizer') >> main.spec
+        @echo     ], >> main.spec
+        @echo     hiddenimports=['ipaddress', 'PyInstaller.loader.pyimod01_archive', 'PyInstaller.loader.pyimod02_importers', 'PyInstaller.loader.pyimod03_ctypes'], >> main.spec
+        @echo     hookspath=[], >> main.spec
+        @echo     hooksconfig={}, >> main.spec
+        @echo     runtime_hooks=[], >> main.spec
+        @echo     excludes=[], >> main.spec
+        @echo     win_no_prefer_redirects=False, >> main.spec
+        @echo     win_private_assemblies=False, >> main.spec
+        @echo     cipher=None, >> main.spec
+        @echo     noarchive=False, >> main.spec
+        @echo ) >> main.spec
+        @echo pyz = PYZ(a.pure, a.zipped_data, cipher=None) >> main.spec
+        @echo. >> main.spec
+        @echo exe = EXE( >> main.spec
+        @echo     pyz, >> main.spec
+        @echo     a.scripts, >> main.spec
+        @echo     a.binaries, >> main.spec
+        @echo     a.zipfiles, >> main.spec
+        @echo     a.datas, >> main.spec
+        @echo     [], >> main.spec
+        @echo     name='${{ matrix.output_name }}', >> main.spec
+        @echo     debug=False, >> main.spec
+        @echo     bootloader_ignore_signals=False, >> main.spec
+        @echo     strip=False, >> main.spec
+        @echo     upx=True, >> main.spec
+        @echo     upx_exclude=[], >> main.spec
+        @echo     runtime_tmpdir=None, >> main.spec
+        @echo     console=True, >> main.spec
+        @echo     disable_windowed_traceback=False, >> main.spec
+        @echo     argv_emulation=False, >> main.spec
+        @echo     target_arch=None, >> main.spec
+        @echo     codesign_identity=None, >> main.spec
+        @echo     entitlements_file=None, >> main.spec
+        @echo ) >> main.spec
+        
+        pyinstaller --clean main.spec
           
     # Create Windows Installer
     - name: Create Windows Installer
