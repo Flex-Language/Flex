@@ -1,3 +1,0 @@
-ply==3.11
-pyinstaller==5.13.1 
-requests>=2.0.0
