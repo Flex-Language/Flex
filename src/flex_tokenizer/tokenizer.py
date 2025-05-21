@@ -18,11 +18,14 @@ def handle_long_comment(match, line_number):
     """
     return line_number + match.count('\n')
 
-def handle_newline(line_number):
+def handle_newline(line_number,last_code_line_index):
     """
     Increment the line number for a newline token.
     """
-    return line_number + 1
+    if line_number <= last_code_line_index:
+        return line_number + 1
+    return line_number
+
 
 def add_token(tokens, tok_type, match, line_number, code_lines, tok_number):
     """
@@ -54,6 +57,9 @@ def tokenize(code, AI):
     line_number = 1
     tok_number = -1
     code_lines = code.splitlines()  # Split code into lines for error reporting
+    last_code_line_index = len(code_lines) - 1
+    while last_code_line_index >= 0 and code_lines[last_code_line_index].strip() == "":
+        last_code_line_index -= 1
 
     while code:
         match = None
@@ -66,7 +72,7 @@ def tokenize(code, AI):
                     tok_number = add_token(tokens, tok_type, match, line_number, code_lines, tok_number)
                 code = code[len(match):]  # Move past this token
                 if tok_type == 'NEWLINE':  # Track newlines for line numbers
-                    line_number = handle_newline(line_number)
+                    line_number = handle_newline(line_number,last_code_line_index)
                 break
         
         if not match:
@@ -75,11 +81,7 @@ def tokenize(code, AI):
                 handle_unmatched_comment(line_number, code_lines, code, AI)
             else:
                 handle_unknown_token(tokens, tok_number, line_number, code_lines, AI)
-    tokens.append(('EOF', 'EOF', f'line {line_number+1}', ''))
+    
+    tokens.append(('EOF', 'EOF', f'line {line_number}',code_lines[line_number-1]))
+    
     return tokens
-
-
-
-
-
-
