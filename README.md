@@ -3,6 +3,7 @@
 ## Introduction
 
 Welcome to **Flex**, a flexible and beginner-friendly programming language that allows you to write code in multiple syntax styles, including **Franko Arabic, English, and C-style syntax**. **Flex** is designed for all levels of programmers, from children to professionals, providing an easy-to-learn syntax with powerful programming capabilities.
+
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Flex-Language/Flex)
 
 ### Why Flex?
