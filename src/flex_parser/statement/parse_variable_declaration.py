@@ -48,13 +48,13 @@ def parse_func_call_in_variable_declaration(tokens, AI, line_number, line_conten
 
     args = []
     while current_token(tokens)[0] != 'RPAREN':  # Continue until closing parenthesis
-        if current_token(tokens)[0] in ('NUMBER', 'ID', 'STRING'):
+        if current_token(tokens)[0] in ('NUMBER', 'ID', 'STRING','MINUS'):
             if current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LBRACKET':
                 args.append(parse_arithmetic_expr(tokens, AI,line_number,line_content))  # Parse a list element
             else:
                 args.append(parse_arithmetic_expr(tokens, AI,line_number,line_content))  # Parse a simple argument
         else:
-            error_message = f"Unexpected token {current_token(tokens)[0]} while parsing function arguments"
+            error_message = f"Unexpected token {current_token(tokens)[0]} while parsing function arguments at {line_number}\nLine content: '{line_content}'"
             handle_error(error_message, AI)
         
         if current_token(tokens)[0] == 'COMMA':
@@ -99,5 +99,3 @@ def parse_variable_declaration_statement(tokens, AI, line_number, line_content):
             handle_error(error_message, AI)
     # Step 4: Return parsed variable declaration
     return ('VAR_DECL', var_type, variables, line_number, line_content)
-
-
