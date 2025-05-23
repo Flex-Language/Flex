@@ -47,7 +47,7 @@ def eval_value(value, line_number, line_content, AI, var_type=None, func=False):
     elif isinstance(value, tuple) and value[0] == 'LIST_ELEMENT':
         return handle_list_element(value, line_number, line_content, AI, func)
     elif value.isdigit() or '.' in value:
-        return handle_numeric_value(value)
+        return handle_numeric_value(value,line_number,line_content,AI,func)
     elif value == "scan_now":
         return handle_scan_now(var_type, line_number, line_content, AI)
     elif value in  ('true','True','TRUE','sa7','s7','sah','saa7'):
@@ -123,8 +123,9 @@ def handle_list_element(value, line_number, line_content, AI, func):
     var_name, index = value[1], eval_value(value[2], line_number, line_content, AI)
     return eval_list_index(var_name, index, line_number, line_content, AI, func)
 
-def handle_numeric_value(value):
-    return int(value) if '.' not in value else float(value)
+def handle_numeric_value(value, line_number, line_content, AI, func):
+    # return int(value) if '.' not in value else float(value)
+    return handle_global_scope(value, line_number, line_content, AI,func)
 
 def handle_scan_now(var_type, line_number, line_content, AI):
     if gv.web:
