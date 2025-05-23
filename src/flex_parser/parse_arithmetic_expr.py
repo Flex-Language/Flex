@@ -48,7 +48,7 @@ def handle_minus(tokens, AI, line_number, line_content):
         tok = current_token(tokens)
         error_message = f"Expected NUMBER after '-' at line {line_number}, but got {tok[0]}\nLine content: '{line_content}'"
         handle_error(error_message, AI)
-    return str(sign * int(next_token(tokens)[1]))  # Return the signed number
+    return str(sign * float(next_token(tokens)[1]))  # Return the signed number
 
 def parse_identifier_or_array(tokens, AI, line_number, line_content):
     """Parses identifiers and array indexing."""
