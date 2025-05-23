@@ -39,7 +39,7 @@ def eval_condition(condition, line_number, line_content,isFunc,AI):
         if 'EMPTY_COND' in condition:
             return True
         # Replace 'true' and 'false' with Python's 'True' and 'False'
-        condition = condition.replace('true', 'True').replace('false', 'False')
+        condition = condition.replace('true', 'True').replace('false', 'False').replace('s7', 'True').replace('sah', 'True').replace('saa7', 'True').replace('sa7', 'True').replace('ghlt', 'False').replace('ghalat', 'False').replace('ghalt', 'False')
         # Replace '=>' with '>=' and '=<' with '<=' to match Python's syntax
         condition = condition.replace('=>', '>=').replace('=<', '<=')
         if 'FUNC_CALL' in condition:
