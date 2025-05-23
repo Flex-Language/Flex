@@ -64,7 +64,7 @@ def run(statements, AI, WEB, insideFunc=False, insideLoop=False, forLoopLocal=Fa
         elif statement[0] == 'FUN':  # Function definition
            gv.functions, params, block = execute_function(statement, gv.functions)  # Pass and return functions dictionary
         elif statement[0] == 'FUNC_CALL':  # Function call
-            gv.functions,params, block = execute_function_call(statement, AI, gv.functions)    
+            gv.functions,params, block = execute_function_call(statement, AI, gv.functions,insideFunc)    
         elif statement[0] == 'WHILE':
             non_if = True
             execute_while(statement, AI, insideFunc)

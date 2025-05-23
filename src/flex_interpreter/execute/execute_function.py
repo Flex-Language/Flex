@@ -26,7 +26,7 @@ def execute_function(statement, functions):
     functions[func_name][param_count] = (params, block)
     return functions, params, block
 
-def execute_function_call(statement, AI, functions):
+def execute_function_call(statement, AI, functions, insideFunc):
     """Handle function call and modify variables or return value."""
     
     func_name, args, line_number, line_content = statement[1], statement[2], statement[3], statement[4]
@@ -52,5 +52,5 @@ def execute_function_call(statement, AI, functions):
         handle_error(error_message, AI)
     
     # Evaluate the function call (or do other necessary actions)
-    eval_value(statement, line_number, line_content, AI)
+    eval_value(statement, line_number, line_content, AI,None, insideFunc)
     return functions,params, block  # Return the updated functions dictionary
