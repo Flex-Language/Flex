@@ -20,10 +20,13 @@ def get_base_dir():
     return base_dir
 
 # Load flex example files
-def load_flex_examples():
+def load_flex_examples(debug_mode=False):
     """
     Load all example files from the data directories.
     Returns a string containing all the content concatenated.
+    
+    Args:
+        debug_mode (bool): Whether to print debug information
     """
     examples = []
     base_dir = get_base_dir()
@@ -52,9 +55,9 @@ def load_flex_examples():
             os.path.join(ammar_data_dir, "total.txt")
         ]
         
-        # For debugging
-        debug_info = f"Searching for data files in: {compiler_data_dir} and {ammar_data_dir}"
-        print(f"\033[94m{debug_info}\033[0m")  # blue debug message
+        if debug_mode:
+            debug_info = f"Searching for data files in: {compiler_data_dir} and {ammar_data_dir}"
+            print(f"\033[94m{debug_info}\033[0m")  # blue debug message
         
         # Check if any files exist in this location
         files_found = False
@@ -65,9 +68,11 @@ def load_flex_examples():
                 with open(file_path, 'r') as file:
                     examples.append(file.read())
                     files_found = True
-                    print(f"\033[92mFound and loaded: {file_path}\033[0m")  # green success
+                    if debug_mode:
+                        print(f"\033[92mFound and loaded: {file_path}\033[0m")  # green success
             except FileNotFoundError:
-                print(f"\033[93mWarning: Could not find example file {file_path}\033[0m")  # yellow warning
+                if debug_mode:
+                    print(f"\033[93mWarning: Could not find example file {file_path}\033[0m")  # yellow warning
         
         # If we found files in this location, no need to check other locations
         if files_found:
@@ -77,11 +82,12 @@ def load_flex_examples():
     if examples:
         return "\n\n".join(examples)
     else:
-        print("\033[93mWarning: No example files were found. AI responses may have limited Flex language knowledge.\033[0m")
+        if debug_mode:
+            print("\033[93mWarning: No example files were found. AI responses may have limited Flex language knowledge.\033[0m")
         return ""
 
 # Load the flex examples when module is imported
-flex_data = load_flex_examples()
+flex_data = load_flex_examples(debug_mode=False)
 
 # Function to use OpenRouter API
 def use_openrouter(prompt, model_name=None, api_key=None):
