@@ -4,12 +4,17 @@ from flex_interpreter.evaluating_values import *
 
 def execute_list_decl(statement, AI, insideFunc, variables, variablesFunc):
     var_name = statement[1]
-    elements = [eval_value(elem, statement[3], statement[4], AI) for elem in statement[2]]
+    if 'FUNC_CALL' in statement[2]:  # If the value is a function call
+        elements = eval_value(statement[2], statement[3], statement[4], AI, None, insideFunc)    
+    else:
+        elements = [eval_value(elem, statement[3], statement[4], AI,None,insideFunc) for elem in statement[2]]
     
     if insideFunc:
         variablesFunc[var_name] = [elements, 'list', True]  # Modify the function-scoped variable
+        checkType(variablesFunc[var_name][0], variablesFunc[var_name][1], statement[3], statement[4], AI)
     else:
         variables[var_name] = [elements, 'list', True]  # Modify the global variable
+        checkType(variables[var_name][0], variables[var_name][1], statement[3], statement[4], AI)
 
     return variables, variablesFunc  # Return the updated variables
 
@@ -35,13 +40,13 @@ def execute_list_assign(statement, AI, insideFunc, variables, variablesFunc):
         var_name, index_expr, line_number, line_content = statement[1:]   
 
     # Evaluate the index expression (can be int or list of ints)
-    index_list = eval_value(index_expr, line_number, line_content, AI)
+    index_list = eval_value(index_expr, line_number, line_content, AI,None,insideFunc)
     if not isinstance(index_list, list):
         index_list = [index_list]
 
     # Evaluate the value to assign
     if statement[0] == 'LIST_ASSIGN':
-        new_value = eval_value(value_expr, line_number, line_content, AI)
+        new_value = eval_value(value_expr, line_number, line_content, AI,None,insideFunc)
 
     # Choose the correct variable scope
     if insideFunc and var_name in variablesFunc:
@@ -74,7 +79,7 @@ def execute_list_assign(statement, AI, insideFunc, variables, variablesFunc):
 
 def execute_list_add(statement, AI, insideFunc, variables, variablesFunc):
     value, var_name, line_number, line_content = statement[1:]
-    new_value = eval_value(value, line_number, line_content, AI)
+    new_value = eval_value(value, line_number, line_content, AI,None,insideFunc)
     
     if insideFunc and var_name in variablesFunc:
         variablesFunc[var_name][0].append(new_value)
@@ -90,7 +95,7 @@ def execute_list_pop(statement, AI, insideFunc, variables, variablesFunc):
     index, var_name, line_number, line_content = statement[1:]
     
     if index is not None:
-        index = eval_value(index, line_number, line_content, AI)
+        index = eval_value(index, line_number, line_content, AI,None,insideFunc)
     
     try:
         if insideFunc and var_name in variablesFunc:
@@ -114,7 +119,7 @@ def execute_list_pop(statement, AI, insideFunc, variables, variablesFunc):
 
 def execute_list_remove(statement, AI, insideFunc, variables, variablesFunc):
     value, var_name, line_number, line_content = statement[1:]
-    new_value = eval_value(value, line_number, line_content, AI)
+    new_value = eval_value(value, line_number, line_content, AI,None,insideFunc)
     
     try:
         if insideFunc and var_name in variablesFunc:
@@ -138,8 +143,8 @@ def execute_assign_list_access(statement, AI, insideFunc, variables, variablesFu
     Executes the ASSIGN statement for list access (e.g., x[2] = value).
     """
     var_name = statement[1][1]
-    index = eval_value(statement[1][2], statement[3], statement[4], AI)
-    new_value = eval_value(statement[2], statement[3], statement[4], AI)
+    index = eval_value(statement[1][2], statement[3], statement[4], AI, None, insideFunc)
+    new_value = eval_value(statement[2], statement[3], statement[4], AI, None, insideFunc)
 
     # Modify the list in the appropriate scope
     if insideFunc and var_name in variablesFunc:

@@ -2,6 +2,7 @@ import  flex_parser.glopal_vars as gv
 from flex_parser.parser_utils import *
 from flex_parser.parse_expr import *
 from flex_parser.parse_arithmetic_expr import *
+from flex_parser.statement.parse_variable_declaration import parse_func_call_in_variable_declaration
 
 # def parse_list_declaration_statement(tokens, AI, line_number, line_content):
 #     next_token(tokens)  # Consume 'list'
@@ -52,10 +53,12 @@ def parse_list_declaration_statement(tokens, AI, line_number, line_content):
 
     if current_token(tokens)[0] == 'ASSIGN':
         expect(tokens, 'ASSIGN', AI)
-        expect(tokens, 'LBRACKET', AI)
-
-        elements = parse_list_elements()  # Use recursive list parser
-        expect(tokens, 'RBRACKET', AI)
+        if current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LPAREN':
+            elements = parse_func_call_in_variable_declaration(tokens, AI, line_number, line_content)  # Parse function call
+        else:
+            expect(tokens, 'LBRACKET', AI)
+            elements = parse_list_elements()  # Use recursive list parser
+            expect(tokens, 'RBRACKET', AI)
         return ('LIST_DECL', var_name, elements, line_number, line_content)
 
     elif current_token(tokens)[0] == 'LBRACKET':

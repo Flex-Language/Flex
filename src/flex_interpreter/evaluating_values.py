@@ -123,9 +123,11 @@ def handle_list_element(value, line_number, line_content, AI, func):
     var_name, index = value[1], eval_value(value[2], line_number, line_content, AI)
     return eval_list_index(var_name, index, line_number, line_content, AI, func)
 
-def handle_numeric_value(value, line_number, line_content, AI, func):
+def handle_numeric_value(value,line_number,line_content,AI,func):
+    # value= evaluate_expression(value, line_number, line_content, AI,func)
     # return int(value) if '.' not in value else float(value)
-    return handle_global_scope(value, line_number, line_content, AI,func)
+    return handle_global_scope(value, line_number, line_content, AI,func) if not func else handle_function_scope(value, line_number, line_content, AI,func)
+
 
 def handle_scan_now(var_type, line_number, line_content, AI):
     if gv.web:
@@ -230,11 +232,16 @@ def evaluate_expression(expr, line_number, line_content, AI,func):
         return tuple(evaluate_expression(e, line_number, line_content, AI,func) for e in expr)
     elif isinstance(expr, (int, float, str)):
         return expr
-    elif isinstance(expr, str) and expr in gv.variables:
+    elif isinstance(expr, str) and expr in gv.variables and not func:
         if gv.variables[expr][0] is None:
             error_message = f"Variable '{expr}' is uninitialized.\n{line_number}: '{line_content.strip()}'"
             handle_error(error_message, AI)
         return gv.variables[expr][0]
+    elif isinstance(expr, str) and expr in gv.variables and func:
+        if gv.variablesFunc[expr][0] is None:
+            error_message = f"Variable '{expr}' is uninitialized.\n{line_number}: '{line_content.strip()}'"
+            handle_error(error_message, AI)
+        return gv.variablesFunc[expr][0]
     else:
         return expr
 import ast

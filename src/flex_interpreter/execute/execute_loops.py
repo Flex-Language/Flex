@@ -85,7 +85,6 @@ def determine_loop_parameters_in_karr(number, init_statement, line_number, line_
     flag=0
     try:
         if insideFunc:
-            
             if init_statement==None:
                 var_name = 'default'
             elif init_statement[0]=="NUMBER" or init_statement[0]=="-VE_NUMBER":
@@ -100,7 +99,7 @@ def determine_loop_parameters_in_karr(number, init_statement, line_number, line_
                 plusminus = 'INCREMENT'
                 bigless = '<'
         else:
-            number=eval_value(number, line_number, line_content, AI)   
+            number=eval_value(number, line_number, line_content, AI,None,insideFunc)   
             if init_statement==None:
                 var_name = 'default'
                 init_number=gv.variables[var_name][0]
