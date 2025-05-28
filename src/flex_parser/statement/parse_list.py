@@ -55,6 +55,8 @@ def parse_list_declaration_statement(tokens, AI, line_number, line_content):
         expect(tokens, 'ASSIGN', AI)
         if current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LPAREN':
             elements = parse_func_call_in_variable_declaration(tokens, AI, line_number, line_content)  # Parse function call
+        elif current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LBRACKET':
+            elements = parse_list_assignment_statement(tokens, AI, line_number, line_content)  # Parse function call
         else:
             expect(tokens, 'LBRACKET', AI)
             elements = parse_list_elements()  # Use recursive list parser

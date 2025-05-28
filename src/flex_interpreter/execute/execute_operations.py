@@ -56,7 +56,6 @@ def execute_assign(statement, AI, insideFunc, variables, variablesFunc):
     Executes the ASSIGN statement for variable assignment.
     """
     non_if = True  # Update the non_if flag
-
     if insideFunc:
         
         if len(statement) == 5:  # When all elements are present

@@ -6,6 +6,8 @@ def execute_list_decl(statement, AI, insideFunc, variables, variablesFunc):
     var_name = statement[1]
     if 'FUNC_CALL' in statement[2]:  # If the value is a function call
         elements = eval_value(statement[2], statement[3], statement[4], AI, None, insideFunc)    
+    elif 'LIST_ACCESS' in statement[2]:  # If the value is a list access
+        elements = eval_value(statement[2], statement[3], statement[4], AI, None, insideFunc)
     else:
         elements = [eval_value(elem, statement[3], statement[4], AI,None,insideFunc) for elem in statement[2]]
     

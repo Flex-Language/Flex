@@ -46,6 +46,8 @@ def eval_value(value, line_number, line_content, AI, var_type=None, func=False):
         return [eval_value(v, line_number, line_content, AI, var_type, func) for v in value]
     elif isinstance(value, tuple) and value[0] == 'LIST_ELEMENT':
         return handle_list_element(value, line_number, line_content, AI, func)
+    elif isinstance(value, tuple) and value[0] == 'LIST_ACCESS':
+        return handle_list_access(value, line_number, line_content, AI, func)
     elif value.isdigit() or '.' in value:
         return handle_numeric_value(value,line_number,line_content,AI,func)
     elif value == "scan_now":
@@ -54,8 +56,7 @@ def eval_value(value, line_number, line_content, AI, var_type=None, func=False):
         return True
     elif value in ('false','False','FALSE','ghalt','ghlt','ghalat'):
         return False
-    elif isinstance(value, tuple) and value[0] == 'LIST_ACCESS':
-        return handle_list_access(value, line_number, line_content, AI, func)
+
     elif not func:
         return handle_global_scope(value, line_number, line_content, AI,func)
     else:
@@ -163,7 +164,9 @@ def handle_scan_now(var_type, line_number, line_content, AI):
 
 def handle_list_access(value, line_number, line_content, AI, func):
     var_name, index = value[1], eval_value(value[2], line_number, line_content, AI)
+    print(index)
     return eval_list_index(var_name, index, line_number, line_content, AI, func)
+    
 
 def handle_global_scope(value, line_number, line_content, AI,func):
     try:
@@ -244,6 +247,64 @@ def evaluate_expression(expr, line_number, line_content, AI,func):
         return gv.variablesFunc[expr][0]
     else:
         return expr
+# def eval_list_index(var_name, index, line_number, line_content,AI, insideFunc=False):
+#     """Evaluate list index access (e.g., x[2])."""
+#     try:
+#         # Retrieve the list from the appropriate scope
+#         if insideFunc and var_name in gv.variablesFunc:
+#             lst = gv.variablesFunc[var_name][0]
+#         elif var_name in gv.variables:
+#             lst = gv.variables[var_name][0]
+#         else:
+#             error_message = f"List '{var_name}' not defined.\n{line_number}: '{line_content.strip()}'"
+#             handle_error(error_message, AI)
+#         # Ensure the index is an integer
+#         index = int(index)
+#         # Return the value at the specified index
+#         return lst[index]
+#     except IndexError:
+#         error_message = f"Index out of range for list '{var_name}' at {line_number}.\nLine content: {line_content.strip()}"
+#         handle_error(error_message, AI)
+#     except ValueError:
+#         error_message = f"Invalid index type for list '{var_name}' at {line_number}.\nLine content: {line_content.strip()}"
+#         handle_error(error_message, AI)
+def eval_list_index(var_name, index, line_number, line_content, AI, insideFunc=False):
+    """Evaluate nested list index access (e.g., x[2], x[1][0], x[1][2][3])."""
+    try:
+        # Retrieve the list from the appropriate scope
+        if insideFunc and var_name in gv.variablesFunc:
+            value = gv.variablesFunc[var_name][0]
+        elif var_name in gv.variables:
+            value = gv.variables[var_name][0]
+        else:
+            error_message = f"List '{var_name}' not defined.\n{line_number}: '{line_content.strip()}'"
+            return handle_error(error_message, AI)
+
+        # Ensure index is a list for uniform processing
+        indices = [index] if isinstance(index, int) else index
+
+        # Traverse nested indices
+        for idx in indices:
+            try:
+                idx = int(idx)
+                value = value[idx]
+            except IndexError:
+                error_message = f"Index {idx} out of range for list '{var_name}' at line {line_number}.\nLine content: {line_content.strip()}"
+                return handle_error(error_message, AI)
+            except (ValueError, TypeError):
+                error_message = f"Invalid index '{idx}' for list '{var_name}' at line {line_number}.\nLine content: {line_content.strip()}"
+                return handle_error(error_message, AI)
+            except Exception as e:
+                error_message = f"Error accessing list '{var_name}': {str(e)}\n{line_number}: '{line_content.strip()}'"
+                return handle_error(error_message, AI)
+
+        return value
+
+    except Exception as e:
+        error_message = f"Unexpected error in eval_list_index: {str(e)}\n{line_number}: '{line_content.strip()}'"
+        return handle_error(error_message, AI)
+
+
 import ast
 
 
