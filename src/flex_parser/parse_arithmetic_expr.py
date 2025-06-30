@@ -10,9 +10,9 @@ def parse_arithmetic_expr(tokens, AI, line_number, line_content):
     return left  # Return the complete expression
 
 def parse_term(tokens, AI, line_number, line_content):
-    """Parses terms, which may involve multiplication and division."""
+    """Parses terms, which may involve multiplication, division, and modulo."""
     left = parse_primary(tokens, AI,line_number,line_content)  # Get the initial value
-    while current_token(tokens)[0] in ('MULT', 'DIV'):  # While we see * or /
+    while current_token(tokens)[0] in ('MULT', 'DIV', 'MOD'):  # While we see *, /, or %
         operator = next_token(tokens)[1]  # Consume the operator
         right = parse_primary(tokens, AI,line_number,line_content)  # Get the next primary expression
         left = f"{left} {operator} {right}"  # Combine them into a single expression

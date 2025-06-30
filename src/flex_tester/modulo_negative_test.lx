@@ -1,0 +1,12 @@
+// Testing modulo with negative numbers
+print("Positive modulo:")
+print(10 % 3)
+
+print("Negative dividend:")
+print(-10 % 3)
+
+print("Negative divisor:")  
+print(10 % -3)
+
+print("Both negative:")
+print(-10 % -3) 

@@ -1,0 +1,59 @@
+// Comprehensive Modulo Operator Test for Flex Language
+print("Modulo Operator Test Suite")
+print("")
+
+// Test 1: Basic operations
+print("Basic Operations:")
+print(10 % 3)
+print(15 % 4) 
+print(20 % 5)
+print("")
+
+// Test 2: Variables
+print("With Variables:")
+int a = 17
+int b = 5
+int result = a % b
+print(result)
+print("")
+
+// Test 3: Complex expressions
+print("Complex Expressions:")
+int x = (10 % 3) + (15 % 4)
+print(x)
+print("")
+
+// Test 4: Negative numbers
+print("Negative Numbers:")
+print(-10 % 3)
+print(10 % -3)
+print("")
+
+// Test 5: Even/odd detection
+print("Even/Odd Detection:")
+int numbers = 0
+while (numbers < 5) {
+    if (numbers % 2 == 0) {
+        print("Even:")
+        print(numbers)
+    } else {
+        print("Odd:")
+        print(numbers)
+    }
+    numbers++
+}
+print("")
+
+// Test 6: Cycling values
+print("Cycling Values 0-2:")
+int counter = 0
+int cycled = 0
+while (counter < 8) {
+    cycled = counter % 3
+    print(counter)
+    print(cycled)
+    counter++
+}
+print("")
+
+print("All Tests Completed!") 

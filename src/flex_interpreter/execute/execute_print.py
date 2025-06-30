@@ -56,7 +56,7 @@ def execute_print(statement, AI, skip_next, insideFunc):
         #     handle_list_access_in_print(statement, line_number, line_content, AI, insideFunc)
         if statement[1][0] == 'FUNC_CALL':
             handle_function_call_in_print(statement[1], line_number, line_content, AI, insideFunc)
-        elif re.search(r'^[^"]*[\d+\-*/][^"]*$', statement[1]) or re.search(r'^[a-zA-Z_]\w*$', statement[1]) or re.search(r'^[a-zA-Z_]\w*(\[(\d+|[a-zA-Z_]\w*)\])*$',statement[1]):
+        elif re.search(r'^[^"]*[\d+\-*/%][^"]*$', statement[1]) or re.search(r'^[a-zA-Z_]\w*$', statement[1]) or re.search(r'^[a-zA-Z_]\w*(\[(\d+|[a-zA-Z_]\w*)\])*$',statement[1]):
             handle_expression_in_print(statement, line_number, line_content, AI, insideFunc)
         else:
             handle_formatted_string_in_print(statement, line_number, line_content, AI, insideFunc)

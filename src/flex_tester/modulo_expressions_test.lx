@@ -1,0 +1,13 @@
+// Testing modulo in expressions
+print(10 % 3)
+print(15 % 4)
+print(20 % 5)
+print(7 % 2)
+
+// Test with variables
+int a = 17
+int b = 5
+print(a % b)
+
+// Test modulo by zero (should error)
+// print(10 % 0) 
