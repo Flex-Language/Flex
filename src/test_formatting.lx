@@ -1,0 +1,2 @@
+rakm x = undefined_var
+print(x)

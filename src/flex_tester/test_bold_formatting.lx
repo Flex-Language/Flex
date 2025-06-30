@@ -1,0 +1,8 @@
+# Test file for demonstrating enhanced bold formatting in AI responses
+rakm x = 10
+rakm y = 20
+
+# This line has an intentional error to trigger AI assistance
+rakm result = add(x, y, undefined_variable)  # undefined_variable causes error
+
+print("Result:", result) 

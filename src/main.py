@@ -99,6 +99,9 @@ def main():
             print("Error: No source file provided")
             print("Usage: flex <source_file .lx,.flex> [--web] or flex --version")
             sys.exit(1)
+        
+
+        
         try:
             compile_and_run(source_file, AI, WEB, model_name)
         except SyntaxError as e:

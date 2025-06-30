@@ -1,11 +1,15 @@
-
 from flex_tokenizer.tokenizer import *
 from flex_tokenizer.check_brace_matching import *
 from flex_parser.parse import *
 from flex_interpreter import execution
+import flex_interpreter.glopal_vars as gv
 
 def compile_and_run(file_path, AI, WEB, model_name=None):
     import_list =[]
+    
+    # Store the source file path in global variables for AI error handling
+    gv.source_file_path = file_path
+    
     try:
         with open(file_path, 'r') as file:
             code = file.read()
