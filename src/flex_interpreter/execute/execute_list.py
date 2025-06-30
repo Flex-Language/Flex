@@ -53,7 +53,7 @@ def execute_list_assign(statement, AI, insideFunc, variables, variablesFunc):
     # Choose the correct variable scope
     if insideFunc and var_name in variablesFunc:
         target = variablesFunc[var_name][0]
-    elif var_name in variables:
+    elif not insideFunc and var_name in variables:
         target = variables[var_name][0]
     else:
         error_message = f"List '{var_name}' not defined.\n{line_number}: '{line_content.strip()}'"
