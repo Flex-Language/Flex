@@ -1,4 +1,4 @@
-# import requests
+import requests
 import json
 import os
 import sys
@@ -134,35 +134,35 @@ def use_openrouter(prompt, model_name=None, api_key=None):
         ]
     }
     
-    # try:
-    #     # Make the API request
-    #     response = requests.post(url, headers=headers, json=payload)
-    #     response.raise_for_status()  # Raise exception for HTTP errors
+    try:
+        # Make the API request
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()  # Raise exception for HTTP errors
         
-    #     # Parse the response
-    #     result = response.json()
+        # Parse the response
+        result = response.json()
         
-    #     # Extract and return the model's response
-    #     if 'choices' in result and len(result['choices']) > 0:
-    #         message = result['choices'][0]['message']['content']
-    #         return message
-    #     else:
-    #         error_message = f"Unexpected response format from OpenRouter: {result}"
-    #         print(f"\033[91m{error_message}\033[0m")  # red
-    #         return f"Error: {error_message}"
+        # Extract and return the model's response
+        if 'choices' in result and len(result['choices']) > 0:
+            message = result['choices'][0]['message']['content']
+            return message
+        else:
+            error_message = f"Unexpected response format from OpenRouter: {result}"
+            print(f"\033[91m{error_message}\033[0m")  # red
+            return f"Error: {error_message}"
             
-    # except requests.exceptions.RequestException as e:
-    #     error_message = f"Error connecting to OpenRouter API: {str(e)}"
-    #     print(f"\033[91m{error_message}\033[0m")  # red
-    #     return f"Error: {error_message}"
-    # except json.JSONDecodeError:
-    #     error_message = "Error parsing response from OpenRouter API"
-    #     print(f"\033[91m{error_message}\033[0m")  # red
-    #     return f"Error: {error_message}"
-    # except Exception as e:
-    #     error_message = f"Unexpected error: {str(e)}"
-    #     print(f"\033[91m{error_message}\033[0m")  # red
-    #     return f"Error: {error_message}"
+    except requests.exceptions.RequestException as e:
+        error_message = f"Error connecting to OpenRouter API: {str(e)}"
+        print(f"\033[91m{error_message}\033[0m")  # red
+        return f"Error: {error_message}"
+    except json.JSONDecodeError:
+        error_message = "Error parsing response from OpenRouter API"
+        print(f"\033[91m{error_message}\033[0m")  # red
+        return f"Error: {error_message}"
+    except Exception as e:
+        error_message = f"Unexpected error: {str(e)}"
+        print(f"\033[91m{error_message}\033[0m")  # red
+        return f"Error: {error_message}"
 
 # Function to interact with the assistant (legacy OpenAI version)
 def ask_assistant(prompt, model_name=None):
