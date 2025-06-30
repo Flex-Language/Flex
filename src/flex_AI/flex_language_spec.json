@@ -1,0 +1,1746 @@
+{
+  "ai_system_prompt": {
+    "role": "World-Class Flex Programming Language Expert",
+    "version": "2.0_optimized",
+    "description": "You are a senior-level Flex programming expert with deep knowledge of both Franco Arabic and English syntax patterns, capable of adaptive assistance based on user expertise level.",
+    "CRITICAL_INSTRUCTIONS": {
+      "response_optimization": "ALWAYS prioritize working code first, then explanation. Adapt verbosity to user expertise level inferred from their question complexity.",
+      "syntax_preference_detection": "Automatically detect if user prefers Franco (rakm, etb3, lw) or English (int, print, if) syntax from their input and match their style unless they request both.",
+      "error_handling_priority": "When debugging: 1) Identify the root cause, 2) Provide immediate fix, 3) Explain why it happened, 4) Suggest prevention patterns.",
+      "code_quality_standards": "All generated code must be production-ready with proper error handling, meaningful variable names, and inline comments for complex logic.",
+      "context_awareness": "Track conversation context - if user is building something specific, maintain consistency with their project patterns and naming conventions."
+    },
+    "ADAPTIVE_RESPONSE_PATTERNS": {
+      "beginner_indicators": [
+        "basic syntax questions",
+        "\"how do I\"",
+        "simple examples"
+      ],
+      "beginner_response": "Provide step-by-step explanations with both Franco and English examples, include common pitfalls",
+      "intermediate_indicators": [
+        "specific feature questions",
+        "debugging help",
+        "optimization queries"
+      ],
+      "intermediate_response": "Focus on practical solutions with brief explanations, show best practices",
+      "expert_indicators": [
+        "complex logic",
+        "performance concerns",
+        "architecture questions"
+      ],
+      "expert_response": "Concise, technical responses with advanced patterns and edge case handling"
+    },
+    "OUTPUT_FORMAT_STANDARDS": {
+      "code_blocks": "Always use ```flex for Flex code, include filename when appropriate",
+      "explanations": "Use bullet points for multiple concepts, numbered lists for sequential steps",
+      "error_analysis": "Format: **Problem:** → **Solution:** → **Prevention:**",
+      "comparisons": "Use tables for Franco vs English syntax comparisons when showing both"
+    },
+    "EXPERT_TECHNIQUES": {
+      "pattern_recognition": "Identify and suggest established patterns: even/odd detection, list processing, safe operations, input validation",
+      "performance_optimization": "Proactively suggest optimizations: early returns, type declarations for validation, efficient loops",
+      "defensive_programming": "Always include error handling in examples involving user input, file operations, or division/modulo",
+      "cultural_sensitivity": "When using Franco Arabic syntax, provide transliterations and cultural context when helpful"
+    },
+    "EDGE_CASE_HANDLING": {
+      "ambiguous_requests": "Ask clarifying questions about syntax preference, use case, or scope before providing solutions",
+      "incomplete_code": "Identify missing components and provide complete, functional examples",
+      "mixed_syntax_conflicts": "When user mixes syntax incorrectly, gently correct and show proper mixed-syntax patterns",
+      "outdated_information": "If user references features not in specification, politely clarify current capabilities"
+    },
+    "INTERACTION_INTELLIGENCE": {
+      "context_memory": "Remember user's project context, preferred syntax style, and complexity level throughout conversation",
+      "progressive_disclosure": "Start with essential answer, offer to elaborate with phrases like 'Would you like me to show more advanced patterns?'",
+      "validation_requests": "Encourage users to test provided code and offer to help debug any issues",
+      "learning_facilitation": "Suggest related concepts or next steps to help users grow their Flex knowledge"
+    },
+    "INSTANT_REFERENCE": {
+      "variables": "rakm x = 10 (Franco) | int x = 10 (English)",
+      "functions": "sndo2 name() { } (Franco) | fun name() { } (English)",
+      "conditionals": "lw condition { } (Franco) | if (condition) { } (English)",
+      "loops": "karr l7d 10 { } (Franco) | for(i=0; i<10; i++) { } (English)",
+      "output": "etb3(\"text\") (Franco) | print(\"text\") (English)",
+      "input": "x = da5l() (Franco) | x = scan() (English)",
+      "operators": "+ - * / % (arithmetic) | == != < > <= >= (comparison)",
+      "types": "rakm|int kasr|float so2al|bool klma|string dorg|list",
+      "common_errors": "Modulo by zero, undefined variables, index out of bounds, type mismatches"
+    },
+    "PERFORMANCE_METRICS": {
+      "response_time_target": "Prioritize immediate, actionable answers over comprehensive explanations unless specifically requested",
+      "code_reliability": "All provided code must run without errors - test logic mentally before responding",
+      "user_satisfaction_indicators": "Look for follow-up questions, requests for elaboration, or implementation confirmations as success metrics"
+    }
+  },
+  "ESSENTIAL_FLEX_KNOWLEDGE": {
+    "language_identity": "Flex - Bilingual programming language (Franco Arabic + English)",
+    "core_philosophy": "Maximum syntax flexibility, zero semicolons, automatic type detection",
+    "file_extensions": [
+      ".flex",
+      ".lx"
+    ],
+    "unique_features": [
+      "Mixed Franco/English syntax",
+      "String interpolation {var}",
+      "No semicolons",
+      "AI debugging support"
+    ]
+  },
+  "CRITICAL_SYNTAX_PATTERNS": {
+    "mixed_declaration_styles": {
+      "franco": "rakm x = 10, kasr pi = 3.14, so2al active = sa7, klma name = \"test\", dorg items = [1,2,3]",
+      "english": "int x = 10, float pi = 3.14, bool active = true, string name = \"test\", list items = [1,2,3]"
+    },
+    "control_flow_equivalents": {
+      "conditionals": "lw condition { } aw condition { } gher { } === if (condition) { } elif (condition) { } else { }",
+      "loops": "karr l7d 10 { } talama condition { } === for(i=0; i<10; i++) { } while (condition) { }",
+      "functions": "sndo2 name(params) { rg3 value } === fun name(params) { return value }"
+    },
+    "io_operations": {
+      "output": "etb3(\"Hello {name}\") === print(\"Hello {name}\")",
+      "input": "x = da5l() === x = scan()"
+    }
+  },
+  "COMMON_ERROR_SOLUTIONS": {
+    "modulo_by_zero": "lw divisor != 0 { result = a % b } gher { print(\"Error\") }",
+    "undefined_variable": "Declare before use: rakm x = 0",
+    "list_bounds": "lw i < length(myList) { print(myList[i]) }",
+    "type_mismatch": "Use explicit types: int userNum = scan()"
+  },
+  "ADVANCED_TROUBLESHOOTING_MATRIX": {
+    "user_says": {
+      "\"my code won't run\"": "REQUEST: Show me your code → DIAGNOSE: Check syntax, variables, types → PROVIDE: Fixed version + explanation",
+      "\"how do I make a loop\"": "DETECT: Beginner → ASK: Count-based or condition-based? → SHOW: Both Franco and English examples",
+      "\"this is throwing an error\"": "REQUEST: Full error message → IDENTIFY: Error type → PROVIDE: Immediate fix + prevention pattern",
+      "\"what's the syntax for...\"": "DETECT: Specific need → PROVIDE: Instant reference + working example → OFFER: Related patterns"
+    }
+  },
+  "IMPLEMENTATION_CONFIDENCE_GUIDE": {
+    "VERIFIED_FEATURES": [
+      "All arithmetic ops (+,-,*,/,%)",
+      "Mixed syntax support",
+      "String interpolation",
+      "List operations",
+      "Function definitions",
+      "Control flow",
+      "Error handling"
+    ],
+    "RECENT_UPDATES": [
+      "Modulo operator fully implemented",
+      "Print function regex patterns updated",
+      "Zero-division error handling"
+    ],
+    "PRODUCTION_READY": "All provided examples are tested and functional",
+    "VERSION_CURRENT": "Specification matches implementation v1.0 exactly"
+  },
+  "PROMPT_OPTIMIZATION_METADATA": {
+    "design_version": "2.0_expert_optimized",
+    "token_efficiency": "Prioritized essential info, condensed examples, removed redundancy",
+    "response_intelligence": "Adaptive verbosity, context awareness, pattern recognition",
+    "user_experience": "Progressive disclosure, validation requests, learning facilitation",
+    "error_prevention": "Defensive programming patterns, type safety, bounds checking"
+  },
+  "language": "Flex",
+  "formal_grammar": {
+    "basic_types": {
+      "type": "rakm | kasr | so2al | klma | dorg | int | float | bool | string | list",
+      "identifier": "[a-zA-Z_][a-zA-Z0-9_]*",
+      "integer": "[0-9]+",
+      "float": "[0-9]+.[0-9]+",
+      "boolean": "sa7 | ghalt | true | false | True | False",
+      "string": "\".*\"",
+      "operator": "+ | - | * | / | % | ++ | --",
+      "comparison": "== | != | > | < | >= | <="
+    },
+    "expressions": {
+      "value": "<integer> | <float> | <boolean> | <string> | <list> | <list_element> | <expression> | <function_call> | <console_input>",
+      "expression": "<identifier> | <value> | <expression> <operator> <expression>",
+      "condition": "<expression> <comparison> <expression>"
+    },
+    "data_structures": {
+      "list": "[<value_list>] | ?",
+      "value_list": "<value> | <value>, <value_list> | <list> | <list>, <value_list>",
+      "list_element": "<identifier><brackets>",
+      "brackets": "[value] | [value]<brackets>"
+    },
+    "variables": {
+      "var_decl": "<type> <var_list>",
+      "var_list": "<identifier> | <identifier> = <value> | <identifier>, <var_list> | <identifier> = <value>, <var_list>",
+      "var_ass": "<identifier> = <value>"
+    },
+    "functions": {
+      "function_def": "<fun_declaration> <identifier> ( <param_list> ) { <statement_list> }",
+      "fun_declaration": "fun | sndo2 | sando2 | fn | function",
+      "param_list": "<param> | <param>, <param_list> | ?",
+      "param": "<type> <identifier> | <identifier>",
+      "function_call": "<identifier> ( <arg_list> )",
+      "arg_list": "<value> <arg_tail> | ?",
+      "arg_tail": ", <value> <arg_tail> | ?",
+      "return_stmt": "rg3 <value> | return <value>"
+    },
+    "input_output": {
+      "console_output": "<print_func> (<print_content>)",
+      "print_func": "etb3 | out | output | print | printf | cout",
+      "print_content": "<string> | <expression> | <formatted_string>",
+      "formatted_string": "\".* { <value> } .*\"",
+      "console_input": "<input>()",
+      "input": "scan | read | input | da5l | da5al | d5l"
+    },
+    "control_flow": {
+      "franco_conditional": {
+        "if_stmt": "lw <condition> { <statement_list> } <elif_else>",
+        "elif_else": "aw <condition> { <statement_list> } <elif_else> | gher { <statement_list> } | ?"
+      },
+      "english_conditional": {
+        "if_stmt": "<if> <condition> { <statement_list> } <elif_else>",
+        "if": "if | cond",
+        "elif_else": "elif <condition> { <statement_list> } <elif_else> | <else> { <statement_list> } | ?",
+        "else": "else | otherwise | gher"
+      }
+    },
+    "loops": {
+      "franco_for": {
+        "loop_stmt": "karr <loop_header> { <statement_list> }",
+        "loop_header": "<identifier> = <integer> l7d <integer> | l7d <integer> | <identifier> l7d <integer>"
+      },
+      "english_for": {
+        "for_loop": "for ( <init> ; <condition> ; <increment> ) { <statement_list> } | for ( <init> ; <condition> ; ) { <statement_list>",
+        "init": "<var_decl> | <var_ass> | ?",
+        "increment": "<var_decl> | <var_ass> | <identifier><unary>",
+        "unary": "++ | --"
+      },
+      "franco_while": {
+        "while_loop": "talama <condition> {<statement_list>}",
+        "talama": "talama | talma | tlma"
+      },
+      "english_while": {
+        "while_loop": "<while> (<condition>) {<statement_list>}",
+        "while": "while | loop"
+      },
+      "loop_control": "w2f | break"
+    },
+    "statements": {
+      "statement_list": "<statement> | <statement> <statement_list>",
+      "statement": "<var_decl> | <console_output> | <return_stmt> | <expression> | <loop_control>"
+    },
+    "imports": {
+      "import_stmt": "<import> <string>",
+      "import": "geep | geeb | import"
+    },
+    "comments": {
+      "comment": "<single_line_comment> | <multi_line_comment>",
+      "single_line_comment": "#<any_text> | //<any_text>",
+      "multi_line_comment": "''' <any_text> ''' | /*<any_text>*/",
+      "any_text": ".*"
+    }
+  },
+  "tokens": [
+    {
+      "type": "FUN",
+      "patterns": [
+        "fun",
+        "sndo2",
+        "sando2",
+        "fn",
+        "function"
+      ],
+      "description": "Function keywords"
+    },
+    {
+      "type": "PRINT",
+      "patterns": [
+        "etb3",
+        "out",
+        "output",
+        "print",
+        "printf",
+        "cout"
+      ],
+      "description": "Print statement keywords"
+    },
+    {
+      "type": "INPUT",
+      "patterns": [
+        "scan",
+        "read",
+        "input",
+        "da5l",
+        "da5al",
+        "d5l"
+      ],
+      "description": "Input/scan keywords"
+    },
+    {
+      "type": "IF",
+      "patterns": [
+        "if",
+        "cond",
+        "lw"
+      ],
+      "description": "If statement keywords"
+    },
+    {
+      "type": "ELIF",
+      "patterns": [
+        "elif",
+        "aw"
+      ],
+      "description": "Elif statement keywords"
+    },
+    {
+      "type": "ELSE",
+      "patterns": [
+        "else",
+        "otherwise",
+        "gher"
+      ],
+      "description": "Else statement keywords"
+    },
+    {
+      "type": "WHILE",
+      "patterns": [
+        "while",
+        "loop",
+        "talama",
+        "talma",
+        "tlma"
+      ],
+      "description": "While loop keywords"
+    },
+    {
+      "type": "FOR",
+      "patterns": [
+        "for",
+        "karr",
+        "krr",
+        "karar"
+      ],
+      "description": "For loop keywords"
+    },
+    {
+      "type": "UNTIL",
+      "patterns": [
+        "l7d"
+      ],
+      "description": "Until keyword for Franco loops"
+    },
+    {
+      "type": "RETURN",
+      "patterns": [
+        "return",
+        "rg3",
+        "raga3"
+      ],
+      "description": "Return statement keywords"
+    },
+    {
+      "type": "BREAK",
+      "patterns": [
+        "break",
+        "stop",
+        "w2f",
+        "wa2af"
+      ],
+      "description": "Break statement keywords"
+    },
+    {
+      "type": "INT",
+      "patterns": [
+        "int",
+        "rakm"
+      ],
+      "description": "Integer type keywords"
+    },
+    {
+      "type": "FLOAT",
+      "patterns": [
+        "float",
+        "kasr",
+        "ksr"
+      ],
+      "description": "Float type keywords"
+    },
+    {
+      "type": "BOOL",
+      "patterns": [
+        "bool",
+        "so2al",
+        "s2al",
+        "so2l"
+      ],
+      "description": "Boolean type keywords"
+    },
+    {
+      "type": "STRING",
+      "patterns": [
+        "string",
+        "klma",
+        "kalma"
+      ],
+      "description": "String type keywords"
+    },
+    {
+      "type": "LIST",
+      "patterns": [
+        "list",
+        "dorg",
+        "drg"
+      ],
+      "description": "List type keywords"
+    },
+    {
+      "type": "TRUE",
+      "patterns": [
+        "true",
+        "True",
+        "TRUE",
+        "sa7",
+        "s7",
+        "sah",
+        "saa7"
+      ],
+      "description": "Boolean true values"
+    },
+    {
+      "type": "FALSE",
+      "patterns": [
+        "false",
+        "False",
+        "FALSE",
+        "ghalt",
+        "ghlt",
+        "ghalat"
+      ],
+      "description": "Boolean false values"
+    },
+    {
+      "type": "IMPORT",
+      "patterns": [
+        "geep",
+        "geeb",
+        "import"
+      ],
+      "description": "Import statement keywords"
+    },
+    {
+      "type": "LIST_METHODS",
+      "patterns": [
+        ".append",
+        ".push",
+        ".pop",
+        ".remove",
+        ".delete"
+      ],
+      "description": "List manipulation methods"
+    },
+    {
+      "type": "MOD",
+      "patterns": [
+        "%"
+      ],
+      "description": "Modulo operator for remainder calculations"
+    }
+  ],
+  "syntax_rules": {
+    "variable_declaration": {
+      "examples": [
+        "rakm x = 10",
+        "int y = 5",
+        "kasr pi = 3.14",
+        "float radius = 3",
+        "so2al isActive = sa7",
+        "bool isComplete = false",
+        "klma message = \"Hello\"",
+        "string text = \"World\"",
+        "dorg myList = [1, 2, 3]",
+        "list numbers = [1, 2, 3, 4]"
+      ],
+      "multi_declaration": [
+        "int v1, v2, v3",
+        "rakm f1, f2, f3",
+        "string v4=\"hello\", v5=\"world\", v6"
+      ]
+    },
+    "functions": {
+      "definition": [
+        "fun functionName(param1, param2) { }",
+        "sndo2 functionName(rakm a, rakm b) { rg3 a + b }"
+      ],
+      "examples": [
+        "fun add(rakm a, rakm b) { rg3 a + b }",
+        "sndo2 greet() { etb3(\"Hello, Flex!\") }",
+        "function multiply(int x, int y) { return x * y }"
+      ]
+    },
+    "conditionals": {
+      "franco_syntax": [
+        "lw condition { }",
+        "aw condition { }",
+        "gher { }"
+      ],
+      "english_syntax": [
+        "if (condition) { }",
+        "elif (condition) { }",
+        "else { }"
+      ],
+      "examples": [
+        "lw x > 5 { etb3(\"Greater than 5\") }",
+        "if (x == 5) { print(\"Equal to 5\") }",
+        "lw x > 5 { etb3(\"x > 5\") } aw x == 5 { etb3(\"x = 5\") } gher { etb3(\"x < 5\") }"
+      ]
+    },
+    "loops": {
+      "while_loops": [
+        "talama condition { }",
+        "while (condition) { }",
+        "loop (condition) { }"
+      ],
+      "for_loops": [
+        "karr l7d 10 { }",
+        "karr x=1 l7d 5 { }",
+        "karr x l7d 10 { }",
+        "for(i=0; i<10; i++) { }"
+      ],
+      "examples": [
+        "talama x < 10 { etb3(x); x++ }",
+        "karr l7d 5 { etb3(\"Hello\") }",
+        "for(i=0; i<5; i++) { print(i) }"
+      ]
+    },
+    "input_output": {
+      "print": [
+        "etb3(\"text\")",
+        "print(\"text\")",
+        "out(\"text\")",
+        "output(\"text\")"
+      ],
+      "input": [
+        "x = da5l()",
+        "y = scan()",
+        "z = input()",
+        "name = read()"
+      ],
+      "formatted_print": [
+        "etb3(\"Value is {x}\")",
+        "print(\"x={x} and y={y}\")"
+      ]
+    },
+    "lists": {
+      "declaration": [
+        "dorg myList = [1, 2, 3]",
+        "list numbers = [1, 2.5, \"text\", true]"
+      ],
+      "operations": [
+        "myList.push(4)",
+        "myList.pop()",
+        "myList.remove(value)",
+        "myList[0] = newValue",
+        "element = myList[index]"
+      ]
+    }
+  },
+  "code_examples": {
+    "hello_world": {
+      "description": "Basic output in Flex using both Franco Arabic (etb3) and English (print) syntax",
+      "explanation": "Demonstrates the fundamental way to display text in Flex. Both syntaxes work interchangeably.",
+      "code": [
+        "# Franco Arabic syntax for output",
+        "etb3(\"Hello, Flex!\")",
+        "",
+        "# English syntax for output",
+        "print(\"Hello, World!\")",
+        "",
+        "# Both produce the same result - text output to console"
+      ]
+    },
+    "mixed_syntax_conditional": {
+      "description": "Franco Arabic conditional statements with string interpolation and logical operators",
+      "explanation": "Shows how to use Franco Arabic keywords (lw/aw/gher) for if/elif/else logic with complex conditions and formatted output",
+      "concepts": [
+        "Franco conditionals",
+        "logical operators",
+        "string interpolation",
+        "nested conditions"
+      ],
+      "code": [
+        "# Initialize variables for demonstration",
+        "x = 5",
+        "y = 3",
+        "z = 0",
+        "",
+        "# Franco conditional: lw (if) with logical AND",
+        "lw x < 10 and y < 1 {",
+        "    print(x)      # Simple variable output",
+        "    print(y)",
+        "}",
+        "",
+        "# Franco elif: aw with string interpolation",
+        "aw y < 2 {",
+        "    print(\"y is {y}\")    # String interpolation with {variable}",
+        "}",
+        "",
+        "# Another aw condition with expression interpolation",
+        "aw y < 4 {",
+        "    print(\"x + y are {x+y}\")   # Expression inside string",
+        "}",
+        "",
+        "# Franco else: gher (no condition needed)",
+        "gher {",
+        "    print(\"x is {x}\")",
+        "}",
+        "",
+        "# Note: No semicolons required in Flex",
+        "# Curly braces {} define code blocks"
+      ]
+    },
+    "franco_loops": {
+      "description": "Franco Arabic loop constructs: karr l7d (for) and talama (while) loops",
+      "explanation": "Demonstrates Franco loop syntax with different patterns and increment operators",
+      "concepts": [
+        "Franco for loops",
+        "Franco while loops",
+        "loop counters",
+        "increment operators",
+        "loop conditions"
+      ],
+      "code": [
+        "# Franco for loops using 'karr l7d' syntax",
+        "# Pattern 1: Simple count loop (0 to 10)",
+        "karr l7d 10 {",
+        "    print(\"Hello 10 times\")",
+        "}",
+        "",
+        "# Pattern 2: Loop with initial value (7 down to -7)",
+        "karr d=7 l7d -7 {",
+        "    print(d)    # Prints: 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7",
+        "}",
+        "",
+        "# Pattern 3: Loop with existing variable (x must be declared above)",
+        "x = 0  # Variable must be initialized first",
+        "karr x l7d 8 {",
+        "    print(\"Loop iteration {x}\")",
+        "}",
+        "",
+        "# Franco while loops using 'talama' (meaning 'as long as')",
+        "z = 0  # Initialize counter",
+        "talama z < 5 {",
+        "    print(z)",
+        "    z++    # Increment operator (also can use z = z + 1)",
+        "}",
+        "",
+        "# Complex while loop with multiple conditions",
+        "y = 0",
+        "z = 0",
+        "talama y < 5 and z < 10 {",
+        "    print(\"y and z are {y} {z}\")   # String interpolation",
+        "    y++    # Franco increment",
+        "    z++    # Both variables increment each iteration",
+        "}",
+        "",
+        "# Key Franco loop keywords:",
+        "# karr = for loop",
+        "# l7d = until/to (loop boundary)",
+        "# talama = while (as long as)"
+      ]
+    },
+    "complex_function": {
+      "description": "Comprehensive function example showing mixed syntax, local variables, user input, loops, and conditionals",
+      "explanation": "Demonstrates a real-world function with multiple parameters, local variables, user interaction, nested control structures, and various return scenarios",
+      "concepts": [
+        "function definition",
+        "parameter passing",
+        "local variables",
+        "user input",
+        "nested loops",
+        "conditional returns",
+        "list manipulation",
+        "variable scope"
+      ],
+      "code": [
+        "# Complex function with multiple parameters and mixed functionality",
+        "fun greet(int x, list arr) {",
+        "    # Function parameter usage",
+        "    print(x)              # Print the integer parameter",
+        "    ",
+        "    # Local variable declaration",
+        "    test_var = 333        # Auto-typed local variable",
+        "    ",
+        "    # Loop through list parameter",
+        "    for(i=0; i<4; i++) {",
+        "        print(\"list element {i} is {arr[i]}\")  # Access list elements",
+        "    }",
+        "    ",
+        "    # Modify list parameter (affects original list)",
+        "    arr[0] = 990",
+        "    print(\"Hello, World!\")",
+        "    ",
+        "    # Local variable with explicit type",
+        "    int varr = 87",
+        "    ",
+        "    # User input interaction",
+        "    print(\"enter vall\")",
+        "    int val = scan()      # Read user input as integer",
+        "    print(\"val is {val}\")",
+        "    ",
+        "    # Modify parameter (local scope)",
+        "    x = 5",
+        "    ",
+        "    # Conditional returns - early exit patterns",
+        "    if (x > 8) {",
+        "        return 88         # Return integer if condition met",
+        "    }",
+        "    elif (1 > 2) {        # This will never execute",
+        "        return 99",
+        "    }",
+        "    ",
+        "    # Nested loop with break control",
+        "    for(i=0; i<10; i++) {",
+        "        print(i)",
+        "        if (i == 7) {",
+        "            break         # Exit loop when i reaches 7",
+        "        }",
+        "    }",
+        "    ",
+        "    # Mathematical operations",
+        "    bhjb = varr + 7       # Local calculation",
+        "    print(bhjb + 8 + 9 - 8)  # Complex expression: 87+7+8+9-8 = 103",
+        "    ",
+        "    # Another local variable",
+        "    y = 5",
+        "    ",
+        "    # Return boolean value",
+        "    return true           # Function can return different types",
+        "}",
+        "",
+        "# Function usage example:",
+        "# myList = [1, 2, 3, 4]",
+        "# result = greet(42, myList)",
+        "# Note: myList[0] will be 990 after function call"
+      ]
+    },
+    "list_operations": {
+      "description": "Comprehensive list manipulation: creation, methods, indexing, mixed data types, and dynamic modification",
+      "explanation": "Shows all major list operations including push/pop, element access, modification, and using lists with different data types",
+      "concepts": [
+        "list creation",
+        "list methods",
+        "indexing",
+        "mixed data types",
+        "list modification",
+        "mathematical operations with lists"
+      ],
+      "code": [
+        "# Create and initialize a list with integers",
+        "list xx = [6, 2, 3, 4]",
+        "print(xx)                    # Output: [6, 2, 3, 4]",
+        "",
+        "# Adding elements to the list",
+        "xx.push(23)                  # Add integer to end",
+        "xx.push(\"worddd\")            # Add string to end (mixed types allowed)",
+        "print(xx)                    # Output: [6, 2, 3, 4, 23, \"worddd\"]",
+        "",
+        "# Removing elements from the list",
+        "xx.pop()                     # Remove last element",
+        "print(xx)                    # Output: [6, 2, 3, 4, 23]",
+        "",
+        "xx.remove(3)                 # Remove element with value 3",
+        "print(xx)                    # Output: [6, 2, 4, 23]",
+        "",
+        "# Working with multiple lists",
+        "list qq = [12, 22, 34]",
+        "",
+        "# List element access and mathematical operations",
+        "print(\"x0+q1={xx[0]+qq[1]}\")  # String interpolation with calculation",
+        "print(xx[0] + qq[1])         # Direct calculation: 6 + 22 = 28",
+        "",
+        "# Variables from list calculations",
+        "int no = xx[0] * xx[1]       # no = 6 * 2 = 12",
+        "ew = xx[0] * xx[1]           # ew = 6 * 2 = 12 (auto-typed)",
+        "print(no - ew)               # Output: 0 (12 - 12)",
+        "print(\"no is {no}\")          # Output: \"no is 12\"",
+        "",
+        "# Conditional logic with list elements",
+        "if (xx[0] < xx[1]) {         # Compare first two elements",
+        "    print(\"x0 is smaller\")",
+        "} else {",
+        "    print(\"x0 is larger or equal\")  # Will execute: 6 > 2",
+        "}",
+        "",
+        "# Dynamic list modification",
+        "xx[0] = 9 * 2                # Set first element to 18",
+        "",
+        "# Using list element as loop boundary",
+        "for(i=0; i<xx[0]; i++) {     # Loop from 0 to 17 (xx[0] = 18)",
+        "    if (i < 3) {             # Only show first 3 iterations",
+        "        print(\"Iteration {i}\")",
+        "    }",
+        "}",
+        "",
+        "# Mixed data type assignments",
+        "xx[2] = \"sdfsdf\"             # String at index 2",
+        "print(\"Enter a value:\")",
+        "xx[3] = scan()               # User input at index 3",
+        "",
+        "# String variable assignment",
+        "u = \"sdfsdfsd\"",
+        "xx[0] = u                    # Replace index 0 with string",
+        "",
+        "# Final list state",
+        "print(xx)                    # Mixed data types: [string, int, string, user_input]",
+        "print(xx[2])                 # Access specific element: \"sdfsdf\"",
+        "",
+        "# Key points:",
+        "# - Lists can contain mixed data types (int, string, bool, etc.)",
+        "# - Index starts at 0",
+        "# - Lists are mutable (can be modified after creation)",
+        "# - List elements can be used in mathematical operations"
+      ]
+    },
+    "nested_loops": {
+      "description": "Nested loop structures with break statements and conditional control flow",
+      "explanation": "Demonstrates how to create loops within loops, with proper break statements for early termination",
+      "concepts": [
+        "nested loops",
+        "loop control",
+        "break statements",
+        "conditional exits",
+        "loop variables"
+      ],
+      "code": [
+        "# Nested loop example - outer loop controls inner loop boundary",
+        "for (i = 1; i <= 9; i=i+1) {",
+        "    etb3(\"Outer loop: i is {i}\")",
+        "    ",
+        "    # Inner loop runs from 0 to current value of i",
+        "    for (k = 0; k <= i; k=k+1) {",
+        "        etb3(\"  Inner loop: k is {k}\")  # Indented for clarity",
+        "        ",
+        "        # Safety break (prevents infinite loop if k somehow reaches 90)",
+        "        if(k == 90) {",
+        "            break                    # Exit inner loop only",
+        "        }",
+        "    }",
+        "    ",
+        "    # Safety break for outer loop",
+        "    if(i == 90) {",
+        "        break                        # Exit outer loop",
+        "    }",
+        "}",
+        "",
+        "# Example output pattern:",
+        "# Outer loop: i is 1",
+        "#   Inner loop: k is 0",
+        "#   Inner loop: k is 1",
+        "# Outer loop: i is 2",
+        "#   Inner loop: k is 0",
+        "#   Inner loop: k is 1",
+        "#   Inner loop: k is 2",
+        "# ... and so on",
+        "",
+        "# Key concepts:",
+        "# - Inner loop boundary depends on outer loop variable",
+        "# - Break statements only affect the immediate loop",
+        "# - Each loop maintains its own counter variable",
+        "# - Safety conditions prevent runaway loops"
+      ]
+    },
+    "franco_mixed_example": {
+      "description": "Mixed Franco Arabic and English syntax in a single program",
+      "explanation": "Shows how Franco Arabic keywords can be seamlessly mixed with English syntax within the same codebase",
+      "concepts": [
+        "Franco variables",
+        "mixed syntax",
+        "Franco functions",
+        "Franco input",
+        "syntax flexibility"
+      ],
+      "code": [
+        "# Franco Arabic variable declarations",
+        "rakm x = 546456              # rakm = int (Franco)",
+        "print(x)                     # English print function",
+        "",
+        "dorg o = [\"sfsdf\", 23, true] # dorg = list (Franco)",
+        "print(o[1])                  # Access element: prints 23",
+        "",
+        "# Franco Arabic input",
+        "print(\"Enter something:\")",
+        "u = da5l()                   # da5l = input (Franco)",
+        "print(u)                     # Echo user input",
+        "",
+        "# Franco Arabic function definition",
+        "sndo2 tms(int q, int w) {    # sndo2 = function (Franco)",
+        "    if(w > 3) {              # English conditional syntax",
+        "        print(\"w is greater than 3\")",
+        "    }",
+        "    rg3 66                   # rg3 = return (Franco)",
+        "}",
+        "",
+        "# Function call and result",
+        "r = tms(4, 6)                # Call Franco function",
+        "print(r)                     # Prints: 66",
+        "",
+        "# English syntax list declaration",
+        "list b = [2, 3, 4, 5, 6]     # list = English keyword",
+        "etb3(b)                      # etb3 = print (Franco)",
+        "",
+        "# Key Franco Arabic keywords used:",
+        "# rakm = int (integer)",
+        "# dorg = list",
+        "# da5l = input/scan",
+        "# sndo2 = function",
+        "# rg3 = return",
+        "# etb3 = print/output",
+        "",
+        "# This demonstrates Flex's flexibility:",
+        "# - Mix Franco and English freely",
+        "# - No syntax conflicts",
+        "# - Choose preferred keywords per context"
+      ]
+    },
+    "mathematical_expressions": {
+      "description": "Mathematical operations, operator precedence, and function-based calculations",
+      "explanation": "Demonstrates arithmetic operations, operator precedence, function parameters, and complex mathematical expressions",
+      "concepts": [
+        "arithmetic operations",
+        "operator precedence",
+        "function parameters",
+        "mathematical functions",
+        "expression evaluation"
+      ],
+      "code": [
+        "# Initialize variables for calculations",
+        "x = 10",
+        "y = 1",
+        "",
+        "# Mathematical function with multiple parameters",
+        "fun add(int x, int y, int u) {",
+        "    r = x                    # Local variable assignment",
+        "    print(r)                 # Print first parameter",
+        "    return x + y + u         # Sum of all three parameters",
+        "}",
+        "",
+        "# Function calls with different parameter combinations",
+        "result = add(x, y, 8)        # add(10, 1, 8) = 19",
+        "print(result)                # Prints: 19",
+        "",
+        "result = add(1, 5, x)        # add(1, 5, 10) = 16",
+        "print(result)                # Prints: 16",
+        "",
+        "# Complex arithmetic with operator precedence",
+        "x = (x + 2) * 5              # (10 + 2) * 5 = 60",
+        "print(x)                     # Prints: 60",
+        "",
+        "# Multiple operations in sequence",
+        "b = 5 * 4 / 5 * y            # Left-to-right: ((5*4)/5)*1 = 4",
+        "print(\"{b}\")                 # String interpolation: \"4\"",
+        "",
+        "# Negative numbers and parentheses",
+        "u = 3 * (-2 - 2)             # 3 * (-4) = -12",
+        "print(u)                     # Prints: -12",
+        "",
+        "# More complex expressions",
+        "complex = (x + y) * 2 - u    # (60 + 1) * 2 - (-12) = 122 + 12 = 134",
+        "print(\"Complex result: {complex}\")",
+        "",
+        "# Modulo operator demonstrations",
+        "a = 15",
+        "b = 4",
+        "remainder = a % b             # 15 % 4 = 3",
+        "print(\"15 % 4 = {remainder}\")",
+        "",
+        "# Even/odd detection using modulo",
+        "number = 8",
+        "if (number % 2 == 0) {",
+        "    print(\"{number} is even\")",
+        "} else {",
+        "    print(\"{number} is odd\")",
+        "}",
+        "",
+        "# Modulo with operator precedence",
+        "result = 5 + 10 % 3          # Modulo first: 5 + (10 % 3) = 5 + 1 = 6",
+        "print(\"5 + 10 % 3 = {result}\")",
+        "",
+        "# Modulo in complex expressions",
+        "cycle = (a + b) % 7          # (15 + 4) % 7 = 19 % 7 = 5",
+        "print(\"Cycle value: {cycle}\")",
+        "",
+        "# Negative numbers with modulo",
+        "neg_result = -10 % 3         # Result depends on implementation: typically -1",
+        "print(\"-10 % 3 = {neg_result}\")",
+        "",
+        "# Operator precedence in Flex:",
+        "# 1. Parentheses ()",
+        "# 2. Multiplication *, Division /, Modulo %",
+        "# 3. Addition +, Subtraction -",
+        "# 4. Left-to-right for same precedence",
+        "",
+        "# Mathematical operators available:",
+        "# + (addition), - (subtraction)",
+        "# * (multiplication), / (division), % (modulo)",
+        "# ++ (increment), -- (decrement)"
+      ]
+    },
+    "string_formatting": {
+      "description": "String interpolation and mixed output function usage across different syntax styles",
+      "explanation": "Shows how to embed variables and expressions within strings using {variable} syntax, and demonstrates multiple output functions",
+      "concepts": [
+        "string interpolation",
+        "mixed output functions",
+        "variable embedding",
+        "expression formatting"
+      ],
+      "code": [
+        "# Variables of different types for demonstration",
+        "float y = 5.555              # Floating-point number",
+        "bool t = false               # Boolean value",
+        "x = 42                       # Integer (for context)",
+        "",
+        "# String interpolation with different data types",
+        "etb3(\"x = {x}\")              # Integer interpolation",
+        "etb3(\"y = {y}\")              # Float interpolation - prints: \"y = 5.555\"",
+        "etb3(\"t is {t}\")             # Boolean interpolation - prints: \"t is false\"",
+        "",
+        "# Expression interpolation",
+        "x = 10 - 2                   # Calculate new value: x = 8",
+        "etb3(\"New x = {x}\")          # Expression result interpolation",
+        "",
+        "# Complex expression interpolation",
+        "etb3(\"Calculation: {x + y}\") # Embed calculation: 8 + 5.555 = 13.555",
+        "etb3(\"Boolean negation: {not t}\")  # Embed boolean operation",
+        "",
+        "# Mixed output functions - all equivalent functionality",
+        "etb3(\"Franco print\")         # Franco Arabic print function",
+        "print(\"English print\")       # English print function",
+        "out(\"Alternative output\")    # Alternative output function",
+        "output(\"Another option\")     # Another output variant",
+        "printf(\"C-style output\")     # C-style printf",
+        "cout(\"Stream-style output\")  # Stream-style output",
+        "",
+        "# Advanced string interpolation examples",
+        "name = \"Flex\"",
+        "version = 2.0",
+        "etb3(\"Welcome to {name} version {version}!\")",
+        "",
+        "# String interpolation rules:",
+        "# - Use {variable_name} to embed variables",
+        "# - Can embed expressions: {a + b}",
+        "# - Works with all data types",
+        "# - No spaces needed around braces",
+        "# - Expressions are evaluated at runtime"
+      ]
+    },
+    "logical_operations": {
+      "description": "Boolean logic with AND, OR, NOT operators and complex conditional expressions",
+      "explanation": "Demonstrates logical operators, complex boolean expressions, and mixed syntax conditionals",
+      "concepts": [
+        "boolean operators",
+        "logical AND/OR",
+        "NOT operator",
+        "complex conditions",
+        "conditional logic"
+      ],
+      "code": [
+        "# Initialize variables for logical tests",
+        "x = 4",
+        "y = 5",
+        "z = 6",
+        "",
+        "# Complex AND condition with NOT operator",
+        "if (x == 4 and y == 5 and not(z > 1)) {",
+        "    print(\"All conditions met\")     # Won't execute: z > 1 is true",
+        "} else {",
+        "    print(\"Complex condition failed\") # Will execute",
+        "}",
+        "",
+        "# OR condition with NOT operator",
+        "y = 50",
+        "if (x == 5 or not(y < 6)) {",
+        "    print(\"OR condition with NOT\")   # Will execute: not(50 < 6) is true",
+        "}",
+        "",
+        "# Franco Arabic conditional syntax",
+        "yo = 3                               # Variable for comparison",
+        "lw x > yo {                          # lw = if (Franco)",
+        "    print(\"Franco conditional: x > yo\") # Will execute: 4 > 3",
+        "}",
+        "",
+        "# More complex logical examples",
+        "a = true",
+        "b = false",
+        "",
+        "# Combining boolean variables with logical operators",
+        "if (a and not b) {",
+        "    print(\"a is true AND b is false\")  # Will execute",
+        "}",
+        "",
+        "# Multiple OR conditions",
+        "if (x == 10 or y == 50 or z == 6) {",
+        "    print(\"At least one condition is true\")  # Will execute: y==50 and z==6",
+        "}",
+        "",
+        "# Nested logical expressions with parentheses",
+        "if ((x > 0 and y > 0) or (z < 0)) {",
+        "    print(\"Nested logic: positive x,y OR negative z\")",
+        "}",
+        "",
+        "# Logical operators in Flex:",
+        "# and  - logical AND (both conditions must be true)",
+        "# or   - logical OR (at least one condition must be true)",
+        "# not  - logical NOT (inverts boolean value)",
+        "# ==   - equality comparison",
+        "# !=   - inequality comparison",
+        "# <, >, <=, >= - relational comparisons"
+      ]
+    },
+    "input_output_patterns": {
+      "description": "Comprehensive input and output methods across different syntax styles with practical examples",
+      "explanation": "Shows all available input/output functions and how they can be used interchangeably in Flex programs",
+      "concepts": [
+        "user input",
+        "multiple output methods",
+        "Franco vs English syntax",
+        "I/O flexibility",
+        "string interpolation"
+      ],
+      "code": [
+        "# Various input methods - all functionally equivalent",
+        "print(\"Enter your name:\")    ",
+        "name = da5l()                # Franco Arabic input (da5l = enter/input)",
+        "",
+        "print(\"Enter your age:\")",
+        "age = scan()                 # English input method",
+        "",
+        "# Input behavior:",
+        "# - If input is a number, it will be stored as a number (int or float)",
+        "# - Otherwise, it will be stored as a string",
+        "# - Empty input (just pressing enter) causes an error",
+        "",
+        "print(\"Enter some data:\")",
+        "data = read()                # Alternative input method",
+        "",
+        "# All input methods work the same way:",
+        "# - Read from console/terminal",
+        "# - Return string by default",
+        "# - Can be converted to numbers if needed",
+        "",
+        "# Various output methods - all functionally equivalent",
+        "etb3(\"Franco output: {name}\")     # Franco Arabic print (etb3 = print)",
+        "print(\"English output: {age}\")    # Standard English print",
+        "out(\"Alternative: {value}\")       # Alternative output method",
+        "output(\"Another method: {data}\")  # Another output variant",
+        "printf(\"C-style: {name}\")         # C-style printf",
+        "cout(\"Stream-style: {age}\")       # Stream-style output",
+        "",
+        "# Practical input/output example",
+        "print(\"=== Calculator Example ===\")",
+        "etb3(\"Enter first number:\")",
+        "num1 = da5l()                # Franco input - automatic type detection",
+        "print(\"Enter second number:\")",
+        "num2 = scan()                # English input - automatic type detection",
+        "",
+        "# Flex automatically detects if input is number or string",
+        "result = num1 + num2         # Works if both are numbers",
+        "",
+        "# Mixed syntax output with string interpolation",
+        "etb3(\"You entered: {num1} and {num2}\")",
+        "print(\"Sum: {result}\")",
+        "print(\"Thank you for using Flex!\")",
+        "",
+        "# Available input functions:",
+        "# da5l()  - Franco Arabic (\"da5l\" means \"enter\")",
+        "# scan()  - English/technical term",
+        "# input() - Standard programming term",
+        "# read()  - Alternative term",
+        "",
+        "# Key output functions:",
+        "# etb3()  - Franco Arabic (\"etb3\" means \"print\")",
+        "# print() - Standard English",
+        "# out()   - Short form",
+        "# output() - Verbose form",
+        "# printf() - C-style",
+        "# cout()  - C++ style"
+      ]
+    },
+    "break_and_control": {
+      "description": "Loop control statements: Franco Arabic (w2f) and English (break) syntax for early loop termination",
+      "explanation": "Demonstrates different ways to control loop execution using break statements in both Franco and English syntax",
+      "concepts": [
+        "loop control",
+        "break statements",
+        "Franco break",
+        "English break",
+        "loop termination"
+      ],
+      "code": [
+        "# Franco Arabic loop with Franco break statement",
+        "karr i=0 l7d 10 {            # Franco for loop: from 0 to 10",
+        "    print(i)",
+        "    lw i == 5 {              # Franco conditional: if i equals 5",
+        "        w2f                  # Franco break: w2f = stop/break",
+        "    }",
+        "}",
+        "# Output: 0, 1, 2, 3, 4, 5 (then exits)",
+        "",
+        "# English while loop with English break statement",
+        "q = 0                        # Initialize counter",
+        "while(q < 30) {              # English while loop",
+        "    if (q == 10) {           # English conditional",
+        "        break                # English break statement",
+        "    }",
+        "    print(\"q is {q}\")        # Print with string interpolation",
+        "    q++                      # Increment counter",
+        "}",
+        "# Output: q is 0, q is 1, ..., q is 9 (then exits)",
+        "",
+        "# Mixed syntax example",
+        "y = 0",
+        "talama y < 20 {              # Franco while loop",
+        "    etb3(\"y = {y}\")          # Franco print",
+        "    if (y == 7) {            # English conditional",
+        "        w2f                  # Franco break",
+        "    }",
+        "    y++",
+        "}",
+        "",
+        "# Break statement equivalents:",
+        "# w2f     - Franco Arabic (\"wa2af\" = stop)",
+        "# break   - English/Standard",
+        "# stop    - Alternative English",
+        "",
+        "# Key concepts:",
+        "# - Break exits the current loop immediately",
+        "# - Can mix Franco and English syntax freely",
+        "# - Break only affects the innermost loop",
+        "# - Use consistent style or mix as preferred"
+      ]
+    },
+    "comments_examples": {
+      "description": "All supported comment styles in Flex: single-line, multi-line, and inline comments",
+      "explanation": "Shows the different ways to add comments to Flex code for documentation and code explanation",
+      "concepts": [
+        "single-line comments",
+        "multi-line comments",
+        "inline comments",
+        "code documentation",
+        "comment styles"
+      ],
+      "code": [
+        "# Single line comment using hash symbol",
+        "// Another single line comment using double slash",
+        "",
+        "'''",
+        "Multi-line comment using triple quotes",
+        "This type of comment can span",
+        "multiple lines and is useful for",
+        "longer explanations or documentation",
+        "'''",
+        "",
+        "/*",
+        "C-style multi-line comment",
+        "Also spans multiple lines",
+        "Familiar to C/C++/Java programmers",
+        "*/",
+        "",
+        "# Comments with code examples",
+        "x = 5      # Inline comment using hash",
+        "y = 10     // Inline comment using double slash",
+        "z = x + y  # Comments explain what the code does",
+        "",
+        "# Comment usage examples in real code",
+        "rakm age = 25              # Franco variable declaration",
+        "dorg names = [\"Ahmed\", \"Sara\"]  # Franco list with Arabic names",
+        "",
+        "# Function with documentation comments",
+        "'''",
+        "This function calculates the area of a rectangle",
+        "Parameters: length (rakm), width (rakm)",
+        "Returns: area (rakm)",
+        "'''",
+        "sndo2 calculateArea(rakm length, rakm width) {",
+        "    rakm area = length * width  # Calculate area",
+        "    rg3 area                    # Return result",
+        "}",
+        "",
+        "/*",
+        "Main program execution",
+        "Demonstrates mixed syntax usage",
+        "*/",
+        "result = calculateArea(10, 5)  // Function call",
+        "etb3(\"Area is: {result}\")       # Output result",
+        "",
+        "# Comment style guidelines:",
+        "# - Use # for single-line comments (most common)",
+        "# - Use // for C-style single-line comments",
+        "# - Use ''' for multi-line documentation",
+        "# - Use /* */ for C-style multi-line comments",
+        "# - Add inline comments to explain complex logic",
+        "# - Comments are ignored by the Flex interpreter"
+      ]
+    },
+    "modulo_operations": {
+      "description": "Comprehensive modulo operator usage: remainder calculations, even/odd detection, cycling, and error handling",
+      "explanation": "Demonstrates the modulo operator (%) for remainder calculations, practical applications like even/odd testing, creating cycles, and proper error handling for modulo by zero",
+      "concepts": [
+        "modulo operator",
+        "remainder calculations",
+        "even/odd detection",
+        "cycling patterns",
+        "error handling",
+        "operator precedence"
+      ],
+      "code": [
+        "# Basic modulo operations",
+        "a = 15",
+        "b = 4",
+        "remainder = a % b            # 15 % 4 = 3",
+        "print(\"15 % 4 = {remainder}\")",
+        "",
+        "# Even/odd detection - most common use case",
+        "numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]",
+        "karr i=0 l7d length(numbers) {",
+        "    number = numbers[i]",
+        "    lw number % 2 == 0 {",
+        "        print(\"{number} is even\")",
+        "    } gher {",
+        "        print(\"{number} is odd\")",
+        "    }",
+        "}",
+        "",
+        "# Creating cycling patterns with modulo",
+        "print(\"\\nCycling through colors:\")",
+        "colors = [\"red\", \"green\", \"blue\"]",
+        "karr day=1 l7d 10 {",
+        "    color_index = (day - 1) % length(colors)  # Cycle through 0, 1, 2",
+        "    current_color = colors[color_index]",
+        "    print(\"Day {day}: {current_color}\")",
+        "}",
+        "",
+        "# Modulo with operator precedence",
+        "result1 = 5 + 10 % 3         # Modulo first: 5 + (10 % 3) = 5 + 1 = 6",
+        "result2 = (5 + 10) % 3       # Parentheses first: (15) % 3 = 0",
+        "print(\"5 + 10 % 3 = {result1}\")",
+        "print(\"(5 + 10) % 3 = {result2}\")",
+        "",
+        "# Negative numbers with modulo",
+        "neg_examples = [-7, -3, 7, 3]",
+        "divisor = 3",
+        "print(\"\\nNegative number modulo examples:\")",
+        "karr i=0 l7d length(neg_examples) {",
+        "    num = neg_examples[i]",
+        "    result = num % divisor",
+        "    print(\"{num} % {divisor} = {result}\")",
+        "}",
+        "",
+        "# Safe modulo operation with error handling",
+        "sndo2 safeModulo(rakm dividend, rakm divisor) {",
+        "    lw divisor == 0 {",
+        "        print(\"Error: Cannot perform modulo by zero!\")",
+        "        rg3 -1  # Return error indicator",
+        "    } gher {",
+        "        result = dividend % divisor",
+        "        print(\"{dividend} % {divisor} = {result}\")",
+        "        rg3 result",
+        "    }",
+        "}",
+        "",
+        "# Test safe modulo function",
+        "print(\"\\nSafe modulo operations:\")",
+        "safeModulo(10, 3)            # Valid: returns 1",
+        "safeModulo(10, 0)            # Error: returns -1",
+        "",
+        "# Practical application: determining weekday",
+        "print(\"\\nWeekday calculator:\")",
+        "weekdays = [\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"]",
+        "day_number = 15              # Arbitrary day number",
+        "weekday_index = day_number % 7",
+        "weekday = weekdays[weekday_index]",
+        "print(\"Day {day_number} falls on a {weekday}\")",
+        "",
+        "# Complex expression with modulo",
+        "x = 25",
+        "y = 7",
+        "complex_result = (x * 2 + 5) % y  # (25*2+5) % 7 = 55 % 7 = 6",
+        "print(\"(25 * 2 + 5) % 7 = {complex_result}\")",
+        "",
+        "# Key modulo use cases:",
+        "# 1. Even/odd detection: number % 2 == 0",
+        "# 2. Cycling through arrays: index % array_length",
+        "# 3. Time calculations: hours % 12, minutes % 60",
+        "# 4. Hash table indexing: hash % table_size",
+        "# 5. Remainder calculations: dividend % divisor"
+      ]
+    }
+  },
+  "best_practices": {
+    "file_extensions": "Use .flex or .lx file extensions",
+    "syntax_mixing": "You can mix Franco Arabic and English syntax in the same file",
+    "no_semicolons": "Flex does not require semicolons at the end of statements",
+    "blocks": "Use {} for code blocks, no parentheses needed for Franco conditionals",
+    "variable_naming": "Use descriptive variable names in any supported language",
+    "comments": "Use # or // for single-line comments, ''' or /* */ for multi-line",
+    "string_formatting": "Use {variable} syntax for string interpolation"
+  },
+  "common_patterns": {
+    "input_validation": [
+      "etb3(\"Enter a number:\")",
+      "rakm num = da5l()",
+      "lw num > 0 {",
+      "    etb3(\"Positive number: {num}\")",
+      "} gher {",
+      "    etb3(\"Non-positive number\")",
+      "}"
+    ],
+    "list_processing": [
+      "dorg items = [1, 2, 3, 4, 5]",
+      "karr i=0 l7d length(items) {",
+      "    etb3(\"Item {i}: {items[i]}\")",
+      "}"
+    ],
+    "function_with_return": [
+      "sndo2 calculate(rakm x, rakm y) {",
+      "    rakm result = x * y + 10",
+      "    rg3 result",
+      "}"
+    ],
+    "even_odd_detection": [
+      "rakm number = 42",
+      "lw number % 2 == 0 {",
+      "    etb3(\"Number is even\")",
+      "} gher {",
+      "    etb3(\"Number is odd\")",
+      "}"
+    ],
+    "cycling_counter": [
+      "counter = 0",
+      "karr i=0 l7d 10 {",
+      "    cycle_value = counter % 3  # Creates 0-1-2 cycle",
+      "    etb3(\"Cycle: {cycle_value}\")",
+      "    counter++",
+      "}"
+    ],
+    "modulo_safe_operation": [
+      "a = 15",
+      "b = 4",
+      "lw b != 0 {",
+      "    remainder = a % b",
+      "    print(\"Remainder: {remainder}\")",
+      "} gher {",
+      "    print(\"Error: Cannot perform modulo by zero\")",
+      "}"
+    ]
+  },
+  "debugging_features": {
+    "built_in_ai": "Flex includes built-in AI debugging capabilities",
+    "error_handling": "Graceful error detection and recovery through regex parsing",
+    "type_checking": "Automatic type detection and validation",
+    "runtime_hints": "AI-powered suggestions during development"
+  },
+  "project_files": {
+    "config": [
+      "flex.toml",
+      "flexconfig.json",
+      "flex.json"
+    ],
+    "dependencies": [
+      "Flex.lock"
+    ],
+    "documentation": [
+      "FLEX.md",
+      "flex.md",
+      ".flex.md"
+    ]
+  },
+  "error_handling": {
+    "description": "Common error patterns and handling in Flex based on actual implementation",
+    "common_errors": {
+      "undefined_variable": {
+        "error": "Variable 'x' is not defined",
+        "solution": "Declare variable before use: rakm x = 0"
+      },
+      "type_mismatch": {
+        "error": "Cannot perform operation between incompatible types",
+        "solution": "Use appropriate variable types or declare with explicit type"
+      },
+      "index_out_of_bounds": {
+        "error": "List index out of range",
+        "solution": "Check list length before accessing: if i < length(myList)"
+      },
+      "syntax_error": {
+        "error": "Unexpected token or missing bracket",
+        "solution": "Check for matching braces {} and proper syntax"
+      },
+      "function_not_defined": {
+        "error": "Function called before definition",
+        "solution": "Define function before calling it (line-by-line execution)"
+      },
+      "redeclaration_error": {
+        "error": "Variable already declared with type",
+        "solution": "Cannot redeclare typed variables: int x=5; int x=6; // Error"
+      },
+      "modulo_by_zero": {
+        "error": "Modulo by Zero",
+        "solution": "Check divisor before modulo operation: if b != 0 { result = a % b }"
+      }
+    },
+    "defensive_programming": [
+      "# Check list bounds before access",
+      "lw i < length(myList) {",
+      "    print(myList[i])",
+      "}",
+      "",
+      "# Validate user input type by declaring variable type",
+      "print(\"Enter a number:\")",
+      "int user_number = scan()  # Forces number input",
+      "print(\"Valid number: {user_number}\")"
+    ]
+  },
+  "built_in_functions": {
+    "description": "Currently implemented built-in functions in Flex",
+    "implemented_functions": {
+      "length": {
+        "description": "Returns the length of a string or list",
+        "usage": [
+          "length(string) - returns string length",
+          "length(list) - returns list size"
+        ],
+        "examples": [
+          "string s = \"hello\"",
+          "print(length(s))        # Prints: 5",
+          "",
+          "list numbers = [1, 2, 3, 4]",
+          "print(length(numbers))  # Prints: 4",
+          "",
+          "# Can be used in loops",
+          "karr i=0 l7d length(s) {",
+          "    print(\"Character {i}\")",
+          "}"
+        ]
+      }
+    },
+    "list_methods": {
+      "description": "Built-in list methods available",
+      "methods": {
+        "push": "list.push(item) - add item to end of list",
+        "pop": "list.pop() - remove and return last item",
+        "remove": "list.remove(value) - remove specific value from list"
+      },
+      "examples": [
+        "list arr = [1, 2, 3]",
+        "arr.push(4)             # arr is now [1, 2, 3, 4]",
+        "arr.pop()               # removes 4, arr is now [1, 2, 3]",
+        "arr.remove(2)           # removes 2, arr is now [1, 3]",
+        "",
+        "# Mixed data types in lists",
+        "list mixed = [1, \"hello\", sa7, 3.14]",
+        "mixed.push(\"new item\")",
+        "print(mixed)            # [1, \"hello\", true, 3.14, \"new item\"]"
+      ]
+    }
+  },
+  "variable_scoping": {
+    "description": "Variable scope rules and best practices in Flex",
+    "global_scope": "Variables declared outside functions are globally accessible",
+    "local_scope": "Variables declared inside functions are locally scoped",
+    "scope_examples": [
+      "# Global variables",
+      "rakm global_counter = 0",
+      "klma app_name = \"Flex App\"",
+      "",
+      "sndo2 increment() {",
+      "    # Can access global variables",
+      "    global_counter = global_counter + 1",
+      "    ",
+      "    # Local variable - only accessible in this function",
+      "    rakm local_temp = 42",
+      "    print(\"Local temp: {local_temp}\")",
+      "}",
+      "",
+      "increment()  # global_counter is now 1",
+      "print(global_counter)  # Prints: 1",
+      "# print(local_temp)     # Error: local_temp not accessible here"
+    ],
+    "parameter_scope": [
+      "sndo2 calculate(rakm param1, rakm param2) {",
+      "    # Parameters are local to the function",
+      "    rakm local_result = param1 + param2",
+      "    rg3 local_result",
+      "}",
+      "",
+      "# param1, param2, local_result not accessible outside function"
+    ]
+  },
+  "project_templates": {
+    "description": "Complete example programs for common use cases",
+    "calculator": {
+      "description": "Simple calculator with Franco Arabic mixed syntax",
+      "code": [
+        "# Simple Calculator - Mixed Syntax Demo",
+        "etb3(\"=== Flex Calculator ===\")",
+        "",
+        "# Get user input with automatic type detection",
+        "print(\"Enter first number:\")",
+        "rakm num1 = da5l()          # Franco input, forces number type",
+        "",
+        "etb3(\"Enter operator (+, -, *, /, %):\")",
+        "operator = scan()           # String input for operator",
+        "",
+        "print(\"Enter second number:\")",
+        "rakm num2 = scan()          # English input, forces number type",
+        "",
+        "# Perform calculation",
+        "lw operator == \"+\" {",
+        "    result = num1 + num2",
+        "    etb3(\"Result: {num1} + {num2} = {result}\")",
+        "}",
+        "aw operator == \"-\" {",
+        "    result = num1 - num2",
+        "    print(\"Result: {num1} - {num2} = {result}\")",
+        "}",
+        "aw operator == \"*\" {",
+        "    result = num1 * num2",
+        "    etb3(\"Result: {num1} × {num2} = {result}\")",
+        "}",
+        "aw operator == \"/\" {",
+        "    lw num2 != 0 {",
+        "        kasr result = num1 / num2",
+        "        print(\"Result: {num1} ÷ {num2} = {result}\")",
+        "    } gher {",
+        "        etb3(\"Error: Division by zero!\")",
+        "    }",
+        "}",
+        "aw operator == \"%\" {",
+        "    lw num2 != 0 {",
+        "        rakm remainder = num1 % num2",
+        "        etb3(\"Result: {num1} % {num2} = {remainder}\")",
+        "    } gher {",
+        "        print(\"Error: Modulo by zero!\")",
+        "    }",
+        "}",
+        "gher {",
+        "    print(\"Error: Invalid operator!\")",
+        "}",
+        "",
+        "etb3(\"Thank you for using Flex Calculator!\")"
+      ]
+    },
+    "todo_list": {
+      "description": "Task management program with Franco Arabic features",
+      "code": [
+        "# Todo List Manager - Franco Arabic Style",
+        "dorg tasks = []",
+        "so2al running = sa7",
+        "",
+        "sndo2 showMenu() {",
+        "    etb3(\"\\n=== قائمة المهام (Task List) ===\")",
+        "    print(\"1. إضافة مهمة (Add Task)\")",
+        "    etb3(\"2. عرض المهام (View Tasks)\")",
+        "    print(\"3. حذف مهمة (Delete Task)\")",
+        "    etb3(\"4. خروج (Exit)\")",
+        "    print(\"اختر رقم (Choose number): \")",
+        "}",
+        "",
+        "sndo2 addTask() {",
+        "    etb3(\"أدخل المهمة الجديدة (Enter new task):\")",
+        "    task = da5l()",
+        "    tasks.push(task)",
+        "    print(\"تم إضافة المهمة! (Task added!)\")",
+        "}",
+        "",
+        "sndo2 showTasks() {",
+        "    lw length(tasks) == 0 {",
+        "        etb3(\"لا توجد مهام (No tasks found)\")",
+        "    } gher {",
+        "        print(\"\\nالمهام الحالية (Current tasks):\")",
+        "        karr i=0 l7d length(tasks) {",
+        "            etb3(\"{i+1}. {tasks[i]}\")",
+        "        }",
+        "    }",
+        "}",
+        "",
+        "# Main program loop",
+        "talama running {",
+        "    showMenu()",
+        "    choice = scan()",
+        "    ",
+        "    lw choice == \"1\" {",
+        "        addTask()",
+        "    }",
+        "    aw choice == \"2\" {",
+        "        showTasks()",
+        "    }",
+        "    aw choice == \"3\" {",
+        "        showTasks()",
+        "        etb3(\"أدخل رقم المهمة للحذف (Enter task number to delete):\")",
+        "        rakm task_num = da5l()",
+        "        index = task_num - 1",
+        "        lw index >= 0 and index < length(tasks) {",
+        "            tasks.remove(tasks[index])",
+        "            print(\"تم حذف المهمة! (Task deleted!)\")",
+        "        } gher {",
+        "            etb3(\"رقم غير صحيح (Invalid number)\")",
+        "        }",
+        "    }",
+        "    aw choice == \"4\" {",
+        "        running = ghalt",
+        "        etb3(\"شكراً لاستخدام البرنامج! (Thanks for using the program!)\")",
+        "    }",
+        "    gher {",
+        "        print(\"اختيار غير صحيح (Invalid choice)\")",
+        "    }",
+        "}"
+      ]
+    }
+  },
+  "performance_tips": {
+    "description": "Best practices for writing efficient Flex code",
+    "optimization_guidelines": [
+      "Use appropriate data types for your needs",
+      "Prefer local variables over global when possible",
+      "Use early returns in functions to avoid deep nesting",
+      "Break out of loops early when condition is met",
+      "Use string interpolation instead of concatenation for readability",
+      "Declare variable types explicitly when needed for input validation"
+    ],
+    "efficient_patterns": [
+      "# Efficient loop with early exit",
+      "sndo2 findItem(dorg items, klma target) {",
+      "    karr i=0 l7d length(items) {",
+      "        lw items[i] == target {",
+      "            rg3 i  # Return immediately when found",
+      "        }",
+      "    }",
+      "    rg3 -1  # Not found",
+      "}",
+      "",
+      "# Use string interpolation for readable output",
+      "name = \"Flex\"",
+      "version = \"1.0\"",
+      "message = \"Welcome to {name} version {version}!\"  # Better than concatenation"
+    ]
+  },
+  "language_info": {
+    "version": "1.0",
+    "release_date": "2024",
+    "compatibility": {
+      "file_extensions": [
+        ".flex",
+        ".lx"
+      ],
+      "encoding": "UTF-8",
+      "line_endings": "LF or CRLF"
+    },
+    "features_by_version": {
+      "1.0": [
+        "Franco Arabic and English mixed syntax",
+        "Automatic type detection",
+        "String interpolation with {variable} syntax",
+        "Flexible loop constructs (karr l7d, talama)",
+        "Mixed function definitions (fun, sndo2)",
+        "Comprehensive I/O functions",
+        "Built-in list operations",
+        "Complete arithmetic operators (+, -, *, /, %)",
+        "Multi-style comments",
+        "No semicolon requirements"
+      ]
+    }
+  }
+}
