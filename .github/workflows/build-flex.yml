@@ -608,15 +608,15 @@ jobs:
             Write-Host "✅ Help command succeeded"
             $helpOutput | Select-Object -First 5 | Out-Host
           } else {
-            Write-Host "⚠️ Help command failed (likely Unicode encoding issue) - Exit code: $LASTEXITCODE"
-            Write-Host "This is expected on Windows when help text contains emojis/Unicode characters"
+            Write-Host "❌ Help command failed - Exit code: $LASTEXITCODE"
+            Write-Host "This indicates a serious issue with the executable"
+            exit 1
           }
         } catch {
-          Write-Host "⚠️ Help test failed due to Unicode encoding - this is normal on Windows"
+          Write-Host "❌ Help test failed due to an error"
           Write-Host "Error: $_"
+          exit 1
         }
-        # Test basic functionality with a simple file (use ASCII-only content)
-        Write-Host "Testing basic Flex program execution..."
         'print("Hello from CI/CD!")' | Out-File -FilePath test.lx -Encoding ASCII
         Write-Host "Created test file with content: print(`"Hello from CI/CD!`")"
         try {
@@ -627,12 +627,16 @@ jobs:
           } else {
             Write-Host "❌ Flex program execution failed - Exit code: $LASTEXITCODE"
             Write-Host "Output: $output"
-            Write-Host "This may indicate missing dependencies or Unicode issues"
+            Exit $LASTEXITCODE
+          }
+            Write-Host "This indicates a critical failure in the Flex interpreter"
+            exit 1
           }
         } catch {
           Write-Host "❌ Failed to execute Flex program"
           Write-Host "Error: $_"
-          Write-Host "This may indicate missing dependencies or system issues"
+          Write-Host "This indicates a critical failure in the Flex interpreter"
+          exit 1
         }
         
     - name: Upload Artifacts
