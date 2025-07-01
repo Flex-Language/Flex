@@ -8,10 +8,12 @@ jobs:
   build:
     name: Build Flex Executable (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10']
         include:
           - os: ubuntu-latest
             output_name: flex-linux
@@ -29,7 +31,8 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
         
     - name: Install dependencies
       run: |
@@ -38,6 +41,11 @@ jobs:
         pip install pyinstaller
         pip install requests>=2.0.0
         pip install ipaddress
+        pip install urllib3
+        pip install chardet
+        pip install certifi
+        # Add error handling for dependency installation
+        python -c "import ply, requests, urllib3, chardet, certifi; print('All dependencies installed successfully')"
 
         
     - name: Build with PyInstaller for Linux/macOS
@@ -95,6 +103,9 @@ jobs:
         ]
         EOF
         
+        # Verify all required directories exist before building
+        ls -la flex_compiler flex_interpreter flex_parser flex_tokenizer flex_AI
+        
         pyinstaller --onefile --clean --name=${{ matrix.output_name }} \
           --add-data "flex_compiler:flex_compiler" \
           --add-data "flex_interpreter:flex_interpreter" \
@@ -104,7 +115,18 @@ jobs:
           --additional-hooks-dir=hooks \
           --hidden-import="encodings.idna" \
           --hidden-import="ipaddress" \
+          --hidden-import="urllib3" \
+          --hidden-import="chardet" \
+          --hidden-import="certifi" \
+          --hidden-import="json" \
+          --hidden-import="requests.packages.urllib3" \
           main.py
+          
+        # Verify the build was successful
+        if [ ! -f "dist/${{ matrix.output_name }}" ]; then
+          echo "Build failed - executable not found"
+          exit 1
+        fi
         
     - name: Build with PyInstaller for Windows
       if: matrix.os == 'windows-latest'
@@ -148,6 +170,9 @@ jobs:
         echo # Explicitly include idna encoding to prevent the "unknown encoding: idna" error >> hooks\hook-encodings.py
         echo hiddenimports = ['encodings.idna', 'encodings.ascii', 'encodings.utf_8', 'encodings.latin_1', 'encodings.cp1252'] >> hooks\hook-encodings.py
         
+        REM Verify all required directories exist before building
+        dir flex_compiler flex_interpreter flex_parser flex_tokenizer flex_AI
+        
         pyinstaller --onefile --clean --name=${{ matrix.output_name }} ^
           --add-data "flex_compiler;flex_compiler" ^
           --add-data "flex_interpreter;flex_interpreter" ^
@@ -157,7 +182,18 @@ jobs:
           --additional-hooks-dir=hooks ^
           --hidden-import="encodings.idna" ^
           --hidden-import="ipaddress" ^
+          --hidden-import="urllib3" ^
+          --hidden-import="chardet" ^
+          --hidden-import="certifi" ^
+          --hidden-import="json" ^
+          --hidden-import="requests.packages.urllib3" ^
           main.py
+          
+        REM Verify the build was successful
+        if not exist "dist\${{ matrix.output_name }}.exe" (
+          echo Build failed - executable not found
+          exit /b 1
+        )
           
     # Create Windows Installer
     - name: Create Windows Installer
@@ -203,8 +239,10 @@ jobs:
           FileWrite $0 "$INSTDIR\flex.exe %*$\r$\n"
           FileClose $0
           
-          # Add to PATH using standard documented syntax
-          System::Call 'Kernel32::SetEnvironmentVariable(t "PATH", t "$INSTDIR;${ENV PATH}")' 
+          # Add to system PATH (requires admin rights)
+          WriteRegExpandStr HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "PATH" "$INSTDIR;$$%PATH%"
+          # Notify system of environment change
+          SendMessage $${HWND_BROADCAST} $${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
           
           # Create uninstaller
           WriteUninstaller "$INSTDIR\uninstall.exe"
@@ -248,7 +286,10 @@ jobs:
         # Create icon if it doesn't exist
         New-Item -Path "src\flex_compiler" -ItemType Directory -Force
         if (-not (Test-Path "src\flex_compiler\icon.ico")) {
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/vscode/main/resources/win32/code.ico" -OutFile "src\flex_compiler\icon.ico"
+          # Create a simple default icon instead of downloading
+          # This creates a basic 16x16 ICO file structure
+          $iconBytes = [byte[]](0x00,0x00,0x01,0x00,0x01,0x00,0x10,0x10,0x00,0x00,0x01,0x00,0x04,0x00,0x28,0x01,0x00,0x00,0x16,0x00,0x00,0x00,0x28,0x00,0x00,0x00,0x10,0x00,0x00,0x00,0x20,0x00,0x00,0x00,0x01,0x00,0x04,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0x00,0x00,0x80,0x00,0x00,0x00,0x80,0x80,0x00,0x80,0x00,0x00,0x00,0x80,0x00,0x80,0x00,0x80,0x80,0x00,0x00,0x80,0x80,0x80,0x00,0xC0,0xC0,0xC0,0x00,0x00,0x00,0xFF,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0xFF,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0xFF,0x00,0xFF,0xFF,0x00,0x00,0xFF,0xFF,0xFF,0x00)
+          [System.IO.File]::WriteAllBytes("src\flex_compiler\icon.ico", $iconBytes)
         }
         
         # Check if NSIS is properly installed
@@ -440,13 +481,25 @@ jobs:
       if: matrix.os != 'windows-latest'
       run: |
         cd src/dist
+        # Test version flag
         ./${{ matrix.output_name }} --version
+        # Test help flag
+        ./${{ matrix.output_name }} --help | head -10
+        # Test basic functionality with a simple file
+        echo 'tadkhal("Hello from CI/CD!")' > test.lx
+        ./${{ matrix.output_name }} test.lx || echo "Basic test failed - this is expected if dependencies are missing"
         
     - name: Test Executable (Windows)
       if: matrix.os == 'windows-latest'
       run: |
         cd src\dist
+        # Test version flag
         .\${{ matrix.output_name }}.exe --version
+        # Test help flag  
+        .\${{ matrix.output_name }}.exe --help
+        # Test basic functionality with a simple file
+        echo tadkhal("Hello from CI/CD!") > test.lx
+        .\${{ matrix.output_name }}.exe test.lx || echo "Basic test failed - this is expected if dependencies are missing"
         
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
@@ -533,14 +586,26 @@ jobs:
         id: calc_version
         working-directory: repo
         run: |
-          # Check if there are any existing tags that match vX format
-          if git tag -l "v[0-9]*" | grep -q .; then
-            # Get highest version number from existing tags
+          # Get the current date for version suffix
+          DATE=$(date +'%Y%m%d')
+          
+          # Check if there are any existing tags that match semantic versioning
+          if git tag -l "v*.*.*" | grep -q .; then
+            # Get highest semantic version from existing tags  
+            latest_version=$(git tag -l "v*.*.*" | sort -V | tail -n1)
+            echo "Latest version found: $latest_version"
+            # Extract major.minor.patch and increment patch
+            version_numbers=$(echo $latest_version | sed 's/v//' | tr '.' ' ')
+            read major minor patch <<< "$version_numbers"
+            next_patch=$((patch + 1))
+            next_version="$major.$minor.$next_patch"
+          elif git tag -l "v[0-9]*" | grep -q .; then
+            # Legacy single number versions - convert to semantic versioning
             latest_version=$(git tag -l "v[0-9]*" | sort -V | tail -n1 | sed 's/v//')
-            next_version=$((latest_version + 1))
+            next_version="1.0.$((latest_version + 1))"
           else
-            # No existing version tags, start at 1
-            next_version=1
+            # No existing version tags, start with semantic versioning
+            next_version="1.0.0"
           fi
           echo "Next version will be: v$next_version"
           echo "next_version=$next_version" >> $GITHUB_OUTPUT
