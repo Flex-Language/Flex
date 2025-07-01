@@ -588,7 +588,7 @@ jobs:
         # Test help flag
         ./${{ matrix.output_name }} --help | head -10
         # Test basic functionality with a simple file
-        echo 'tadkhal("Hello from CI/CD!")' > test.lx
+        echo 'print("Hello from CI/CD!")' > test.lx
         ./${{ matrix.output_name }} test.lx || echo "Basic test failed - this is expected if dependencies are missing"
         
     - name: Test Executable (Windows)
@@ -600,17 +600,39 @@ jobs:
         .\${{ matrix.output_name }}.exe --version
         # Test help flag with UTF-8 encoding support
         $env:PYTHONIOENCODING = "utf-8"
+        $env:PYTHONLEGACYWINDOWSSTDIO = "utf-8"
+        Write-Host "Testing help command (may have Unicode issues on Windows)..."
         try {
-          .\${{ matrix.output_name }}.exe --help | Out-Host
+          $helpOutput = .\${{ matrix.output_name }}.exe --help 2>&1
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "✅ Help command succeeded"
+            $helpOutput | Select-Object -First 5 | Out-Host
+          } else {
+            Write-Host "⚠️ Help command failed (likely Unicode encoding issue) - Exit code: $LASTEXITCODE"
+            Write-Host "This is expected on Windows when help text contains emojis/Unicode characters"
+          }
         } catch {
-          Write-Host "Help test skipped due to Unicode encoding - this is normal on Windows"
+          Write-Host "⚠️ Help test failed due to Unicode encoding - this is normal on Windows"
+          Write-Host "Error: $_"
         }
         # Test basic functionality with a simple file (use ASCII-only content)
-        'tadkhal("Hello from CI/CD!")' | Out-File -FilePath test.lx -Encoding ASCII
+        Write-Host "Testing basic Flex program execution..."
+        'print("Hello from CI/CD!")' | Out-File -FilePath test.lx -Encoding ASCII
+        Write-Host "Created test file with content: print(`"Hello from CI/CD!`")"
         try {
-          .\${{ matrix.output_name }}.exe test.lx
+          $output = .\${{ matrix.output_name }}.exe test.lx 2>&1
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "✅ Flex program executed successfully!"
+            Write-Host "Output: $output"
+          } else {
+            Write-Host "❌ Flex program execution failed - Exit code: $LASTEXITCODE"
+            Write-Host "Output: $output"
+            Write-Host "This may indicate missing dependencies or Unicode issues"
+          }
         } catch {
-          Write-Host "Basic test failed - this is expected if dependencies are missing"
+          Write-Host "❌ Failed to execute Flex program"
+          Write-Host "Error: $_"
+          Write-Host "This may indicate missing dependencies or system issues"
         }
         
     - name: Upload Artifacts
