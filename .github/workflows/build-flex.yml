@@ -627,10 +627,8 @@ jobs:
           } else {
             Write-Host "❌ Flex program execution failed - Exit code: $LASTEXITCODE"
             Write-Host "Output: $output"
-            Exit $LASTEXITCODE
-          }
             Write-Host "This indicates a critical failure in the Flex interpreter"
-            exit 1
+            exit $LASTEXITCODE
           }
         } catch {
           Write-Host "❌ Failed to execute Flex program"
