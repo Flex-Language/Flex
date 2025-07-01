@@ -96,8 +96,14 @@ jobs:
             'encodings.idna',
             'ipaddress',
             'requests',
+            'requests.packages',
+            'requests.packages.urllib3',
+            'requests.packages.urllib3.util',
+            'requests.packages.urllib3.util.retry',
             'json',
             'urllib3',
+            'urllib3.util',
+            'urllib3.util.retry',
             'chardet',
             'certifi'
         ]
@@ -116,10 +122,16 @@ jobs:
           --hidden-import="encodings.idna" \
           --hidden-import="ipaddress" \
           --hidden-import="urllib3" \
+          --hidden-import="urllib3.util" \
+          --hidden-import="urllib3.util.retry" \
           --hidden-import="chardet" \
           --hidden-import="certifi" \
           --hidden-import="json" \
+          --hidden-import="requests" \
+          --hidden-import="requests.packages" \
           --hidden-import="requests.packages.urllib3" \
+          --hidden-import="requests.packages.urllib3.util" \
+          --hidden-import="requests.packages.urllib3.util.retry" \
           main.py
           
         # Verify the build was successful
@@ -158,8 +170,14 @@ jobs:
         echo     'encodings.idna', >> hooks\hook-flex_AI.py
         echo     'ipaddress', >> hooks\hook-flex_AI.py
         echo     'requests', >> hooks\hook-flex_AI.py
+        echo     'requests.packages', >> hooks\hook-flex_AI.py
+        echo     'requests.packages.urllib3', >> hooks\hook-flex_AI.py
+        echo     'requests.packages.urllib3.util', >> hooks\hook-flex_AI.py
+        echo     'requests.packages.urllib3.util.retry', >> hooks\hook-flex_AI.py
         echo     'json', >> hooks\hook-flex_AI.py
         echo     'urllib3', >> hooks\hook-flex_AI.py
+        echo     'urllib3.util', >> hooks\hook-flex_AI.py
+        echo     'urllib3.util.retry', >> hooks\hook-flex_AI.py
         echo     'chardet', >> hooks\hook-flex_AI.py
         echo     'certifi' >> hooks\hook-flex_AI.py
         echo ] >> hooks\hook-flex_AI.py
@@ -183,10 +201,16 @@ jobs:
           --hidden-import="encodings.idna" ^
           --hidden-import="ipaddress" ^
           --hidden-import="urllib3" ^
+          --hidden-import="urllib3.util" ^
+          --hidden-import="urllib3.util.retry" ^
           --hidden-import="chardet" ^
           --hidden-import="certifi" ^
           --hidden-import="json" ^
+          --hidden-import="requests" ^
+          --hidden-import="requests.packages" ^
           --hidden-import="requests.packages.urllib3" ^
+          --hidden-import="requests.packages.urllib3.util" ^
+          --hidden-import="requests.packages.urllib3.util.retry" ^
           main.py
           
         REM Verify the build was successful
@@ -201,7 +225,25 @@ jobs:
       shell: powershell
       run: |
         # Install NSIS installer system
-        choco install nsis -y
+        Write-Host "Installing NSIS via Chocolatey..."
+        try {
+          $chocoResult = choco install nsis -y
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Chocolatey installation of NSIS failed with exit code: $LASTEXITCODE"
+            exit 1
+          }
+          Write-Host "NSIS installation completed successfully"
+        } catch {
+          Write-Error "Failed to install NSIS: $_"
+          exit 1
+        }
+        
+        # Refresh environment variables to get updated PATH
+        $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH", "User")
+        Write-Host "Refreshed PATH environment variable"
+        
+        # Give a moment for installation to complete
+        Start-Sleep -Seconds 5
         
         # Create installer script with single $ for NSIS variables
         # PowerShell won't interpolate these since they're in a here-string
@@ -361,27 +403,40 @@ jobs:
         # Skip icon creation since it's not essential for the installer
         
         # Check if NSIS is properly installed and find the executable
+        Write-Host "Searching for NSIS installation..."
         $nsisPath = $null
         $possiblePaths = @(
           'C:\Program Files (x86)\NSIS\makensis.exe',
-          'C:\Program Files\NSIS\makensis.exe'
+          'C:\Program Files\NSIS\makensis.exe',
+          'C:\ProgramData\chocolatey\lib\nsis\tools\makensis.exe',
+          'C:\tools\nsis\makensis.exe'
         )
         
+        Write-Host "Checking standard installation paths..."
         foreach ($path in $possiblePaths) {
+          Write-Host "  Checking: $path"
           if (Test-Path $path) {
             $nsisPath = $path
-            Write-Host "NSIS found at: $path"
+            Write-Host "✅ NSIS found at: $path"
             break
+          } else {
+            Write-Host "  ❌ Not found"
           }
         }
         
         if (-not $nsisPath) {
+          Write-Host "Searching in PATH environment variable..."
           # Try to find it in PATH
           $nsisFromPath = Get-Command makensis.exe -ErrorAction SilentlyContinue
           if ($nsisFromPath) {
             $nsisPath = $nsisFromPath.Source
-            Write-Host "NSIS found in PATH: $nsisPath"
+            Write-Host "✅ NSIS found in PATH: $nsisPath"
           } else {
+            Write-Host "❌ NSIS not found in PATH"
+            Write-Host "Current PATH contents:"
+            $env:PATH -split ';' | ForEach-Object { Write-Host "  $_" }
+            Write-Host "Chocolatey packages installed:"
+            choco list --local-only | Where-Object { $_ -like "*nsis*" }
             Write-Error "NSIS not found! Installation may have failed."
             exit 1
           }
