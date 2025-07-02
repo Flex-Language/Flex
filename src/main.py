@@ -133,6 +133,10 @@ def main():
         model_name = None
         try:
             compile_and_run(source_file, AI, WEB, model_name)
+        except KeyboardInterrupt:
+            # Handle Ctrl+C gracefully
+            print("\n🛑 Operation cancelled by user (Ctrl+C)")
+            sys.exit(0)
         except SyntaxError as e:
             # Catch the SyntaxError and print only the error message without the full traceback
             print(e)
@@ -211,6 +215,10 @@ def main():
         
         try:
             compile_and_run(source_file, AI, WEB, model_name)
+        except KeyboardInterrupt:
+            # Handle Ctrl+C gracefully
+            print("\n🛑 Operation cancelled by user (Ctrl+C)")
+            sys.exit(0)
         except SyntaxError as e:
             # Catch the SyntaxError and print only the error message without the full traceback
             print(e)
