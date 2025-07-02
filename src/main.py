@@ -39,7 +39,7 @@ def show_help():
     \033[92mflex --ai <file.lx>\033[0m                      AI assistance with default model
     
     \033[94mSupported Models:\033[0m
-    • openai/gpt-4o-mini                    (Default, fast responses)
+    • openai/gpt-4.1-mini                    (Default, fast responses)
     • openai/gpt-4o                         (Advanced reasoning)
     • meta-llama/llama-3.3-70b-instruct     (Open source, powerful)
     • anthropic/claude-3.5-sonnet           (Excellent for code analysis)

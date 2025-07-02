@@ -1,13 +1,13 @@
 import flex_parser.glopal_vars as gv
 from flex_parser.parse_statement import *
 
-def parse(tokens,AI):
+def parse(tokens, AI, model_name=None):
     statements = []
     
     #global pos
 
     while gv.pos < len(tokens):
-        statement = parse_statement(tokens,AI)
+        statement = parse_statement(tokens, AI, model_name)
         if statement:  # Only add valid statements
             statements.append(statement)
             

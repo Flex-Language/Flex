@@ -49,7 +49,7 @@ def handle_unknown_token(tokens, tok_number, line_number, code_lines, AI):
     error_message = f"Unknown token: {tokens[tok_number + 1]}"
     handle_error(error_message, AI)
 
-def tokenize(code, AI):
+def tokenize(code, AI, model_name=None):
     """
     Tokenize the given code and return a list of tokens with their metadata.
     """

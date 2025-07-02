@@ -11,7 +11,7 @@ from flex_parser.statement.parse_variable_operations import parse_variable_opera
 from flex_parser.statement.parse_import import parse_import_statement
 
 
-def parse_statement(tokens,AI):
+def parse_statement(tokens, AI, model_name=None):
    
     # Skip over newlines or empty tokens
     skip_newlines(tokens)

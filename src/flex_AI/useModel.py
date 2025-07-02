@@ -5,6 +5,7 @@ import sys
 import shutil  # For terminal size detection
 import textwrap  # For text wrapping
 import re  # For ANSI code handling
+import flex_interpreter.glopal_vars as gv
 
 # Get the appropriate base directory path for relative file access
 def get_base_dir():
@@ -233,7 +234,7 @@ def use_openrouter(prompt, model_name=None, api_key=None):
     
     # Set default model if none provided
     if not model_name:
-        model_name = "openai/gpt-4o-mini"  # Default model
+        model_name = gv.model_name or "openai/gpt-4.1-mini"  # Default model
     
     # API endpoint
     url = "https://openrouter.ai/api/v1/chat/completions"
@@ -242,7 +243,7 @@ def use_openrouter(prompt, model_name=None, api_key=None):
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://flex-language.org",  # Replace with your actual site
+        "HTTP-Referer": "https://deepwiki.com/Flex-Language/Flex",  # Replace with your actual site
         "X-Title": "Flex Language"  # Replace with your application name
     }
     
@@ -438,7 +439,9 @@ def format_ai_response(response, model_name=None):
     formatted_lines.append(f"{HEADER}{'═' * terminal_width}{RESET}")
     
     # Center the header text or truncate if too long
-    header_text = f"{AI_ICON} FLEX AI ASSISTANT • {model_name or 'gpt-4o-mini'}"
+    # Import global variables to get the correct model name
+    display_model = model_name or gv.model_name or 'openai/gpt-4.1-mini'
+    header_text = f"{AI_ICON} FLEX AI ASSISTANT • {display_model}"
     if len(header_text) <= terminal_width - 4:
         padding = (terminal_width - len(header_text)) // 2
         formatted_lines.append(f"{HEADER}{' ' * padding}{BOLD}{header_text}{RESET}{HEADER}{' ' * (terminal_width - len(header_text) - padding)}{RESET}")
@@ -896,7 +899,7 @@ def handle_error(error_message, AI, model_name=None):
         import flex_interpreter.glopal_vars as gv
         
         # Use model_name parameter if provided, otherwise use global model_name
-        active_model = model_name or gv.model_name or "openai/gpt-4o-mini"
+        active_model = model_name or gv.model_name or "openai/gpt-4.1-mini"
         
         # First AI response with just error context
         ask_assistant(error_message, active_model)

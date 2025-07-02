@@ -16,11 +16,11 @@ def compile_and_run(file_path, AI, WEB, model_name=None):
 
         import_list.append(file_path)    
         # Tokenize the code
-        tokens = tokenize(code,AI)
+        tokens = tokenize(code, AI, model_name)
        
         # Parse the code
-        check_brace_matching(tokens,AI)
-        parsed_statements = parse(tokens,AI)
+        check_brace_matching(tokens, AI, model_name)
+        parsed_statements = parse(tokens, AI, model_name)
         # for i in parsed_statements:
         #     print(i)
        
