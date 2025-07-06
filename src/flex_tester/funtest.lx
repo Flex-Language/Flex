@@ -11,5 +11,3 @@ print(s)
 
 u=test("miji",8.9,8.5)
 print(u)
-
-

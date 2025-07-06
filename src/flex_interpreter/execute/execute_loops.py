@@ -37,7 +37,7 @@ def execute_for(statement, AI, insideFunc):
 #################################################################################3
 
 
-def set_default_variable_in_karr(variables, variablesFunc,statement):
+def set_default_variable_in_karr(variables, variablesFunc,statement,AI, insideFunc, line_number, line_content):
     """
     Sets the default variable in the correct scope.
     """ 
@@ -55,7 +55,7 @@ def set_default_variable_in_karr(variables, variablesFunc,statement):
             gv.variablesFunc['default'] = [int(number), 'INT', True]
         elif statement[0]=='ASSIGN':
             var_name=statement[1]
-            val=statement[2]
+            val=eval_value(statement[2],line_number, line_content, AI, None, insideFunc)
             gv.variablesFunc[var_name] = [int(val), None, True]
         else:
             gv.variablesFunc['default'] = [0, 'INT', True]
@@ -73,7 +73,7 @@ def set_default_variable_in_karr(variables, variablesFunc,statement):
             gv.variables['default'] = [int(number), 'INT', True]
         elif statement[0]=='ASSIGN':
             var_name=statement[1]
-            val=statement[2]
+            val=eval_value(statement[2],line_number, line_content, AI, None, insideFunc)
             gv.variables[var_name] = [int(val), None, True]
         else:
             gv.variables['default'] = [0, 'INT', True]
@@ -169,7 +169,7 @@ def execute_karr(statement, AI, insideFunc, variables, variablesFunc):
     """
     line_number, line_content = statement[4], statement[5]
     init_statement = statement[1]
-    set_default_variable_in_karr(variables, variablesFunc,init_statement)
+    set_default_variable_in_karr(variables, variablesFunc,init_statement,AI, insideFunc,line_number, line_content)
     
     number = statement[2]
     block = statement[3]
