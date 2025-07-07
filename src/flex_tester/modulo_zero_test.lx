@@ -1,0 +1,4 @@
+// Testing modulo by zero error handling
+print("Testing modulo by zero...")
+int result = 10 % 0
+print(result) 

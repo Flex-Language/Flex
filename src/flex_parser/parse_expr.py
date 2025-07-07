@@ -78,11 +78,11 @@ def parse_right_side(tokens, AI, line_number, line_content):
     #     return parse_arithmetic_expr(tokens, AI,line_number,line_content)
     elif current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LPAREN':
         return parse_function_call_statement(tokens, AI, line_number, line_content)
-    elif current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] in ('PLUS', 'MINUS', 'DIV', 'MULT'):
+    elif current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] in ('PLUS', 'MINUS', 'DIV', 'MULT', 'MOD'):
         return parse_arithmetic_expr(tokens, AI,line_number,line_content) if gv.pos < len(tokens) else None  # Parse the arithmetic expression
     elif current_token(tokens)[0] == 'ID':
         return expect(tokens, 'ID', AI)
-    elif current_token(tokens)[0] == 'NUMBER' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] in ('PLUS', 'MINUS', 'DIV', 'MULT'):
+    elif current_token(tokens)[0] == 'NUMBER' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] in ('PLUS', 'MINUS', 'DIV', 'MULT', 'MOD'):
         return parse_arithmetic_expr(tokens, AI,line_number,line_content) if gv.pos < len(tokens) else None  # Parse the arithmetic expression
     elif current_token(tokens)[0] == 'MINUS':
         return parse_arithmetic_expr(tokens, AI,line_number,line_content) if gv.pos < len(tokens) else None  # Parse the arithmetic expression
@@ -127,13 +127,13 @@ def parse_expr(tokens, AI, line_number, line_content):
         left = parse_list_access(tokens, AI,line_number, line_content)
     elif current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] == 'LPAREN':
         left = parse_function_call_statement(tokens, AI, line_number, line_content)
-    elif current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] in ('PLUS', 'MINUS', 'DIV', 'MULT'):
+    elif current_token(tokens)[0] == 'ID' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] in ('PLUS', 'MINUS', 'DIV', 'MULT', 'MOD'):
         left = parse_arithmetic_expr(tokens, AI,line_number,line_content) if gv.pos < len(tokens) else None  # Parse the arithmetic expression
     elif current_token(tokens)[0] == 'ID':
         left = expect(tokens, 'ID', AI)
     elif current_token(tokens)[0] == 'STRING':
         left = expect(tokens, 'STRING', AI)
-    elif current_token(tokens)[0] == 'NUMBER' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] in ('PLUS', 'MINUS', 'DIV', 'MULT'):
+    elif current_token(tokens)[0] == 'NUMBER' and gv.pos + 1 < len(tokens) and tokens[gv.pos + 1][0] in ('PLUS', 'MINUS', 'DIV', 'MULT', 'MOD'):
         return parse_arithmetic_expr(tokens, AI,line_number,line_content) if gv.pos < len(tokens) else None  # Parse the arithmetic expression
     elif current_token(tokens)[0] == 'MINUS':
         return parse_arithmetic_expr(tokens, AI,line_number,line_content) if gv.pos < len(tokens) else None  # Parse the arithmetic expression

@@ -53,6 +53,7 @@ TOKENS = [
     ('PLUS', r'\+'),  # Addition operator
     ('MINUS', r'-'),  # Subtraction operator
     ('MULT', r'\*'),  # Multiplication operator
+    ('MOD', r'%'),  # Modulo operator
     ('LONG_COMMENT', r'\'\'\'[\s\S]*?\'\'\'|/\*[\s\S]*?\*/'),  # Long comments
     ('COMMENT', r'(#.*|//.*)'),  # Single-line comments
     ('DIV', r'\/'),  # Division operator

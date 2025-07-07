@@ -1,7 +1,7 @@
 from flex_AI.useModel import *
 from flex_parser.parser_utils import *
 
-def parse_arithmetic_expr(tokens, AI, line_number, line_content):
+def parse_arithmetic_expr(tokens, AI, line_number, line_content, model_name=None):
     left = parse_term(tokens, AI,line_number,line_content)  # Get the initial term
     while current_token(tokens)[0] in ('PLUS', 'MINUS'):  # While we see + or -
         operator = next_token(tokens)[1]  # Consume the operator
@@ -9,16 +9,16 @@ def parse_arithmetic_expr(tokens, AI, line_number, line_content):
         left = f"{left} {operator} {right}"  # Combine them into a single expression
     return left  # Return the complete expression
 
-def parse_term(tokens, AI, line_number, line_content):
-    """Parses terms, which may involve multiplication and division."""
+def parse_term(tokens, AI, line_number, line_content, model_name=None):
+    """Parses terms, which may involve multiplication, division, and modulo."""
     left = parse_primary(tokens, AI,line_number,line_content)  # Get the initial value
-    while current_token(tokens)[0] in ('MULT', 'DIV'):  # While we see * or /
+    while current_token(tokens)[0] in ('MULT', 'DIV', 'MOD'):  # While we see *, /, or %
         operator = next_token(tokens)[1]  # Consume the operator
         right = parse_primary(tokens, AI,line_number,line_content)  # Get the next primary expression
         left = f"{left} {operator} {right}"  # Combine them into a single expression
     return left  # Return the complete term
 
-def parse_primary(tokens, AI, line_number, line_content):
+def parse_primary(tokens, AI, line_number, line_content, model_name=None):
     """Parses primary expressions (numbers, IDs, or expressions in parentheses)."""
     if current_token(tokens)[0] == 'LPAREN':
         next_token(tokens)  # Consume '('
@@ -36,7 +36,7 @@ def parse_primary(tokens, AI, line_number, line_content):
     else:
         tok = current_token(tokens)
         error_message = f"Expected NUMBER, ID, or '(' at {tok[2]}, but got {tok[0]}\nLine content: '{tok[3]}'"
-        handle_error(error_message, AI)
+        handle_error(error_message, AI, model_name)
 
 def handle_minus(tokens, AI, line_number, line_content):
     """Handles multiple consecutive minus signs and ensures the next token is a NUMBER."""

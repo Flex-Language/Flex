@@ -1,0 +1,13 @@
+// Simple modulo test
+int a = 10
+int b = 3
+int result = a % b
+print(result)
+
+int x = 15
+int y = 4
+int z = x % y
+print(z)
+
+// Test with zero modulo (should cause error)
+// int error_test = 10 % 0 

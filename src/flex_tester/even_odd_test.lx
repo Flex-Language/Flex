@@ -1,0 +1,20 @@
+// Testing even/odd using modulo operator
+int number1 = 10
+int number2 = 13
+
+print("Testing even/odd:")
+print("Number 1:")
+print(number1)
+if (number1 % 2 == 0) {
+    print("Even")
+} else {
+    print("Odd")
+}
+
+print("Number 2:")
+print(number2)
+if (number2 % 2 == 0) {
+    print("Even")
+} else {
+    print("Odd")
+} 

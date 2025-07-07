@@ -1,0 +1,29 @@
+# Test file for demonstrating full file context analysis
+# This file contains intentional errors to test AI debugging
+
+rakm x = 10
+rakm y = 20
+
+# Function to add two numbers
+sndo2 add(rakm a, rakm b) {
+    rg3 a + b
+}
+
+# Function to multiply (with correct syntax)
+sndo2 multiply(rakm a, rakm b) {
+    rg3 a * b
+}
+
+# This line has an intentional error - undefined variable
+rakm result1 = add(x, y, z)  # z is not defined
+
+# This line also has an error - wrong function name
+rakm result2 = adding(x, y)  # function 'adding' doesn't exist
+
+# Correct usage
+rakm result3 = multiply(x, y)
+
+print("Results:")
+print("Result 1:", result1)
+print("Result 2:", result2) 
+print("Result 3:", result3) 

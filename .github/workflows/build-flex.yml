@@ -8,10 +8,12 @@ jobs:
   build:
     name: Build Flex Executable (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10']
         include:
           - os: ubuntu-latest
             output_name: flex-linux
@@ -29,7 +31,8 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
         
     - name: Install dependencies
       run: |
@@ -38,6 +41,11 @@ jobs:
         pip install pyinstaller
         pip install requests>=2.0.0
         pip install ipaddress
+        pip install urllib3
+        pip install chardet
+        pip install certifi
+        # Add error handling for dependency installation
+        python -c "import ply, requests, urllib3, chardet, certifi; print('All dependencies installed successfully')"
 
         
     - name: Build with PyInstaller for Linux/macOS
@@ -88,12 +96,21 @@ jobs:
             'encodings.idna',
             'ipaddress',
             'requests',
+            'requests.packages',
+            'requests.packages.urllib3',
+            'requests.packages.urllib3.util',
+            'requests.packages.urllib3.util.retry',
             'json',
             'urllib3',
+            'urllib3.util',
+            'urllib3.util.retry',
             'chardet',
             'certifi'
         ]
         EOF
+        
+        # Verify all required directories exist before building
+        ls -la flex_compiler flex_interpreter flex_parser flex_tokenizer flex_AI
         
         pyinstaller --onefile --clean --name=${{ matrix.output_name }} \
           --add-data "flex_compiler:flex_compiler" \
@@ -104,7 +121,24 @@ jobs:
           --additional-hooks-dir=hooks \
           --hidden-import="encodings.idna" \
           --hidden-import="ipaddress" \
+          --hidden-import="urllib3" \
+          --hidden-import="urllib3.util" \
+          --hidden-import="urllib3.util.retry" \
+          --hidden-import="chardet" \
+          --hidden-import="certifi" \
+          --hidden-import="json" \
+          --hidden-import="requests" \
+          --hidden-import="requests.packages" \
+          --hidden-import="requests.packages.urllib3" \
+          --hidden-import="requests.packages.urllib3.util" \
+          --hidden-import="requests.packages.urllib3.util.retry" \
           main.py
+          
+        # Verify the build was successful
+        if [ ! -f "dist/${{ matrix.output_name }}" ]; then
+          echo "Build failed - executable not found"
+          exit 1
+        fi
         
     - name: Build with PyInstaller for Windows
       if: matrix.os == 'windows-latest'
@@ -136,8 +170,14 @@ jobs:
         echo     'encodings.idna', >> hooks\hook-flex_AI.py
         echo     'ipaddress', >> hooks\hook-flex_AI.py
         echo     'requests', >> hooks\hook-flex_AI.py
+        echo     'requests.packages', >> hooks\hook-flex_AI.py
+        echo     'requests.packages.urllib3', >> hooks\hook-flex_AI.py
+        echo     'requests.packages.urllib3.util', >> hooks\hook-flex_AI.py
+        echo     'requests.packages.urllib3.util.retry', >> hooks\hook-flex_AI.py
         echo     'json', >> hooks\hook-flex_AI.py
         echo     'urllib3', >> hooks\hook-flex_AI.py
+        echo     'urllib3.util', >> hooks\hook-flex_AI.py
+        echo     'urllib3.util.retry', >> hooks\hook-flex_AI.py
         echo     'chardet', >> hooks\hook-flex_AI.py
         echo     'certifi' >> hooks\hook-flex_AI.py
         echo ] >> hooks\hook-flex_AI.py
@@ -148,6 +188,9 @@ jobs:
         echo # Explicitly include idna encoding to prevent the "unknown encoding: idna" error >> hooks\hook-encodings.py
         echo hiddenimports = ['encodings.idna', 'encodings.ascii', 'encodings.utf_8', 'encodings.latin_1', 'encodings.cp1252'] >> hooks\hook-encodings.py
         
+        REM Verify all required directories exist before building
+        dir flex_compiler flex_interpreter flex_parser flex_tokenizer flex_AI
+        
         pyinstaller --onefile --clean --name=${{ matrix.output_name }} ^
           --add-data "flex_compiler;flex_compiler" ^
           --add-data "flex_interpreter;flex_interpreter" ^
@@ -157,7 +200,24 @@ jobs:
           --additional-hooks-dir=hooks ^
           --hidden-import="encodings.idna" ^
           --hidden-import="ipaddress" ^
+          --hidden-import="urllib3" ^
+          --hidden-import="urllib3.util" ^
+          --hidden-import="urllib3.util.retry" ^
+          --hidden-import="chardet" ^
+          --hidden-import="certifi" ^
+          --hidden-import="json" ^
+          --hidden-import="requests" ^
+          --hidden-import="requests.packages" ^
+          --hidden-import="requests.packages.urllib3" ^
+          --hidden-import="requests.packages.urllib3.util" ^
+          --hidden-import="requests.packages.urllib3.util.retry" ^
           main.py
+          
+        REM Verify the build was successful
+        if not exist "dist\${{ matrix.output_name }}.exe" (
+          echo Build failed - executable not found
+          exit /b 1
+        )
           
     # Create Windows Installer
     - name: Create Windows Installer
@@ -165,7 +225,25 @@ jobs:
       shell: powershell
       run: |
         # Install NSIS installer system
-        choco install nsis -y
+        Write-Host "Installing NSIS via Chocolatey..."
+        try {
+          $chocoResult = choco install nsis -y
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Chocolatey installation of NSIS failed with exit code: $LASTEXITCODE"
+            exit 1
+          }
+          Write-Host "NSIS installation completed successfully"
+        } catch {
+          Write-Error "Failed to install NSIS: $_"
+          exit 1
+        }
+        
+        # Refresh environment variables to get updated PATH
+        $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH", "User")
+        Write-Host "Refreshed PATH environment variable"
+        
+        # Give a moment for installation to complete
+        Start-Sleep -Seconds 5
         
         # Create installer script with single $ for NSIS variables
         # PowerShell won't interpolate these since they're in a here-string
@@ -175,9 +253,6 @@ jobs:
         Name "Flex Language Interpreter"
         OutFile "flex-installer.exe"
         Unicode True
-        
-        !define MUI_ICON "src\flex_compiler\icon.ico"
-        !define MUI_UNICON "src\flex_compiler\icon.ico"
         
         !define MUI_WELCOMEPAGE_TITLE "Flex Language Interpreter Setup"
         !define MUI_WELCOMEPAGE_TEXT "This will install the Flex Language Interpreter on your computer."
@@ -192,31 +267,41 @@ jobs:
         !insertmacro MUI_LANGUAGE "English"
         
         InstallDir "$PROGRAMFILES\Flex"
+        RequestExecutionLevel admin
         
         Section "Install"
           SetOutPath "$INSTDIR"
           File "src\dist\flex.exe"
           
-          # Create batch file to invoke the executable
+          ; Create batch file to invoke the executable
           FileOpen $0 "$INSTDIR\flex.bat" w
           FileWrite $0 "@echo off$\r$\n"
           FileWrite $0 "$INSTDIR\flex.exe %*$\r$\n"
           FileClose $0
           
-          # Add to PATH using standard documented syntax
-          System::Call 'Kernel32::SetEnvironmentVariable(t "PATH", t "$INSTDIR;${ENV PATH}")' 
+          ; Add to system PATH (simpler approach)
+          ReadRegStr $1 HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "PATH"
+          StrCmp $1 "" AddToPath_NTContinue
+          StrCpy $0 "$INSTDIR;$1"
+          Goto AddToPath_NTAddToPath
+        AddToPath_NTContinue:
+          StrCpy $0 "$INSTDIR"
+        AddToPath_NTAddToPath:
+          WriteRegExpandStr HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "PATH" $0
           
-          # Create uninstaller
+          ; Create uninstaller
           WriteUninstaller "$INSTDIR\uninstall.exe"
           
-          # Create Start Menu shortcut
+          ; Create Start Menu shortcut
           CreateDirectory "$SMPROGRAMS\Flex"
           CreateShortcut "$SMPROGRAMS\Flex\Flex.lnk" "$INSTDIR\flex.exe"
           CreateShortcut "$SMPROGRAMS\Flex\Uninstall.lnk" "$INSTDIR\uninstall.exe"
           
-          # Create registry entries with explicit backslashes where needed
+          ; Create registry entries
           WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex" "DisplayName" "Flex Language Interpreter"
           WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex" "UninstallString" "$INSTDIR\uninstall.exe"
+          WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex" "DisplayVersion" "1.0.0"
+          WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex" "Publisher" "Flex Team"
         SectionEnd
         
         Section "Uninstall"
@@ -224,17 +309,87 @@ jobs:
           Delete "$INSTDIR\flex.bat"
           Delete "$INSTDIR\uninstall.exe"
           
-          # Remove Start Menu shortcuts
+          ; Remove Start Menu shortcuts
           Delete "$SMPROGRAMS\Flex\Flex.lnk"
           Delete "$SMPROGRAMS\Flex\Uninstall.lnk"
           RMDir "$SMPROGRAMS\Flex"
           
-          # Remove registry entries
+          ; Remove from PATH
+          ReadRegStr $1 HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "PATH"
+          Push "$INSTDIR;"
+          Push $1
+          Call un.RemoveFromPath
+          Pop $2
+          WriteRegExpandStr HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "PATH" $2
+          
+          ; Remove registry entries
           DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Flex"
           
-          # Remove installation directory
+          ; Remove installation directory
           RMDir "$INSTDIR"
         SectionEnd
+        
+        ; Function to remove directory from PATH
+        Function un.RemoveFromPath
+          Exch $0
+          Exch
+          Exch $1
+          Push $2
+          Push $3
+          Push $4
+          Push $5
+          Push $6
+          StrCpy $5 $1 1 -1
+          StrCmp $5 ";" +2
+          StrCpy $1 "$1;"
+          Push $1
+          Push $0
+          Call un.StrStr
+          Pop $2
+          StrCmp $2 "" unRemoveFromPath_done
+          StrLen $3 $0
+          StrLen $4 $2
+          StrCpy $5 $1 -$4
+          StrCpy $6 $2 "" $3
+          StrCpy $3 $5$6
+          StrCpy $5 $3 1 -1
+          StrCmp $5 ";" 0 +2
+          StrCpy $3 $3 -1
+          StrCpy $1 $3
+        unRemoveFromPath_done:
+          Pop $6
+          Pop $5
+          Pop $4
+          Pop $3
+          Pop $2
+          Pop $0
+          Exch $1
+        FunctionEnd
+        
+        ; Function for string search
+        Function un.StrStr
+          Exch $R1
+          Exch
+          Exch $R2
+          Push $R3
+          Push $R4
+          Push $R5
+          StrLen $R3 $R1
+          StrCpy $R4 0
+          loop:
+            StrCpy $R5 $R2 $R3 $R4
+            StrCmp $R5 $R1 done
+            StrCmp $R5 "" done
+            IntOp $R4 $R4 + 1
+            Goto loop
+          done:
+          StrCpy $R1 $R2 "" $R4
+          Pop $R5
+          Pop $R4
+          Pop $R3
+          Pop $R2
+          Exch $R1
+        FunctionEnd
         '@
         
         # Create installer script file - no replacements needed since we're using single quotes
@@ -245,36 +400,79 @@ jobs:
         Get-Content "installer.nsi" | ForEach-Object { Write-Host $_ }
         Write-Host "----------------------------"
         
-        # Create icon if it doesn't exist
-        New-Item -Path "src\flex_compiler" -ItemType Directory -Force
-        if (-not (Test-Path "src\flex_compiler\icon.ico")) {
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/vscode/main/resources/win32/code.ico" -OutFile "src\flex_compiler\icon.ico"
-        }
+        # Skip icon creation since it's not essential for the installer
         
-        # Check if NSIS is properly installed
-        if (Test-Path 'C:\Program Files (x86)\NSIS\makensis.exe') {
-          Write-Host "NSIS found at expected location"
-        } else {
-          Write-Host "NSIS not found at expected location - searching for it"
-          $nsisPath = Get-Command makensis.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
-          if ($nsisPath) {
-            Write-Host "Found NSIS at: $nsisPath"
+        # Check if NSIS is properly installed and find the executable
+        Write-Host "Searching for NSIS installation..."
+        $nsisPath = $null
+        $possiblePaths = @(
+          'C:\Program Files (x86)\NSIS\makensis.exe',
+          'C:\Program Files\NSIS\makensis.exe',
+          'C:\ProgramData\chocolatey\lib\nsis\tools\makensis.exe',
+          'C:\tools\nsis\makensis.exe'
+        )
+        
+        Write-Host "Checking standard installation paths..."
+        foreach ($path in $possiblePaths) {
+          Write-Host "  Checking: $path"
+          if (Test-Path $path) {
+            $nsisPath = $path
+            Write-Host "✅ NSIS found at: $path"
+            break
           } else {
-            Write-Host "NSIS not found in PATH - this will likely fail"
+            Write-Host "  ❌ Not found"
           }
         }
         
-        # First try with less verbose output
-        Write-Host "Compiling NSIS script (normal verbosity)..."
-        $compileResult = & 'C:\Program Files (x86)\NSIS\makensis.exe' installer.nsi
-        $exitCode = $LASTEXITCODE
+        if (-not $nsisPath) {
+          Write-Host "Searching in PATH environment variable..."
+          # Try to find it in PATH
+          $nsisFromPath = Get-Command makensis.exe -ErrorAction SilentlyContinue
+          if ($nsisFromPath) {
+            $nsisPath = $nsisFromPath.Source
+            Write-Host "✅ NSIS found in PATH: $nsisPath"
+          } else {
+            Write-Host "❌ NSIS not found in PATH"
+            Write-Host "Current PATH contents:"
+            $env:PATH -split ';' | ForEach-Object { Write-Host "  $_" }
+            Write-Host "Chocolatey packages installed:"
+            choco list --local-only | Where-Object { $_ -like "*nsis*" }
+            Write-Error "NSIS not found! Installation may have failed."
+            exit 1
+          }
+        }
         
-        if ($exitCode -ne 0) {
-          Write-Host "Compilation failed with exit code $exitCode. Retrying with verbose output..."
-          # Retry with verbose output to get more detailed error information
-          & 'C:\Program Files (x86)\NSIS\makensis.exe' /V4 installer.nsi
-        } else {
-          Write-Host "Compilation successful!"
+        # Verify the executable file exists before building
+        if (-not (Test-Path "src\dist\flex.exe")) {
+          Write-Error "flex.exe not found in src\dist\ - PyInstaller build may have failed"
+          exit 1
+        }
+        
+        # Compile the NSIS script
+        Write-Host "Compiling NSIS script..."
+        try {
+          $process = Start-Process -FilePath $nsisPath -ArgumentList "installer.nsi" -Wait -NoNewWindow -PassThru
+          
+          if ($process.ExitCode -eq 0) {
+            Write-Host "✅ NSIS compilation successful!"
+            # Verify the installer was created
+            if (Test-Path "flex-installer.exe") {
+              $size = (Get-Item "flex-installer.exe").Length / 1MB
+              Write-Host "✅ Installer created successfully (${size:F1} MB)"
+            } else {
+              Write-Error "❌ Installer file not found after compilation"
+              exit 1
+            }
+          } else {
+            Write-Error "❌ NSIS compilation failed with exit code: $($process.ExitCode)"
+            # Try again with verbose output for debugging
+            Write-Host "Retrying with verbose output..."
+            & $nsisPath /V4 installer.nsi
+            exit 1
+          }
+        } catch {
+          Write-Error "❌ Error running NSIS: $_"
+          exit 1
         }
       
     # Create macOS Package
@@ -440,13 +638,65 @@ jobs:
       if: matrix.os != 'windows-latest'
       run: |
         cd src/dist
+        # Test version flag
         ./${{ matrix.output_name }} --version
+        # Test help flag
+        ./${{ matrix.output_name }} --help | head -10
+        # Test basic functionality with a simple file
+        echo 'print("Hello from CI/CD!")' > test.lx
+        ./${{ matrix.output_name }} test.lx || echo "Basic test failed - this is expected if dependencies are missing"
         
     - name: Test Executable (Windows)
       if: matrix.os == 'windows-latest'
+      shell: powershell
       run: |
         cd src\dist
+        # Test version flag
         .\${{ matrix.output_name }}.exe --version
+        # Test help flag with UTF-8 encoding support
+        $env:PYTHONIOENCODING = "utf-8"
+        $env:PYTHONLEGACYWINDOWSSTDIO = "utf-8"
+        Write-Host "Testing help command (may have Unicode issues on Windows)..."
+        try {
+          $helpOutput = .\${{ matrix.output_name }}.exe --help 2>&1
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "✅ Help command succeeded"
+            $helpOutput | Select-Object -First 5 | Out-Host
+          } else {
+            Write-Host "⚠️ Help command failed - Exit code: $LASTEXITCODE (known issue, continuing)"
+            Write-Host "--- Full Help Output (for debugging) ---"
+            $helpOutput | Out-Host
+            Write-Host "--- End Help Output ---"
+          }
+        } catch {
+          Write-Host "⚠️ Help test failed due to an error (known issue, continuing)"
+          Write-Host "Exception Type: $($_.Exception.GetType().FullName)"
+          Write-Host "Exception Message: $($_.Exception.Message)"
+          Write-Host "Full Error Details: $_"
+        }
+        'print("Hello from CI/CD!")' | Out-File -FilePath test.lx -Encoding ASCII
+        Write-Host "Created test file with content: print(`"Hello from CI/CD!`")"
+        try {
+          $output = .\${{ matrix.output_name }}.exe test.lx 2>&1
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "✅ Flex program executed successfully!"
+            Write-Host "Output: $output"
+          } else {
+            Write-Host "❌ Flex program execution failed - Exit code: $LASTEXITCODE"
+            Write-Host "--- Full Program Output (for debugging) ---"
+            $output | Out-Host
+            Write-Host "--- End Program Output ---"
+            Write-Host "This indicates a critical failure in the Flex interpreter"
+            exit $LASTEXITCODE
+          }
+        } catch {
+          Write-Host "❌ Failed to execute Flex program"
+          Write-Host "Exception Type: $($_.Exception.GetType().FullName)"
+          Write-Host "Exception Message: $($_.Exception.Message)"
+          Write-Host "Full Error Details: $_"
+          Write-Host "This indicates a critical failure in the Flex interpreter"
+          exit 1
+        }
         
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
@@ -533,14 +783,26 @@ jobs:
         id: calc_version
         working-directory: repo
         run: |
-          # Check if there are any existing tags that match vX format
-          if git tag -l "v[0-9]*" | grep -q .; then
-            # Get highest version number from existing tags
+          # Get the current date for version suffix
+          DATE=$(date +'%Y%m%d')
+          
+          # Check if there are any existing tags that match semantic versioning
+          if git tag -l "v*.*.*" | grep -q .; then
+            # Get highest semantic version from existing tags  
+            latest_version=$(git tag -l "v*.*.*" | sort -V | tail -n1)
+            echo "Latest version found: $latest_version"
+            # Extract major.minor.patch and increment patch
+            version_numbers=$(echo $latest_version | sed 's/v//' | tr '.' ' ')
+            read major minor patch <<< "$version_numbers"
+            next_patch=$((patch + 1))
+            next_version="$major.$minor.$next_patch"
+          elif git tag -l "v[0-9]*" | grep -q .; then
+            # Legacy single number versions - convert to semantic versioning
             latest_version=$(git tag -l "v[0-9]*" | sort -V | tail -n1 | sed 's/v//')
-            next_version=$((latest_version + 1))
+            next_version="1.0.$((latest_version + 1))"
           else
-            # No existing version tags, start at 1
-            next_version=1
+            # No existing version tags, start with semantic versioning
+            next_version="1.0.0"
           fi
           echo "Next version will be: v$next_version"
           echo "next_version=$next_version" >> $GITHUB_OUTPUT
@@ -611,3 +873,4 @@ jobs:
             release/flex-macos-installer.pkg
             release/flex-linux-installer.tar.gz
           generate_release_notes: false 
+

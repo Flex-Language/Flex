@@ -1,0 +1,34 @@
+# Complex Flex program with multiple functions and variables
+# This demonstrates how full file context helps with debugging
+
+rakm global_var = 100
+
+# First function - working correctly  
+sndo2 calculate_area(rakm width, rakm height) {
+    rg3 width * height
+}
+
+# Second function - also working
+sndo2 get_perimeter(rakm w, rakm h) {
+    rg3 2 * (w + h)
+}
+
+# Variables for testing
+rakm room_width = 12
+rakm room_height = 8
+
+# This works fine
+rakm area = calculate_area(room_width, room_height)
+
+# This line has an error - undefined variable room_length
+rakm perimeter = get_perimeter(room_width, room_length)
+
+# More code that depends on the above
+lw perimeter > 40 {
+    print("Large room!")
+} gher {
+    print("Small room")
+}
+
+print("Area:", area)
+print("Perimeter:", perimeter) 

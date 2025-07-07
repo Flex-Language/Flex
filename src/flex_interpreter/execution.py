@@ -21,8 +21,9 @@ def run(statements, AI, WEB, insideFunc=False, insideLoop=False, forLoopLocal=Fa
     else:
         gv.web = False
         
-    # Set the global model_name variable
-    gv.model_name = model_name
+    # Set the global model_name variable (only if provided, to avoid overwriting with None)
+    if model_name is not None:
+        gv.model_name = model_name
     
     for statement in statements:
         
@@ -92,6 +93,6 @@ def run(statements, AI, WEB, insideFunc=False, insideLoop=False, forLoopLocal=Fa
         elif statement[0] == 'ASSIGN':  # Variable assignment
             non_if,gv.variables,gv.variablesFunc = execute_assign(statement, AI, insideFunc, gv.variables, gv.variablesFunc)
         elif statement[0] == 'IMPORT':
-           execute_import(statement, AI,statements,import_list)
+           execute_import(statement, AI,statements,import_list, model_name)
 
 

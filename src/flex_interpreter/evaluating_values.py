@@ -188,7 +188,7 @@ def handle_global_scope(value, line_number, line_content, AI,func):
         error_message = f"Variable '{value}' not defined.\n{line_number}: '{line_content.strip()}'"
         handle_error(error_message, AI)
     except ZeroDivisionError:
-        error_message = f"Division by Zero!\n{line_number}: '{line_content.strip()}'"
+        error_message = f"Division by Zero or Modulo by Zero!\n{line_number}: '{line_content.strip()}'"
         handle_error(error_message, AI)
     except Exception as e:
         error_message = f"Error evaluating expression: {e}\n{line_number}: '{line_content.strip()}'"
@@ -215,36 +215,51 @@ def handle_function_scope(value, line_number, line_content, AI,func):
         error_message = f"Variable '{value}' not defined.\n{line_number}: '{line_content.strip()}'"
         handle_error(error_message, AI)
     except ZeroDivisionError:
-        error_message = f"Division by Zero!\n{line_number}: '{line_content.strip()}'"
+        error_message = f"Division by Zero or Modulo by Zero!\n{line_number}: '{line_content.strip()}'"
         handle_error(error_message, AI)
     except Exception as e:
         error_message = f"Error evaluating expression: {e}\n{line_number}: '{line_content.strip()}'"
         handle_error(error_message, AI)
 
-def evaluate_expression(expr, line_number, line_content, AI,func):
+def evaluate_expression(expr, line_number, line_content, AI, func):
     if 'FUNC_CALL' in expr:
         tuple_strings = re.findall(r"\('FUNC_CALL'.*?\)", expr)
         tuples = [ast.literal_eval(t) for t in tuple_strings]
         for t in tuples:
-            expr = expr.replace(str(t), str(handle_function_call(t, line_number, line_content, AI,func)))
+            expr = expr.replace(str(t), str(handle_function_call(t, line_number, line_content, AI, func)))
         # print("evaluate_expression after",expr)
         return expr
     elif isinstance(expr, list):
-        return [evaluate_expression(e, line_number, line_content, AI,func) for e in expr]
+        return [evaluate_expression(e, line_number, line_content, AI, func) for e in expr]
     elif isinstance(expr, tuple):
-        return tuple(evaluate_expression(e, line_number, line_content, AI,func) for e in expr)
-    elif isinstance(expr, (int, float, str)):
+        return tuple(evaluate_expression(e, line_number, line_content, AI, func) for e in expr)
+    elif isinstance(expr, (int, float)):
         return expr
-    elif isinstance(expr, str) and expr in gv.variables and not func:
-        if gv.variables[expr][0] is None:
-            error_message = f"Variable '{expr}' is uninitialized.\n{line_number}: '{line_content.strip()}'"
-            handle_error(error_message, AI)
-        return gv.variables[expr][0]
-    elif isinstance(expr, str) and expr in gv.variables and func:
-        if gv.variablesFunc[expr][0] is None:
-            error_message = f"Variable '{expr}' is uninitialized.\n{line_number}: '{line_content.strip()}'"
-            handle_error(error_message, AI)
-        return gv.variablesFunc[expr][0]
+    elif isinstance(expr, str):
+        # Handle single variable names
+        if not func and expr in gv.variables:
+            if gv.variables[expr][0] is None:
+                error_message = f"Variable '{expr}' is uninitialized.\n{line_number}: '{line_content.strip()}'"
+                handle_error(error_message, AI)
+            return gv.variables[expr][0]
+        elif func and expr in gv.variablesFunc:
+            if gv.variablesFunc[expr][0] is None:
+                error_message = f"Variable '{expr}' is uninitialized.\n{line_number}: '{line_content.strip()}'"
+                handle_error(error_message, AI)
+            return gv.variablesFunc[expr][0]
+        else:
+            # Handle complex expressions with variables (like "a % b")
+            # Replace variable names with their values in the expression
+            variables = gv.variables if not func else gv.variablesFunc
+            modified_expr = expr
+            for var_name in variables:
+                if var_name in modified_expr:
+                    var_value = variables[var_name][0]
+                    if var_value is not None:
+                        # Use word boundaries to ensure we only replace whole variable names
+                        pattern = r'\b' + re.escape(var_name) + r'\b'
+                        modified_expr = re.sub(pattern, str(var_value), modified_expr)
+            return modified_expr
     else:
         return expr
 # def eval_list_index(var_name, index, line_number, line_content,AI, insideFunc=False):
