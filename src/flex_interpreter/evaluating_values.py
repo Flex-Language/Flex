@@ -87,7 +87,16 @@ def handle_function_call(value, line_number, line_content, AI,func):
     if func_name not in gv.functions:
         error_message = f"Function '{func_name}' is not defined.\n{line_number}: '{line_content.strip()}'"
         handle_error(error_message, AI)
-    func_params, func_block = gv.functions[func_name][arg_len]
+    try:
+        func_params, func_block = gv.functions[func_name][arg_len]
+    except KeyError:
+        param_vals = list(gv.functions[func_name].keys())
+        final_str = f"{param_vals[0]} "
+        for i in range(1, len(param_vals)):
+            final_str += 'or '
+            final_str += f"{param_vals[i]} "
+        error_message = f"Function '{func_name}' expects {final_str}argument(s) but got {len(func_args)}.\n{line_number}: '{line_content.strip()}'"
+        handle_error(error_message, AI)
 
 
     if len(func_params) != len(func_args):

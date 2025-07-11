@@ -7,18 +7,18 @@ TOKENS = [
     ('SCAN', r'\b(scan|read|input|da5l|da5al|d5l)\b'),  # Input/scan keywords
     ('IF', r'\b(if|cond)\b'),  # If statement keywords
     ('LW', r'(\blw\b)'),  # If statement keyword in another language
-    ('ELIF', r'(elif)'),  # Elif statement keyword
+    ('ELIF', r'\b(elif)\b'),  # Elif statement keyword
     ('AW', r'(\baw\b)'),  # Elif statement keyword in another language
-    ('ELSE', r'(else|otherwise|gher)'),  # Else statement keywords
+    ('ELSE', r'\b(else|otherwise|gher)\b'),  # Else statement keywords
     ('PRINT', r'\b(etb3|out|output|print|printf|cout)\b'),  # Print statement keywords
-    ('WHILE', r'(while|loop)'),  # While loop keywords
-    ('TALAMA', r'(talama|talma|tlma)'),  # While loop keyword in another language
-    ('FOR', r'for'),  # For loop keyword
+    ('WHILE', r'\b(while|loop)\b'),  # While loop keywords
+    ('TALAMA', r'\b(talama|talma|tlma)\b'),  # While loop keyword in another language
+    ('FOR', r'\b(for)\b'),  # For loop keyword
     ('REPEAT', r'\b(krr|karr|karar)\b'),  # Repeat loop keyword
     ('UNTILL', r'(\bl7d\b)'),  # Until keyword
     ('SEMICOLON', r';'),  # Semicolon
     ('RETURN', r'\b(?:return|rg3|raga3)\b'),  # Return statement keywords
-    ('BREAK', r'(break|stop|w2f|wa2af)'),  # Break statement keywords
+    ('BREAK', r'\b(break|stop|w2f|wa2af)\b'),  # Break statement keywords
     ('NUMBER', r'\d+(\.\d+)?'),  # Numbers and floats
     ('STRING', r'\".*?\"'),  # Strings
     ('LIST', r'\b(?:list|dorg|drg)\b'),  # List keyword
@@ -32,9 +32,9 @@ TOKENS = [
     ('LE', r'<=|=<'),  # Less than or equal to
     ('GT', r'>'),  # Greater than
     ('LT', r'<'),  # Less than
-    ('AND', r'and'),  # And operator
-    ('OR', r'or'),  # Or operator
-    ('NOT', r'not'),  # Not operator
+    ('AND', r'\b(and)\b'),  # And operator
+    ('OR', r'\b(or)\b'),  # Or operator
+    ('NOT', r'\b(not)\b'),  # Not operator
     ('EQ', r'=='),  # Equal operator
     ('NEQ', r'!='),  # Not equal operator
     ('ASSIGN', r'='),  # Assignment operator
