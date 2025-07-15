@@ -85,7 +85,7 @@ def execute_list_add(statement, AI, insideFunc, variables, variablesFunc):
     
     if insideFunc and var_name in variablesFunc:
         variablesFunc[var_name][0].append(new_value)
-    elif var_name in variables:
+    elif not insideFunc and var_name in variables:
         variables[var_name][0].append(new_value)
     else:
         error_message = f"List '{var_name}' not defined.\n{line_number}: '{line_content.strip()}'"

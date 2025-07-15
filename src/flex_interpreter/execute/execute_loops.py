@@ -130,7 +130,6 @@ def determine_loop_parameters_in_karr(number, init_statement, line_number, line_
         handle_error(error_message, AI)
     
     condition = f'{var_name} {bigless} {number}'
-    print(var_name)
     increment_statement = (
         (plusminus, var_name, line_number, line_content)
     )
