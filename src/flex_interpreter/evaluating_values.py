@@ -172,7 +172,6 @@ def handle_scan_now(var_type, line_number, line_content, AI):
 
 def handle_list_access(value, line_number, line_content, AI, func):
     var_name, index = value[1], eval_value(value[2], line_number, line_content, AI)
-    print(index)
     return eval_list_index(var_name, index, line_number, line_content, AI, func)
     
 

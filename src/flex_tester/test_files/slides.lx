@@ -1,2 +1,45 @@
-string x="Hello, World!"
-print(x)
+// // da  el code : # This file demonstrates AI error progression  
+// rakm global_counter = 0  
+  
+// sndo2 increment_counter() {  
+//     global_counter = global_counter + 1  
+//     rg3 global_counter  
+// }  
+  
+// sndo2 process_data(dorg items) {  
+//     rakm total = 0  
+//     karr i=0 l7d length(items) {  
+//         total = total + items[i] * increment_counter()  
+//     }  
+//     rg3 total  
+// }  
+  
+// # This line will cause the error - but context matters!  
+// rakm result = process_data(([1, 2, 3])  
+// etb3("Result: {result}")
+
+// for(i=0;i<10;i++){ 
+//     print("i is {i}")
+//     if (i=5){ // if statement
+//         print("will stop the loop")
+//         break // break statement to terminate the loop
+//     }
+// }
+
+list var_list=[1,2,3]
+list var_list_inside_list=[1,2.0,"hello",[5,true,"qas",3.5],8,9] 
+print(var_list_inside_list)
+print(var_list)
+print(var_list[5])
+// // print(var_list_inside_list[3][2][0][1])
+
+fun foo(a, b)
+{
+    print("the passed arguments are: {a} and {b}")
+}
+
+foo(1,2,3)
+
+
+int x=5,y,z
+print(y)
